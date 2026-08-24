@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0b1120">
@@ -28,6 +28,12 @@
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation; /* Prevents double-tap to zoom on iOS Safari */
+    }
+
+    html, body {
+      touch-action: manipulation;
+      -webkit-text-size-adjust: 100%;
     }
 
     body {
@@ -66,6 +72,21 @@
       font-size: 0.85rem;
     }
 
+    /* Auto-save Status Pill */
+    .save-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      color: var(--success);
+      background: rgba(52, 211, 153, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      margin-top: 0.35rem;
+      font-weight: 600;
+    }
+
     .notify-banner {
       display: none;
       background: rgba(52, 211, 153, 0.15);
@@ -98,58 +119,7 @@
       font-size: 0.95rem;
     }
 
-    .sync-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 0.85rem 1rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .sync-title {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--accent);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-
-    .sync-input-row {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    @media (min-width: 600px) {
-      .sync-input-row {
-        flex-direction: row;
-      }
-    }
-
-    .sync-input {
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      color: #38bdf8;
-      padding: 0.55rem 0.75rem;
-      border-radius: 8px;
-      font-size: 16px;
-      flex-grow: 1;
-    }
-
-    .btn-sync {
-      background: var(--accent);
-      color: #0b1120;
-      border: none;
-      padding: 0.55rem 1rem;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.85rem;
-      cursor: pointer;
-      min-height: 40px;
-    }
-
+    /* Navigation Bar */
     .nav-tabs-wrapper {
       position: sticky;
       top: 0;
@@ -158,7 +128,7 @@
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       padding: 0.5rem 0 0.75rem 0;
-      margin: 0 -0.75rem 1rem -0.75rem;
+      margin: 0 -0.75rem 1.25rem -0.75rem;
       border-bottom: 1px solid rgba(51, 65, 85, 0.4);
     }
 
@@ -187,6 +157,7 @@
       cursor: pointer;
       flex-shrink: 0;
       transition: all 0.2s;
+      touch-action: manipulation;
     }
 
     .tab-btn.active {
@@ -242,7 +213,6 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
     }
 
-    /* Stacked Header Layout (Eliminates Clump/Wrapping on Mobile) */
     .exercise-card-header {
       display: flex;
       flex-direction: column;
@@ -251,7 +221,6 @@
       width: 100%;
     }
 
-    /* Row 1: Exercise Name Left & Score Badge Right */
     .exercise-main-row {
       display: flex;
       justify-content: space-between;
@@ -281,7 +250,6 @@
       letter-spacing: 0.02em;
     }
 
-    /* Row 2: Target Rep Scheme (Clean, uncompressed full width) */
     .target-scheme-row {
       display: inline-flex;
       align-items: center;
@@ -295,7 +263,6 @@
       width: fit-content;
     }
 
-    /* Row 3: Alternative Choice (Distinct Tappable Sub-Card) */
     .alt-options-container {
       display: flex;
       flex-direction: column;
@@ -320,13 +287,13 @@
       transition: all 0.2s ease;
       user-select: none;
       width: 100%;
+      touch-action: manipulation;
     }
 
     .alt-btn:hover {
       background: rgba(30, 41, 59, 0.8);
     }
 
-    /* Active Selected Alternative: Swaps font formatting */
     .alt-btn.selected-alt {
       background: rgba(56, 189, 248, 0.12) !important;
       border-color: var(--accent) !important;
@@ -424,15 +391,17 @@
       color: #fff;
       border: 1px solid rgba(255, 255, 255, 0.08);
       width: 100%;
-      height: 28px;
+      height: 30px;
       border-radius: 6px;
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: 700;
       display: flex;
       justify-content: center;
       align-items: center;
       cursor: pointer;
       user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation; /* Critical to prevent iOS double-tap zoom */
       transition: background 0.1s;
     }
 
@@ -441,18 +410,20 @@
       color: #0b1120;
     }
 
+    /* 16px minimum font size to prevent iOS Safari auto-zoom on input focus */
     .stepper-input {
       background: #0b1120;
       border: 1px solid var(--border);
       color: #64748b;
-      font-size: 15px;
+      font-size: 16px !important; 
       font-weight: 700;
       text-align: center;
       width: 100%;
-      height: 30px;
+      height: 32px;
       border-radius: 6px;
       padding: 0;
       transition: color 0.15s, border-color 0.15s;
+      touch-action: manipulation;
     }
 
     .stepper-input.user-edited {
@@ -483,6 +454,8 @@
       gap: 0.2rem;
       padding: 0.35rem 0.25rem;
       user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
       transition: background 0.2s;
     }
 
@@ -518,8 +491,9 @@
       color: #fff;
       padding: 0.5rem 0.75rem;
       border-radius: 8px;
-      font-size: 16px;
+      font-size: 16px !important;
       flex-grow: 1;
+      touch-action: manipulation;
     }
 
     .btn-today {
@@ -531,23 +505,48 @@
       font-weight: 700;
       font-size: 0.85rem;
       min-height: 40px;
+      touch-action: manipulation;
     }
 
-    .btn-save-session {
-      background: var(--accent);
-      color: #0b1120;
-      border: none;
-      padding: 0.85rem 1rem;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      width: 100%;
+    .warmup-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem 1.15rem;
+      margin-bottom: 1rem;
+    }
+
+    .warmup-card h3 {
+      font-size: 1.05rem;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
       display: flex;
-      justify-content: center;
       align-items: center;
-      gap: 0.5rem;
-      min-height: 48px;
+      gap: 0.4rem;
+    }
+
+    .warmup-item {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .warmup-item:last-child {
+      border-bottom: none;
+    }
+
+    .warmup-tag {
+      background: rgba(56, 189, 248, 0.1);
+      color: var(--accent);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
     }
 
     .log-item {
@@ -587,6 +586,54 @@
       text-align: right;
     }
 
+    .sync-tab-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .sync-tab-box h3 {
+      font-size: 1.1rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .sync-tab-box p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      line-height: 1.45;
+    }
+
+    .btn-sync {
+      background: var(--accent);
+      color: #0b1120;
+      border: none;
+      padding: 0.65rem 1rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      min-height: 42px;
+      touch-action: manipulation;
+    }
+
+    .sync-input {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: #38bdf8;
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      font-size: 16px !important;
+      width: 100%;
+      margin-bottom: 0.75rem;
+    }
+
     footer {
       text-align: center;
       margin-top: 2rem;
@@ -601,10 +648,12 @@
   <header>
     <h1>Workout Tracker</h1>
     <p>66 kg &rarr; 70 kg Muscle Goal &bull; Inguinal Hernia Safe</p>
+    <div id="globalAutoSaveBadge" class="save-indicator">✨ Auto-Save Active</div>
   </header>
 
   <div id="notifyBanner" class="notify-banner"></div>
 
+  <!-- Top Vitals Strip -->
   <div class="vitals-accordion">
     <div class="v-item"><span>Goal Weight</span><strong>70.0 kg</strong></div>
     <div class="v-item"><span>Target Fat</span><strong>14–16%</strong></div>
@@ -612,25 +661,100 @@
     <div class="v-item"><span>Protein</span><strong>130g/day</strong></div>
   </div>
 
-  <div class="sync-card">
-    <div class="sync-title">
-      <span>☁️ Google Drive Sync</span>
-      <span id="gdriveStatus" style="font-size:0.75rem; color:var(--success);"></span>
-    </div>
-    <div class="sync-input-row">
-      <input type="text" id="gdriveWebhookUrl" class="sync-input" placeholder="Paste Apps Script Web App URL...">
-      <button class="btn-sync" onclick="saveGDriveUrl()">Save</button>
-      <button class="btn-sync" style="background:#334155; color:#fff;" onclick="syncCurrentDataToGDrive()">Sync Now</button>
-      <button class="btn-sync" style="background:#1e293b; color:var(--accent); border:1px solid var(--border);" onclick="fetchDataFromGDrive()">📥 Pull from Drive</button>
-    </div>
-  </div>
-
+  <!-- Sticky Scrolling Navigation Tabs -->
   <div class="nav-tabs-wrapper">
-    <div class="nav-tabs" id="tabContainer"></div>
+    <div class="nav-tabs" id="tabContainer">
+      <!-- Tabs injected via JS -->
+    </div>
   </div>
 
+  <!-- 1. Dedicated Warmup Tab -->
+  <div id="warmupTabContent" class="tab-content">
+    <div class="day-header">
+      <div class="day-title">🔥 Dynamic Warmup Routine</div>
+      <div class="day-focus">Cardio, Full Body Activation & Joint Readiness</div>
+    </div>
+
+    <div class="warmup-card">
+      <h3>🏃 1. Cardio & Bodyweight Activation</h3>
+      <div class="warmup-item">
+        <span>Jumping Jacks</span>
+        <span class="warmup-tag">25–30 reps</span>
+      </div>
+      <div class="warmup-item">
+        <span>Knee-to-Elbow Crossover Touch Jumps</span>
+        <span class="warmup-tag">15–20 reps</span>
+      </div>
+      <div class="warmup-item">
+        <span>Bodyweight Jumping Squats (Soft Landing)</span>
+        <span class="warmup-tag">10–12 reps</span>
+      </div>
+      <div class="warmup-item">
+        <span>Push-Ups (Smooth Cadence)</span>
+        <span class="warmup-tag">12–15 reps</span>
+      </div>
+      <div class="warmup-item">
+        <span>Dead Hangs (Pull-Up Bar Decompression)</span>
+        <span class="warmup-tag">20–30 sec</span>
+      </div>
+    </div>
+
+    <div class="warmup-card">
+      <h3>🔄 2. Joint & Rotational Mobility</h3>
+      <div class="warmup-item">
+        <span>Leg & Ankle Rotations (Clockwise / Counter)</span>
+        <span class="warmup-tag">10 reps / side</span>
+      </div>
+      <div class="warmup-item">
+        <span>Wrist Rotations & Flexor Stretch</span>
+        <span class="warmup-tag">15–20 sec</span>
+      </div>
+      <div class="warmup-item">
+        <span>Dumbbell Halos (Around the Head Rotations)</span>
+        <span class="warmup-tag">8–10 reps / dir</span>
+      </div>
+    </div>
+
+    <div class="warmup-card">
+      <h3>⚡ 3. Light DB Muscle Priming (5–10 lbs)</h3>
+      <div class="warmup-item">
+        <span>Light DB Shoulder Press</span>
+        <span class="warmup-tag">10–12 reps</span>
+      </div>
+      <div class="warmup-item">
+        <span>Light DB Bicep Curls</span>
+        <span class="warmup-tag">10–12 reps</span>
+      </div>
+      <div class="warmup-item">
+        <span>Light DB Lateral / Front Raises</span>
+        <span class="warmup-tag">10–12 reps</span>
+      </div>
+    </div>
+
+    <div class="warmup-card">
+      <h3>🏋️ 4. Main Lift Feeder Sets Rule</h3>
+      <p style="font-size:0.85rem; color:#cbd5e1; line-height:1.45; margin-bottom:0.5rem;">
+        Before your heavy working sets on Barbell Bench, RDLs, or Squats:
+      </p>
+      <div class="warmup-item">
+        <span>Feeder Set 1: Empty Bar / Very Light</span>
+        <span class="warmup-tag">8–10 reps</span>
+      </div>
+      <div class="warmup-item">
+        <span>Feeder Set 2: ~60% Working Weight</span>
+        <span class="warmup-tag">4–5 crisp reps</span>
+      </div>
+      <div class="warmup-item">
+        <span>Working Sets: Begin your RPE 7–8 sets</span>
+        <span class="warmup-tag">Full Strength</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Dynamic Workout Forms Container (Day 1 to Day 4) -->
   <div id="workoutFormsContainer"></div>
 
+  <!-- 3. History Tab -->
   <div id="historyTabContent" class="tab-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
       <h3 style="color:#fff; font-size:1.1rem;">Workout History</h3>
@@ -639,8 +763,36 @@
     <div id="logsContainer"></div>
   </div>
 
+  <!-- 4. Dedicated Google Drive & Sync Tab -->
+  <div id="syncTabContent" class="tab-content">
+    <div class="day-header">
+      <div class="day-title">☁️ Google Drive & Cloud Sync</div>
+      <div class="day-focus">Two-Way Data Integration with workout_data.json</div>
+    </div>
+
+    <div class="sync-tab-box">
+      <h3>🔗 Google Apps Script Webhook</h3>
+      <p>Enter your Web App URL to automatically sync your logged workout sessions directly into <code>workout_data.json</code> in your Google Drive folder.</p>
+      <input type="text" id="gdriveWebhookUrl" class="sync-input" placeholder="https://script.google.com/macros/s/.../exec">
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <button class="btn-sync" onclick="saveGDriveUrl()">💾 Save URL</button>
+        <button class="btn-sync" style="background:#334155; color:#fff;" onclick="syncCurrentDataToGDrive()">☁️ Push to Drive</button>
+        <button class="btn-sync" style="background:#1e293b; color:var(--accent); border:1px solid var(--border);" onclick="fetchDataFromGDrive()">📥 Pull from Drive</button>
+      </div>
+      <div id="gdriveStatus" style="font-size:0.85rem; color:var(--success); margin-top:0.75rem; font-weight:600;"></div>
+    </div>
+
+    <div class="sync-tab-box">
+      <h3>📁 Manual Backup & Restore</h3>
+      <p>Export your full session history as a JSON file.</p>
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <button class="btn-sync" style="background:#334155; color:#fff;" onclick="downloadUpdatedWorkoutDataJSON()">⬇️ Export workout_data.json</button>
+      </div>
+    </div>
+  </div>
+
   <footer>
-    <p>Smart Save &bull; Interactive Alternative Selection &bull; iPhone Safari Ready</p>
+    <p>Zero-Zoom Steppers &bull; Realtime Auto-Save &bull; iPhone Safari Ready</p>
   </footer>
 </div>
 
@@ -702,6 +854,7 @@
 
   var exerciseSetCounts = {};
   var activeExerciseVariants = {};
+  var autoSaveTimer = null;
 
   function getPersistentLogs() {
     try {
@@ -722,6 +875,14 @@
 
   workoutDataMaster.workout_logs = getPersistentLogs();
 
+  function getLocalDateString() {
+    var d = new Date();
+    var year = d.getFullYear();
+    var month = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return year + '-' + month + '-' + day;
+  }
+
   function saveGDriveUrl() {
     var input = document.getElementById('gdriveWebhookUrl');
     var url = input ? input.value.trim() : '';
@@ -735,15 +896,12 @@
     showNotification('Google Drive Webhook URL saved!');
   }
 
-  function syncCurrentDataToGDrive() {
+  function syncCurrentDataToGDrive(silent) {
     var input = document.getElementById('gdriveWebhookUrl');
     var url = localStorage.getItem('gdrive_webhook_url') || (input ? input.value.trim() : '');
-    if (!url) {
-      alert('Please paste and save your Google Apps Script Web App URL first.');
-      return;
-    }
+    if (!url) return;
 
-    showNotification('⏳ Syncing to Google Drive...');
+    if (!silent) showNotification('⏳ Syncing to Google Drive...');
     workoutDataMaster.workout_logs = getPersistentLogs();
     var payload = JSON.stringify(workoutDataMaster);
 
@@ -773,9 +931,9 @@
       form.submit();
       setTimeout(function() { if (form.parentNode) form.parentNode.removeChild(form); }, 1000);
 
-      showNotification('✅ Successfully synced to your Google Drive!');
+      if (!silent) showNotification('✅ Successfully synced to your Google Drive!');
     } catch (err) {
-      alert('Error syncing to Google Drive: ' + err.message);
+      if (!silent) alert('Error syncing to Google Drive: ' + err.message);
     }
   }
 
@@ -783,11 +941,10 @@
     var input = document.getElementById('gdriveWebhookUrl');
     var url = localStorage.getItem('gdrive_webhook_url') || (input ? input.value.trim() : '');
     if (!url) {
-      alert('Please paste and save your Google Apps Script Web App URL first.');
+      alert('Please configure your Google Apps Script URL in the ☁️ Cloud Sync tab first.');
       return;
     }
 
-    // Ensure URL uses /exec
     if (url.indexOf('/dev') !== -1) {
       url = url.replace('/dev', '/exec');
       localStorage.setItem('gdrive_webhook_url', url);
@@ -796,19 +953,10 @@
 
     showNotification('⏳ Pulling latest data from Google Drive...');
 
-    // Method 1: Standard CORS fetch (Works natively on GitHub Pages with Google Apps Script)
     fetch(url)
-      .then(function(res) {
-        return res.json();
-      })
-      .then(function(data) {
-        handleDriveDataResponse(data);
-      })
-      .catch(function(fetchErr) {
-        console.warn('Direct fetch blocked, attempting JSONP fallback...', fetchErr);
-        // Method 2: JSONP Fallback
-        fetchDataViaJSONP(url);
-      });
+      .then(function(res) { return res.json(); })
+      .then(function(data) { handleDriveDataResponse(data); })
+      .catch(function() { fetchDataViaJSONP(url); });
   }
 
   function handleDriveDataResponse(data) {
@@ -846,7 +994,7 @@
     };
 
     script.onerror = function() {
-      showNotification('⚠️ Could not connect to Google Drive. Check that "Who has access" is set to "Anyone" and the URL ends in /exec');
+      showNotification('⚠️ Could not connect to Google Drive. Check that "Who has access" is set to "Anyone".');
       delete window[callbackName];
       if (script.parentNode) script.parentNode.removeChild(script);
     };
@@ -876,7 +1024,7 @@
         var exKey = dayId + '_ex' + ex.order;
 
         if (ex.alt && ex.alt.toLowerCase().indexOf(entry.exercise_name.toLowerCase().trim()) !== -1) {
-          toggleExerciseVariant(dayId, ex.order, entry.exercise_name, '');
+          toggleExerciseVariant(dayId, ex.order, entry.exercise_name, '', true);
         }
 
         if (entry.sets.length > (exerciseSetCounts[exKey] || 3)) {
@@ -893,24 +1041,29 @@
 
           if (wEl && s.weight !== undefined) {
             wEl.value = s.weight;
-            markEdited(wEl);
+            markEdited(wEl, false);
           }
           if (rEl && s.reps !== undefined) {
             rEl.value = s.reps;
-            markEdited(rEl);
+            markEdited(rEl, false);
           }
         });
       });
     });
   }
 
-  function markEdited(inputEl) {
+  function markEdited(inputEl, triggerAuto) {
     if (!inputEl) return;
     inputEl.classList.add('user-edited');
     inputEl.setAttribute('data-edited', 'true');
+    
+    if (triggerAuto !== false) {
+      var match = inputEl.id.match(/^(day[0-9]+)/);
+      if (match) triggerAutoSave(match[1]);
+    }
   }
 
-  function modifyVal(inputId, delta, step, isWeight) {
+  function modifyVal(inputId, delta, step) {
     step = step || 1;
     var input = document.getElementById(inputId);
     if (!input) return;
@@ -922,10 +1075,25 @@
     if (nextVal < 0) nextVal = 0;
 
     input.value = Number.isInteger(nextVal) ? nextVal : nextVal.toFixed(1);
-    markEdited(input);
+    markEdited(input, true);
   }
 
-  function toggleExerciseVariant(dayId, exOrder, selectedName, selectedScore) {
+  // Seamless Debounced Auto-Save
+  function triggerAutoSave(dayId) {
+    clearTimeout(autoSaveTimer);
+    var indicator = document.getElementById('globalAutoSaveBadge');
+    if (indicator) indicator.innerText = '💾 Saving...';
+
+    autoSaveTimer = setTimeout(function() {
+      var dayPlan = workoutDataMaster.workout_split_plan[dayId];
+      if (dayPlan) {
+        saveSession(dayId, dayPlan.name, true);
+      }
+      if (indicator) indicator.innerText = '✅ Saved';
+    }, 600);
+  }
+
+  function toggleExerciseVariant(dayId, exOrder, selectedName, selectedScore, silent) {
     var exKey = dayId + '_ex' + exOrder;
     var dayPlan = workoutDataMaster.workout_split_plan[dayId];
     var ex = dayPlan.exercises.find(function(e) { return e.order === exOrder; });
@@ -951,7 +1119,10 @@
       });
     }
 
-    showNotification('Selected: ' + selectedName + (selectedScore ? ' [' + selectedScore + ']' : ''));
+    if (!silent) {
+      showNotification('Selected: ' + selectedName + (selectedScore ? ' [' + selectedScore + ']' : ''));
+      triggerAutoSave(dayId);
+    }
   }
 
   function renderWorkoutForms() {
@@ -962,7 +1133,7 @@
     var days = Object.values(workoutDataMaster.workout_split_plan);
     var today = getLocalDateString();
 
-    var tabHTML = '';
+    var tabHTML = '<button class="tab-btn" id="btn_warmupTabContent" onclick="switchTab(\'warmupTabContent\')">🔥 Warmup</button>';
     var formHTML = '';
 
     days.forEach(function(day, index) {
@@ -1013,16 +1184,16 @@
 
       formHTML += '  <div class="save-section">';
       formHTML += '    <div class="date-row">';
-      formHTML += '      <input type="date" id="' + day.id + '_date" value="' + today + '" class="date-input">';
+      formHTML += '      <input type="date" id="' + day.id + '_date" value="' + today + '" class="date-input" onchange="triggerAutoSave(\'' + day.id + '\')">';
       formHTML += '      <button class="btn-today" type="button" onclick="setTodayDate(\'' + day.id + '\')">Today</button>';
       formHTML += '    </div>';
-      formHTML += '    <button class="btn-save-session" type="button" onclick="saveSession(\'' + day.id + '\', \'' + day.name + '\')">💾 Save ' + day.name + ' Session</button>';
       formHTML += '  </div>';
       formHTML += '</div>';
     });
 
     var logCount = getPersistentLogs().length;
     tabHTML += '<button class="tab-btn" id="btn_historyTabContent" onclick="switchTab(\'historyTabContent\')">📜 Logs (' + logCount + ')</button>';
+    tabHTML += '<button class="tab-btn" id="btn_syncTabContent" onclick="switchTab(\'syncTabContent\')">⚙️ Cloud Sync</button>';
     tabContainer.innerHTML = tabHTML;
     formsContainer.innerHTML = formHTML;
   }
@@ -1041,9 +1212,9 @@
       html += '  <div class="set-columns-row">';
       html += '    <div class="stepper-column">';
       html += '      <span class="stepper-label">Weight</span>';
-      html += '      <button type="button" class="stepper-btn" onclick="modifyVal(\'' + exKey + '_s' + s + '_w\', 1, ' + stepW + ', true)">+</button>';
+      html += '      <button type="button" class="stepper-btn" onclick="modifyVal(\'' + exKey + '_s' + s + '_w\', 1, ' + stepW + ')">+</button>';
       html += '      <input type="text" class="stepper-input" id="' + exKey + '_s' + s + '_w" value="' + defaultWeight + '" oninput="markEdited(this)" onfocus="onSetFocus(\'' + dayId + '\', ' + ex.order + ', ' + s + ')">';
-      html += '      <button type="button" class="stepper-btn" onclick="modifyVal(\'' + exKey + '_s' + s + '_w\', -1, ' + stepW + ', true)">-</button>';
+      html += '      <button type="button" class="stepper-btn" onclick="modifyVal(\'' + exKey + '_s' + s + '_w\', -1, ' + stepW + ')">-</button>';
       html += '    </div>';
       html += '    <div class="stepper-column">';
       html += '      <span class="stepper-label">Reps</span>';
@@ -1102,33 +1273,29 @@
         var rEl = document.getElementById(exKey + '_s' + s + '_r');
         if (currentValues[exKey + '_s' + s + '_w'] !== undefined && wEl) {
           wEl.value = currentValues[exKey + '_s' + s + '_w'];
-          if (editedFlags[exKey + '_s' + s + '_w']) markEdited(wEl);
+          if (editedFlags[exKey + '_s' + s + '_w']) markEdited(wEl, false);
         }
         if (currentValues[exKey + '_s' + s + '_r'] !== undefined && rEl) {
           rEl.value = currentValues[exKey + '_s' + s + '_r'];
-          if (editedFlags[exKey + '_s' + s + '_r']) markEdited(rEl);
+          if (editedFlags[exKey + '_s' + s + '_r']) markEdited(rEl, false);
         }
       }
 
       setTimeout(function() {
         container.scrollTo({ left: container.scrollWidth, behavior: 'smooth' });
       }, 50);
-    }
-  }
 
-  // Helper to format local device date (YYYY-MM-DD) avoiding UTC conversion bug
-  function getLocalDateString() {
-    var d = new Date();
-    var year = d.getFullYear();
-    var month = String(d.getMonth() + 1).padStart(2, '0');
-    var day = String(d.getDate()).padStart(2, '0');
-    return year + '-' + month + '-' + day;
+      triggerAutoSave(dayId);
+    }
   }
 
   function setTodayDate(dayId) {
     var today = getLocalDateString();
     var dateInput = document.getElementById(dayId + '_date');
-    if (dateInput) dateInput.value = today;
+    if (dateInput) {
+      dateInput.value = today;
+      triggerAutoSave(dayId);
+    }
   }
 
   function switchTab(tabId) {
@@ -1150,10 +1317,10 @@
     if (!banner) return;
     banner.innerText = msg;
     banner.style.display = 'block';
-    setTimeout(function() { banner.style.display = 'none'; }, 4000);
+    setTimeout(function() { banner.style.display = 'none'; }, 3000);
   }
 
-  function saveSession(dayId, dayName) {
+  function saveSession(dayId, dayName, isAuto) {
     var dayPlan = workoutDataMaster.workout_split_plan[dayId];
     var dateEl = document.getElementById(dayId + '_date');
     var date = dateEl ? dateEl.value : getLocalDateString();
@@ -1196,13 +1363,14 @@
       }
     });
 
-    if (entries.length === 0) {
-      alert('No sets were logged! Tap the + / - stepper buttons or edit a set before saving.');
-      return;
-    }
+    if (entries.length === 0) return;
 
-    var newLog = {
-      id: "log_" + Date.now(),
+    var logs = getPersistentLogs();
+    // Update existing session for today+dayId if present, else insert new
+    var existingIndex = logs.findIndex(function(l) { return l.date === date && l.day_id === dayId; });
+    
+    var logEntry = {
+      id: (existingIndex !== -1) ? logs[existingIndex].id : ("log_" + Date.now()),
       date: date,
       day_id: dayId,
       session_name: dayName,
@@ -1210,31 +1378,19 @@
       entries: entries
     };
 
-    var logs = getPersistentLogs();
-    logs.unshift(newLog);
+    if (existingIndex !== -1) {
+      logs[existingIndex] = logEntry;
+    } else {
+      logs.unshift(logEntry);
+    }
+
     setPersistentLogs(logs);
 
-    dayPlan.exercises.forEach(function(ex) {
-      var exKey = dayId + '_ex' + ex.order;
-      var setCount = exerciseSetCounts[exKey] || 3;
-      for (var s = 1; s <= setCount; s++) {
-        var wEl = document.getElementById(exKey + '_s' + s + '_w');
-        var rEl = document.getElementById(exKey + '_s' + s + '_r');
-        if (wEl) {
-          wEl.classList.remove('user-edited');
-          wEl.removeAttribute('data-edited');
-        }
-        if (rEl) {
-          rEl.classList.remove('user-edited');
-          rEl.removeAttribute('data-edited');
-        }
-      }
-    });
-
-    showNotification('✅ Logged ' + dayName + ' for ' + date + ' (' + entries.length + ' exercises recorded)!');
+    var badge = document.getElementById('logCountBadge');
+    if (badge) badge.innerText = logs.length;
 
     if (localStorage.getItem('gdrive_webhook_url')) {
-      syncCurrentDataToGDrive();
+      syncCurrentDataToGDrive(true); // Silent sync on auto-save
     }
   }
 
@@ -1252,7 +1408,7 @@
     showNotification('🗑️ Session log deleted.');
 
     if (localStorage.getItem('gdrive_webhook_url')) {
-      syncCurrentDataToGDrive();
+      syncCurrentDataToGDrive(true);
     }
   }
 
@@ -1296,6 +1452,29 @@
     }
   }
 
+  function downloadUpdatedWorkoutDataJSON() {
+    workoutDataMaster.workout_logs = getPersistentLogs();
+    var jsonStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(workoutDataMaster, null, 2));
+    var a = document.createElement('a');
+    a.href = jsonStr;
+    a.download = "workout_data.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  // Prevent double-tap zoom gesture in iOS Safari
+  var lastTouchEnd = 0;
+  document.addEventListener('touchend', function(event) {
+    var now = (new Date()).getTime();
+    if (now - lastTouchEnd <= 300) {
+      if (event.target && (event.target.classList.contains('stepper-btn') || event.target.tagName === 'BUTTON')) {
+        event.preventDefault();
+      }
+    }
+    lastTouchEnd = now;
+  }, false);
+
   var savedGdriveUrl = localStorage.getItem('gdrive_webhook_url') || '';
   setTimeout(function() {
     var input = document.getElementById('gdriveWebhookUrl');
@@ -1306,7 +1485,6 @@
     }
   }, 100);
 
-  // Render on load
   renderWorkoutForms();
 </script>
 
