@@ -230,6 +230,33 @@
       user-select: none;
     }
 
+    .exercise-title-left {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .card-saved-badge {
+      display: none;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.725rem;
+      font-weight: 700;
+      color: var(--success);
+      background: rgba(52, 211, 153, 0.15);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      padding: 0.15rem 0.45rem;
+      border-radius: 6px;
+      animation: flashFade 1.6s ease forwards;
+    }
+
+    @keyframes flashFade {
+      0% { opacity: 0; transform: scale(0.95); }
+      15% { opacity: 1; transform: scale(1); }
+      75% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.95); }
+    }
+
     .exercise-name {
       font-size: 1.05rem;
       font-weight: 700;
@@ -1004,6 +1031,22 @@
     document.body.appendChild(script);
   }
 
+  function findMatchingExercise(dayPlan, loggedName) {
+    if (!dayPlan || !dayPlan.exercises || !loggedName) return null;
+    var cleanLogged = loggedName.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    return dayPlan.exercises.find(function(e) {
+      var cleanPrimary = e.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (cleanPrimary === cleanLogged) return true;
+      if (cleanPrimary.indexOf(cleanLogged) !== -1 || cleanLogged.indexOf(cleanPrimary) !== -1) return true;
+      if (e.alt) {
+        var cleanAlt = e.alt.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (cleanAlt.indexOf(cleanLogged) !== -1 || cleanLogged.indexOf(cleanAlt) !== -1) return true;
+      }
+      return false;
+    });
+  }
+
   function populateInputsFromLatestLogs(logs) {
     if (!logs || logs.length === 0) return;
 
@@ -1012,42 +1055,70 @@
       var dayId = log.day_id;
       if (!dayId || !workoutDataMaster.workout_split_plan[dayId]) return;
 
+      var dayPlan = workoutDataMaster.workout_split_plan[dayId];
+
       log.entries.forEach(function(entry) {
-        var dayPlan = workoutDataMaster.workout_split_plan[dayId];
-        var ex = dayPlan.exercises.find(function(e) {
-          var matchPrimary = e.name.toLowerCase().trim() === entry.exercise_name.toLowerCase().trim();
-          var matchAlt = e.alt && e.alt.toLowerCase().indexOf(entry.exercise_name.toLowerCase().trim()) !== -1;
-          return matchPrimary || matchAlt;
-        });
+        var ex = findMatchingExercise(dayPlan, entry.exercise_name);
         if (!ex) return;
 
         var exKey = dayId + '_ex' + ex.order;
 
+        // Check if this was an alternative variant
         if (ex.alt && ex.alt.toLowerCase().indexOf(entry.exercise_name.toLowerCase().trim()) !== -1) {
           toggleExerciseVariant(dayId, ex.order, entry.exercise_name, '', true);
         }
 
-        if (entry.sets.length > (exerciseSetCounts[exKey] || 3)) {
-          exerciseSetCounts[exKey] = entry.sets.length;
-          var container = document.getElementById('container_' + exKey);
-          if (container) {
-            container.innerHTML = renderSetsTiles(dayId, ex, exerciseSetCounts[exKey]);
-          }
+        // Determine highest set count (e.g. 4th, 5th set)
+        var maxSet = 0;
+        if (entry.sets && entry.sets.length) {
+          entry.sets.forEach(function(s, idx) {
+            var sNum = parseInt(s.set, 10) || (idx + 1);
+            if (sNum > maxSet) maxSet = sNum;
+          });
+        }
+        if (maxSet < (entry.sets ? entry.sets.length : 0)) {
+          maxSet = entry.sets.length;
         }
 
-        entry.sets.forEach(function(s) {
-          var wEl = document.getElementById(exKey + '_s' + s.set + '_w');
-          var rEl = document.getElementById(exKey + '_s' + s.set + '_r');
+        if (maxSet > (exerciseSetCounts[exKey] || 3)) {
+          exerciseSetCounts[exKey] = maxSet;
+        }
 
-          if (wEl && s.weight !== undefined) {
-            wEl.value = s.weight;
-            markEdited(wEl, false);
-          }
-          if (rEl && s.reps !== undefined) {
-            rEl.value = s.reps;
-            markEdited(rEl, false);
-          }
-        });
+        // Always re-render container to guarantee all 4+ set tiles exist
+        var container = document.getElementById('container_' + exKey);
+        if (container) {
+          container.innerHTML = renderSetsTiles(dayId, ex, exerciseSetCounts[exKey]);
+        }
+
+        // Populate weight and reps in pure white
+        if (entry.sets && entry.sets.length) {
+          entry.sets.forEach(function(s, idx) {
+            var setNum = s.set || (idx + 1);
+            var wEl = document.getElementById(exKey + '_s' + setNum + '_w');
+            var rEl = document.getElementById(exKey + '_s' + setNum + '_r');
+
+            var weight = s.weight;
+            var reps = s.reps;
+
+            // Extract from result string if weight/reps keys were stringified
+            if ((weight === undefined || weight === null) && s.result) {
+              var parts = s.result.split(/[x×|]/);
+              if (parts.length >= 2) {
+                weight = parts[0].replace(/[^0-9.]/g, '').trim();
+                reps = parts[1].replace(/[^0-9.]/g, '').trim();
+              }
+            }
+
+            if (wEl && weight !== undefined && weight !== null && weight !== '') {
+              wEl.value = weight;
+              markEdited(wEl, false);
+            }
+            if (rEl && reps !== undefined && reps !== null && reps !== '') {
+              rEl.value = reps;
+              markEdited(rEl, false);
+            }
+          });
+        }
       });
     });
   }
@@ -1058,8 +1129,35 @@
     inputEl.setAttribute('data-edited', 'true');
     
     if (triggerAuto !== false) {
-      var match = inputEl.id.match(/^(day[0-9]+)/);
-      if (match) triggerAutoSave(match[1]);
+      var match = inputEl.id.match(/^((day[0-9]+)_ex[0-9]+)/);
+      if (match) {
+        var exKey = match[1];
+        var dayId = match[2];
+        flashCardSavedBadge(exKey);
+        triggerAutoSave(dayId);
+      }
+    }
+  }
+
+  // Tapping default value directly turns it white and commits the entry
+  function tapDefaultVal(inputEl) {
+    if (!inputEl) return;
+    if (!inputEl.classList.contains('user-edited')) {
+      markEdited(inputEl, true);
+    }
+  }
+
+  // Momentary "Saved" badge flash directly on the edited card
+  function flashCardSavedBadge(exKey) {
+    var badge = document.getElementById('card_saved_' + exKey);
+    if (badge) {
+      badge.style.display = 'inline-flex';
+      badge.style.animation = 'none';
+      badge.offsetHeight; // trigger reflow
+      badge.style.animation = 'flashFade 1.6s ease forwards';
+      setTimeout(function() {
+        badge.style.display = 'none';
+      }, 1600);
     }
   }
 
@@ -1089,7 +1187,7 @@
       if (dayPlan) {
         saveSession(dayId, dayPlan.name, true);
       }
-      if (indicator) indicator.innerText = '✅ Saved';
+      if (indicator) indicator.innerText = '✨ Auto-Save Active';
     }, 600);
   }
 
@@ -1121,6 +1219,7 @@
 
     if (!silent) {
       showNotification('Selected: ' + selectedName + (selectedScore ? ' [' + selectedScore + ']' : ''));
+      flashCardSavedBadge(exKey);
       triggerAutoSave(dayId);
     }
   }
@@ -1170,8 +1269,11 @@
         formHTML += '<div class="exercise-card">';
         formHTML += '  <div class="exercise-card-header">';
         formHTML += '    <div class="exercise-main-row" id="main_row_' + exKey + '" onclick="toggleExerciseVariant(\'' + day.id + '\', ' + ex.order + ', \'' + ex.name + '\', \'' + ex.score + '\')">';
-        formHTML += '      <span class="exercise-name">' + ex.order + '. ' + ex.name + '</span>';
-        formHTML += '      <span class="score-badge">[' + ex.score + ']</span>';
+        formHTML += '      <div class="exercise-title-left">';
+        formHTML += '        <span class="exercise-name">' + ex.order + '. ' + ex.name + '</span>';
+        formHTML += '        <span class="score-badge">[' + ex.score + ']</span>';
+        formHTML += '      </div>';
+        formHTML += '      <span class="card-saved-badge" id="card_saved_' + exKey + '">✅ Saved</span>';
         formHTML += '    </div>';
         formHTML += '    <div class="target-scheme-row">🎯 ' + ex.scheme + '</div>';
         formHTML += altButtonsHTML;
@@ -1213,13 +1315,13 @@
       html += '    <div class="stepper-column">';
       html += '      <span class="stepper-label">Weight</span>';
       html += '      <button type="button" class="stepper-btn" onclick="modifyVal(\'' + exKey + '_s' + s + '_w\', 1, ' + stepW + ')">+</button>';
-      html += '      <input type="text" class="stepper-input" id="' + exKey + '_s' + s + '_w" value="' + defaultWeight + '" oninput="markEdited(this)" onfocus="onSetFocus(\'' + dayId + '\', ' + ex.order + ', ' + s + ')">';
+      html += '      <input type="text" class="stepper-input" id="' + exKey + '_s' + s + '_w" value="' + defaultWeight + '" onclick="tapDefaultVal(this)" oninput="markEdited(this)" onfocus="tapDefaultVal(this); onSetFocus(\'' + dayId + '\', ' + ex.order + ', ' + s + ')">';
       html += '      <button type="button" class="stepper-btn" onclick="modifyVal(\'' + exKey + '_s' + s + '_w\', -1, ' + stepW + ')">-</button>';
       html += '    </div>';
       html += '    <div class="stepper-column">';
       html += '      <span class="stepper-label">Reps</span>';
       html += '      <button type="button" class="stepper-btn" onclick="modifyVal(\'' + exKey + '_s' + s + '_r\', 1, 1)">+</button>';
-      html += '      <input type="text" class="stepper-input" id="' + exKey + '_s' + s + '_r" value="' + defaultReps + '" oninput="markEdited(this)" onfocus="onSetFocus(\'' + dayId + '\', ' + ex.order + ', ' + s + ')">';
+      html += '      <input type="text" class="stepper-input" id="' + exKey + '_s' + s + '_r" value="' + defaultReps + '" onclick="tapDefaultVal(this)" oninput="markEdited(this)" onfocus="tapDefaultVal(this); onSetFocus(\'' + dayId + '\', ' + ex.order + ', ' + s + ')">';
       html += '      <button type="button" class="stepper-btn" onclick="modifyVal(\'' + exKey + '_s' + s + '_r\', -1, 1)">-</button>';
       html += '    </div>';
       html += '  </div>';
