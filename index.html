@@ -166,6 +166,13 @@
       font-weight: 700;
     }
 
+    .tab-btn.tab-locked-out {
+      opacity: 0.35 !important;
+      pointer-events: none !important;
+      cursor: not-allowed !important;
+      filter: grayscale(0.8) !important;
+    }
+
     .tab-content {
       display: none;
     }
@@ -368,6 +375,21 @@
       border-color: #94a3b8;
     }
 
+    /* Active & Locked Workout State Styling */
+    .workout-content-locked {
+      opacity: 0.62;
+      pointer-events: none;
+      filter: grayscale(0.2);
+      transition: opacity 0.25s ease, filter 0.25s ease;
+    }
+
+    .workout-content-unlocked {
+      opacity: 1;
+      pointer-events: auto;
+      filter: none;
+      transition: opacity 0.25s ease, filter 0.25s ease;
+    }
+
     /* Foldable Warmup Accordion */
     .warmup-accordion-wrapper {
       background: var(--card-bg);
@@ -376,6 +398,7 @@
       margin-bottom: 1.25rem;
       overflow: hidden;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+      position: relative;
     }
 
     .warmup-accordion-summary {
@@ -525,7 +548,7 @@
       user-select: none;
     }
 
-    /* Fixed Absolute Badge: Never shifts or pushes content when flashing */
+    /* Fixed Absolute Badge: Never shifts content */
     .card-saved-badge {
       position: absolute;
       top: 0.85rem;
@@ -931,7 +954,7 @@
   <header>
     <h1>Workout Tracker</h1>
     <p>66 kg &rarr; 70 kg Muscle Goal &bull; Inguinal Hernia Safe</p>
-    <div id="globalAutoSaveBadge" class="save-indicator">✨ Auto-Save Active</div>
+    <div id="globalAutoSaveBadge" class="save-indicator">✨ Auto-Save Ready</div>
   </header>
 
   <div id="notifyBanner" class="notify-banner"></div>
@@ -990,7 +1013,7 @@
   </div>
 
   <footer>
-    <p>Zero-Zoom Steppers &bull; Session Timer &bull; iPhone Safari Ready</p>
+    <p>Locked Input Security &bull; Start/End Timer &bull; Multi-Session Unique Key</p>
   </footer>
 </div>
 
@@ -1112,6 +1135,49 @@
     } catch(e) {}
   }
 
+  function isWorkoutActive(dayId) {
+    var timer = getActiveTimer(dayId);
+    return !!(timer && timer.date === getLocalDateString());
+  }
+
+  function getActiveRunningDay() {
+    var today = getLocalDateString();
+    var days = Object.keys(workoutDataMaster.workout_split_plan);
+    for (var i = 0; i < days.length; i++) {
+      var dId = days[i];
+      var timer = getActiveTimer(dId);
+      if (timer && timer.date === today) {
+        return dId;
+      }
+    }
+    return null;
+  }
+
+  function updateTabBarLockState() {
+    var runningDayId = getActiveRunningDay();
+    var days = Object.keys(workoutDataMaster.workout_split_plan);
+
+    days.forEach(function(dId) {
+      var btn = document.getElementById('btn_' + dId);
+      if (btn) {
+        if (runningDayId && runningDayId !== dId) {
+          btn.classList.add('tab-locked-out');
+        } else {
+          btn.classList.remove('tab-locked-out');
+        }
+      }
+    });
+
+    var warmupBtn = document.getElementById('btn_warmupTabContent');
+    if (warmupBtn) {
+      if (runningDayId) {
+        warmupBtn.classList.add('tab-locked-out');
+      } else {
+        warmupBtn.classList.remove('tab-locked-out');
+      }
+    }
+  }
+
   function formatTimeDigits(totalSeconds) {
     var mins = Math.floor(totalSeconds / 60);
     var secs = totalSeconds % 60;
@@ -1134,11 +1200,17 @@
       startTime: now,
       startTimeStr: startTimeStr,
       dayId: dayId,
-      date: getLocalDateString()
+      date: getLocalDateString(),
+      sessionId: "log_" + now
     };
     setActiveTimer(dayId, timerObj);
+
+    // Hydrate latest entry data to preload numbers
+    hydrateDayForm(dayId, getLocalDateString(), true);
+
+    updateTabBarLockState();
     updateTimerUI(dayId);
-    showNotification('▶️ Workout Started! Timer is running.');
+    showNotification('▶️ Workout Started! Other days are locked until workout ends.');
   }
 
   function endWorkoutSession(dayId) {
@@ -1146,10 +1218,12 @@
     var elapsedSeconds = 0;
     var startTimeStr = '';
     var endTimeStr = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    var sessionId = null;
 
     if (activeTimer) {
       elapsedSeconds = Math.floor((Date.now() - activeTimer.startTime) / 1000);
       startTimeStr = activeTimer.startTimeStr;
+      sessionId = activeTimer.sessionId;
     } else {
       elapsedSeconds = 60;
       startTimeStr = endTimeStr;
@@ -1169,23 +1243,25 @@
         duration: durationText,
         start_time: startTimeStr,
         end_time: endTimeStr,
-        elapsed_seconds: elapsedSeconds
+        elapsed_seconds: elapsedSeconds,
+        sessionId: sessionId
       });
     }
 
+    updateTabBarLockState();
     updateTimerUI(dayId);
-    showNotification('⏹️ Workout Completed! Total Time: ' + durationText);
+    showNotification('⏹️ Workout Finalized & Saved! All days unlocked.');
   }
 
   function updateTimerUI(dayId) {
     var container = document.getElementById('timer_card_' + dayId);
+    var areaEl = document.getElementById('workout_active_area_' + dayId);
     if (!container) return;
 
     var activeTimer = getActiveTimer(dayId);
     var dateEl = document.getElementById(dayId + '_date');
     var activeDate = dateEl ? dateEl.value : getLocalDateString();
     var logs = getPersistentLogs();
-    var logForDate = logs.find(function(l) { return l.day_id === dayId && l.date === activeDate; });
 
     if (sessionTimerIntervals[dayId]) {
       clearInterval(sessionTimerIntervals[dayId]);
@@ -1193,6 +1269,12 @@
     }
 
     if (activeTimer && activeTimer.date === activeDate) {
+      // UNLOCK active workout area
+      if (areaEl) {
+        areaEl.classList.remove('workout-content-locked');
+        areaEl.classList.add('workout-content-unlocked');
+      }
+
       var elapsed = Math.floor((Date.now() - activeTimer.startTime) / 1000);
       container.innerHTML = '<div class="timer-box">' +
         '  <div class="timer-live-center">' +
@@ -1200,7 +1282,7 @@
         '      <span class="timer-pulse-dot"></span>' +
         '      <span class="timer-digits" id="timer_digits_' + dayId + '">' + formatTimeDigits(elapsed) + '</span>' +
         '    </div>' +
-        '    <div class="timer-start-time">Started ' + activeTimer.startTimeStr + '</div>' +
+        '    <div class="timer-start-time">Started ' + activeTimer.startTimeStr + ' • Logging Unlocked</div>' +
         '  </div>' +
         '  <button class="btn-timer-end" type="button" onclick="endWorkoutSession(\'' + dayId + '\')">⏹️ End Workout</button>' +
         '</div>';
@@ -1213,19 +1295,30 @@
         }
       }, 1000);
 
-    } else if (logForDate && logForDate.duration) {
-      container.innerHTML = '<div class="timer-box">' +
-        '  <div class="timer-complete-box">' +
-        '    <div class="timer-complete-title">✅ Session Completed</div>' +
-        '    <div class="timer-complete-detail">⏱️ Duration: <strong>' + logForDate.duration + '</strong> ' + (logForDate.start_time ? '(' + logForDate.start_time + ' – ' + logForDate.end_time + ')' : '') + '</div>' +
-        '  </div>' +
-        '  <button class="btn-timer-restart" type="button" onclick="startWorkoutSession(\'' + dayId + '\')">🔄 Restart Timer</button>' +
-        '</div>';
     } else {
-      container.innerHTML = '<div class="timer-box">' +
-        '  <div class="timer-ready-text">Ready to begin today\'s workout?</div>' +
-        '  <button class="btn-timer-start" type="button" onclick="startWorkoutSession(\'' + dayId + '\')">▶️ Start Workout</button>' +
-        '</div>';
+      // LOCK workout area when not active
+      if (areaEl) {
+        areaEl.classList.remove('workout-content-unlocked');
+        areaEl.classList.add('workout-content-locked');
+      }
+
+      // Find the most recent completed log for today (or most recent overall)
+      var completedToday = logs.find(function(l) { return l.day_id === dayId && l.date === activeDate; });
+
+      if (completedToday && completedToday.duration) {
+        container.innerHTML = '<div class="timer-box">' +
+          '  <div class="timer-complete-box">' +
+          '    <div class="timer-complete-title">✅ Session Completed &amp; Locked</div>' +
+          '    <div class="timer-complete-detail">⏱️ Duration: <strong>' + completedToday.duration + '</strong> ' + (completedToday.start_time ? '(' + completedToday.start_time + ' – ' + (completedToday.end_time || '') + ')' : '') + '</div>' +
+          '  </div>' +
+          '  <button class="btn-timer-start" type="button" onclick="startWorkoutSession(\'' + dayId + '\')">▶️ Start New Workout</button>' +
+          '</div>';
+      } else {
+        container.innerHTML = '<div class="timer-box">' +
+          '  <div class="timer-ready-text">Workout is locked. Tap below to begin session.</div>' +
+          '  <button class="btn-timer-start" type="button" onclick="startWorkoutSession(\'' + dayId + '\')">▶️ Start Workout</button>' +
+          '</div>';
+      }
     }
   }
 
@@ -1398,16 +1491,23 @@
     });
   }
 
-  function hydrateDayForm(dayId, targetDate) {
+  function hydrateDayForm(dayId, targetDate, forceLatest) {
     if (!dayId || !workoutDataMaster.workout_split_plan[dayId]) return;
     var dayPlan = workoutDataMaster.workout_split_plan[dayId];
     var dateEl = document.getElementById(dayId + '_date');
     var date = targetDate || (dateEl ? dateEl.value : getLocalDateString());
     
     var logs = getPersistentLogs();
-    var log = logs.find(function(l) { return l.day_id === dayId && l.date === date; });
+    
+    // Find matching log for dayId + date, or most recent overall log for that dayId
+    var log = null;
+    if (forceLatest) {
+      log = logs.find(function(l) { return l.day_id === dayId; });
+    } else {
+      log = logs.find(function(l) { return l.day_id === dayId && l.date === date; }) || logs.find(function(l) { return l.day_id === dayId; });
+    }
 
-    // Reset warmups
+    // Reset warmups to clean defaults
     standardWarmupList.forEach(function(w) {
       var el = document.getElementById(dayId + '_' + w.id);
       if (el) {
@@ -1418,7 +1518,7 @@
       }
     });
 
-    // Reset exercises
+    // Reset exercises to clean defaults
     dayPlan.exercises.forEach(function(ex) {
       var exKey = dayId + '_ex' + ex.order;
       var defaultSets = exerciseSetCounts[exKey] || 3;
@@ -1446,7 +1546,7 @@
       }
     });
 
-    // Hydrate if log exists
+    // Hydrate from log if available
     if (log) {
       if (log.warmups && log.warmups.length) {
         log.warmups.forEach(function(w) {
@@ -1541,23 +1641,37 @@
 
   function markEdited(el, triggerAuto) {
     if (!el) return;
+    var dayMatch = el.id.match(/^(day[0-9]+)/);
+    var dayId = dayMatch ? dayMatch[1] : null;
+
+    if (dayId && !isWorkoutActive(dayId)) {
+      showNotification('🔒 Tap ▶️ Start Workout first to begin logging.');
+      return;
+    }
+
     el.classList.add('user-edited');
     el.setAttribute('data-edited', 'true');
     
     if (triggerAuto !== false) {
       var match = el.id.match(/^((day[0-9]+)(?:_ex[0-9]+|_w_[a-z0-9_]+)?)/);
-      if (match) {
+      if (match && dayId) {
         var cardKey = match[1];
-        var dayMatch = el.id.match(/^(day[0-9]+)/);
-        var dayId = dayMatch ? dayMatch[1] : null;
         flashCardSavedBadge(cardKey);
-        if (dayId) triggerAutoSave(dayId);
+        triggerAutoSave(dayId);
       }
     }
   }
 
   function tapDefaultVal(el) {
     if (!el) return;
+    var dayMatch = el.id.match(/^(day[0-9]+)/);
+    var dayId = dayMatch ? dayMatch[1] : null;
+
+    if (dayId && !isWorkoutActive(dayId)) {
+      showNotification('🔒 Tap ▶️ Start Workout first to begin logging.');
+      return;
+    }
+
     if (!el.classList.contains('user-edited')) {
       markEdited(el, true);
     }
@@ -1578,6 +1692,14 @@
   }
 
   function modifyVal(valId, delta, step) {
+    var dayMatch = valId.match(/^(day[0-9]+)/);
+    var dayId = dayMatch ? dayMatch[1] : null;
+
+    if (dayId && !isWorkoutActive(dayId)) {
+      showNotification('🔒 Tap ▶️ Start Workout first to begin logging.');
+      return;
+    }
+
     step = step || 1;
     var el = document.getElementById(valId);
     if (!el) return;
@@ -1608,16 +1730,21 @@
       if (dayPlan) {
         saveSession(dayId, dayPlan.name, true);
       }
-      if (indicator) indicator.innerText = '✨ Auto-Save Active';
+      if (indicator) indicator.innerText = '✨ Auto-Save Ready';
     }, 600);
   }
 
   function toggleExerciseVariant(dayId, exOrder, selectedName, selectedScore, silent) {
-    var exKey = dayId + '_ex' + exOrder;
     var dayPlan = workoutDataMaster.workout_split_plan[dayId];
     var ex = dayPlan.exercises.find(function(e) { return e.order === exOrder; });
     if (!ex) return;
 
+    if (!silent && !isWorkoutActive(dayId)) {
+      showNotification('🔒 Tap ▶️ Start Workout first to begin logging.');
+      return;
+    }
+
+    var exKey = dayId + '_ex' + exOrder;
     var isPrimary = (selectedName === ex.name);
     activeExerciseVariants[exKey] = selectedName;
 
@@ -1666,8 +1793,11 @@
       formHTML += '    <div class="day-focus">' + day.focus + '</div>';
       formHTML += '  </div>';
 
-      // Insert Start/End Session Timer Card
+      // Insert Centered Start/End Session Timer Card
       formHTML += renderSessionTimerHTML(day.id);
+
+      // Wrap interactive section in locked/unlocked container
+      formHTML += '<div id="workout_active_area_' + day.id + '" class="workout-content-locked">';
 
       // Insert Foldable Warmup Accordion on top of Day Card
       formHTML += renderWarmupAccordionHTML(day.id);
@@ -1716,6 +1846,8 @@
       formHTML += '      <button class="btn-today" type="button" onclick="setTodayDate(\'' + day.id + '\')">Today</button>';
       formHTML += '    </div>';
       formHTML += '  </div>';
+
+      formHTML += '</div>'; // close #workout_active_area_${day.id}
       formHTML += '</div>';
     });
 
@@ -1775,6 +1907,11 @@
   }
 
   function addNewSet(dayId, exOrder) {
+    if (!isWorkoutActive(dayId)) {
+      showNotification('🔒 Tap ▶️ Start Workout first to enable logging.');
+      return;
+    }
+
     var exKey = dayId + '_ex' + exOrder;
     exerciseSetCounts[exKey] = (exerciseSetCounts[exKey] || 3) + 1;
 
@@ -1835,6 +1972,14 @@
   }
 
   function switchTab(tabId) {
+    var runningDayId = getActiveRunningDay();
+    if (runningDayId && tabId !== runningDayId && tabId !== 'historyTabContent' && tabId !== 'syncTabContent') {
+      var runningPlan = workoutDataMaster.workout_split_plan[runningDayId];
+      var name = runningPlan ? runningPlan.name : runningDayId;
+      showNotification('🔒 ' + name + ' is currently in progress. Tap ⏹️ End Workout before switching days.');
+      return;
+    }
+
     document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
     document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
 
@@ -1851,6 +1996,7 @@
     }
 
     if (tabId === 'historyTabContent') renderHistoryLogs();
+    updateTabBarLockState();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -1862,11 +2008,16 @@
     setTimeout(function() { banner.style.display = 'none'; }, 3000);
   }
 
+  // Multi-session unique ID and non-destructive save
   function saveSession(dayId, dayName, isAuto, timerData) {
     var dayPlan = workoutDataMaster.workout_split_plan[dayId];
     var dateEl = document.getElementById(dayId + '_date');
     var date = dateEl ? dateEl.value : getLocalDateString();
+    var activeTimer = getActiveTimer(dayId);
     
+    var targetSessionId = (timerData && timerData.sessionId) || (activeTimer ? activeTimer.sessionId : ("log_" + Date.now()));
+    var startTimeStr = (timerData && timerData.start_time) || (activeTimer ? activeTimer.startTimeStr : new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
+
     // Collect active warmups on screen
     var screenWarmups = [];
     standardWarmupList.forEach(function(w) {
@@ -1896,8 +2047,8 @@
                        (rEl && rEl.getAttribute('data-edited') === 'true');
 
         if (isEdited) {
-          var wVal = wEl ? (wEl.getAttribute('data-val') || wEl.innerText || wEl.value || '0').trim() : '0';
-          var rVal = rEl ? (rEl.getAttribute('data-val') || rEl.innerText || rEl.value || '0').trim() : '0';
+          var wVal = wEl ? (wEl.getAttribute('data-val') || wEl.innerText || '0').trim() : '0';
+          var rVal = rEl ? (rEl.getAttribute('data-val') || rEl.innerText || '0').trim() : '0';
           var wStr = (wVal && wVal !== '0') ? wVal + ' lbs' : 'BW';
           var rStr = rVal + ' reps';
           var resultStr = wStr + ' × ' + rStr;
@@ -1923,7 +2074,10 @@
     if (screenEntries.length === 0 && screenWarmups.length === 0 && !timerData) return;
 
     var logs = getPersistentLogs();
-    var existingIndex = logs.findIndex(function(l) { return l.date === date && l.day_id === dayId; });
+    // Unique session matching by targetSessionId OR exact timestamp/start_time
+    var existingIndex = logs.findIndex(function(l) { 
+      return l.id === targetSessionId || (l.date === date && l.day_id === dayId && l.start_time === startTimeStr); 
+    });
 
     var finalWarmups = screenWarmups;
     var finalEntries = screenEntries;
@@ -1957,12 +2111,13 @@
     }
 
     var logDuration = (timerData && timerData.duration) || (existingIndex !== -1 ? logs[existingIndex].duration : null);
-    var logStartTime = (timerData && timerData.start_time) || (existingIndex !== -1 ? logs[existingIndex].start_time : null);
+    var logStartTime = startTimeStr || (existingIndex !== -1 ? logs[existingIndex].start_time : null);
     var logEndTime = (timerData && timerData.end_time) || (existingIndex !== -1 ? logs[existingIndex].end_time : null);
     var logElapsedSec = (timerData && timerData.elapsed_seconds) || (existingIndex !== -1 ? logs[existingIndex].elapsed_seconds : null);
 
     var logEntry = {
-      id: (existingIndex !== -1) ? logs[existingIndex].id : ("log_" + Date.now()),
+      id: targetSessionId,
+      session_key: date + "_" + (logStartTime ? logStartTime.replace(/[^a-zA-Z0-9]/g, '') : "session"),
       date: date,
       day_id: dayId,
       session_name: dayName,
@@ -2024,7 +2179,7 @@
       html += '  <div class="log-header">';
       html += '    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:0.4rem;">';
       html += '      <span style="color:var(--accent); font-weight:700;">' + log.session_name + '</span>';
-      html += '      <span style="color:#fff; font-size:0.8rem;">📅 ' + log.date + '</span>';
+      html += '      <span style="color:#fff; font-size:0.8rem;">📅 ' + log.date + (log.start_time ? ' (' + log.start_time + ')' : '') + '</span>';
       if (log.duration) {
         html += '      <span style="background:rgba(56,189,248,0.12); color:var(--accent); border:1px solid rgba(56,189,248,0.3); padding:0.12rem 0.45rem; border-radius:4px; font-size:0.75rem; font-weight:700;">⏱️ ' + log.duration + '</span>';
       }
@@ -2093,8 +2248,10 @@
     }
   }, 100);
 
+  // Initial load
   renderWorkoutForms();
   hydrateAllDaysFromStoredLogs();
+  updateTabBarLockState();
 </script>
 
 </body>
