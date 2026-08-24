@@ -185,8 +185,8 @@
       background: linear-gradient(180deg, var(--card-header) 0%, var(--card-bg) 100%);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 1rem;
+      padding: 0.45rem 0.85rem;
+      margin-bottom: 0.65rem;
       text-align: center;
       display: flex;
       flex-direction: column;
@@ -195,19 +195,21 @@
     }
 
     .day-title {
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       font-weight: 700;
       color: #fff;
       text-align: center;
+      line-height: 1.2;
     }
 
     .day-focus {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--accent);
       font-weight: 600;
       text-transform: uppercase;
-      margin-top: 0.2rem;
+      margin-top: 0.15rem;
       text-align: center;
+      line-height: 1.2;
     }
 
     /* Start / End Workout Session Timer Card (Centered) */
@@ -520,23 +522,43 @@
       background: rgba(56, 189, 248, 0.08);
     }
 
-    /* Main Exercise Card */
+    /* Foldable Exercise Card Details */
     .exercise-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 0.9rem 1rem;
-      margin-bottom: 1.1rem;
+      margin-bottom: 0.9rem;
+      overflow: hidden;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
       position: relative;
     }
 
-    .exercise-card-header {
+    .exercise-card-summary {
+      padding: 0.8rem 1rem;
+      cursor: pointer;
+      user-select: none;
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
-      margin-bottom: 0.85rem;
-      width: 100%;
+      gap: 0.35rem;
+      background: rgba(15, 23, 42, 0.55);
+      list-style: none;
+      transition: background 0.2s;
+    }
+
+    .exercise-card-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .exercise-card-summary:active {
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    .exercise-card-body {
+      padding: 0.75rem 1rem 0.9rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      border-top: 1px solid rgba(51, 65, 85, 0.4);
     }
 
     .exercise-main-row {
@@ -551,7 +573,7 @@
     /* Fixed Absolute Badge: Never shifts content */
     .card-saved-badge {
       position: absolute;
-      top: 0.85rem;
+      top: 0.75rem;
       right: 3.5rem;
       opacity: 0;
       pointer-events: none;
@@ -952,8 +974,7 @@
 
 <div class="container">
   <header>
-    <h1>Workout Tracker</h1>
-    <p>66 kg &rarr; 70 kg Muscle Goal &bull; Inguinal Hernia Safe</p>
+    <h1>Sid’s Workout Tracker</h1>
     <div id="globalAutoSaveBadge" class="save-indicator">✨ Auto-Save Ready</div>
   </header>
 
@@ -1205,12 +1226,16 @@
     };
     setActiveTimer(dayId, timerObj);
 
-    // Hydrate latest entry data to preload numbers
+    // Hydrate latest entry data to preload numbers and unfold all exercise cards on start
     hydrateDayForm(dayId, getLocalDateString(), true);
+
+    document.querySelectorAll('#' + dayId + ' details.exercise-card').forEach(function(d) {
+      d.open = true;
+    });
 
     updateTabBarLockState();
     updateTimerUI(dayId);
-    showNotification('▶️ Workout Started! Other days are locked until workout ends.');
+    showNotification('▶️ Workout Started! Logging is now unlocked.');
   }
 
   function endWorkoutSession(dayId) {
@@ -1304,6 +1329,8 @@
 
       // Find the most recent completed log for today (or most recent overall)
       var completedToday = logs.find(function(l) { return l.day_id === dayId && l.date === activeDate; });
+      var dayPlan = workoutDataMaster.workout_split_plan[dayId];
+      var dayTitleText = dayPlan ? dayPlan.name : dayId;
 
       if (completedToday && completedToday.duration) {
         container.innerHTML = '<div class="timer-box">' +
@@ -1312,6 +1339,7 @@
           '    <div class="timer-complete-detail">⏱️ Duration: <strong>' + completedToday.duration + '</strong> ' + (completedToday.start_time ? '(' + completedToday.start_time + ' – ' + (completedToday.end_time || '') + ')' : '') + '</div>' +
           '  </div>' +
           '  <button class="btn-timer-start" type="button" onclick="startWorkoutSession(\'' + dayId + '\')">▶️ Start New Workout</button>' +
+          '  <div style="font-size:0.75rem; color:#94a3b8; text-align:center; margin-top:0.15rem;">You already worked out ' + dayTitleText + ' for ' + completedToday.duration + ' today</div>' +
           '</div>';
       } else {
         container.innerHTML = '<div class="timer-box">' +
@@ -1327,7 +1355,7 @@
   }
 
   function renderWarmupAccordionHTML(dayId) {
-    var html = '<details class="warmup-accordion-wrapper">';
+    var html = '<details class="warmup-accordion-wrapper" id="warmup_details_' + dayId + '">';
     html += '  <summary class="warmup-accordion-summary">';
     html += '    <span>🔥 Dynamic Warmup Protocol (Tap to Open)</span>';
     html += '    <span class="card-saved-badge" id="card_saved_' + dayId + '_warmup">✅ Saved</span>';
@@ -1496,16 +1524,23 @@
     var dayPlan = workoutDataMaster.workout_split_plan[dayId];
     var dateEl = document.getElementById(dayId + '_date');
     var date = targetDate || (dateEl ? dateEl.value : getLocalDateString());
+    var today = getLocalDateString();
+    var isToday = (date === today);
     
     var logs = getPersistentLogs();
     
-    // Find matching log for dayId + date, or most recent overall log for that dayId
+    // Auto-load ONLY if a workout exists for TODAY'S local date, OR if forceLatest is requested
     var log = null;
     if (forceLatest) {
       log = logs.find(function(l) { return l.day_id === dayId; });
+    } else if (isToday) {
+      log = logs.find(function(l) { return l.day_id === dayId && l.date === today; });
     } else {
-      log = logs.find(function(l) { return l.day_id === dayId && l.date === date; }) || logs.find(function(l) { return l.day_id === dayId; });
+      log = logs.find(function(l) { return l.day_id === dayId && l.date === date; });
     }
+
+    var isRunning = isWorkoutActive(dayId);
+    var shouldUnfold = (log && (log.entries && log.entries.length > 0)) || isRunning;
 
     // Reset warmups to clean defaults
     standardWarmupList.forEach(function(w) {
@@ -1518,12 +1553,17 @@
       }
     });
 
-    // Reset exercises to clean defaults
+    // Reset exercises to clean defaults and fold/unfold cards
     dayPlan.exercises.forEach(function(ex) {
       var exKey = dayId + '_ex' + ex.order;
       var defaultSets = exerciseSetCounts[exKey] || 3;
       
       toggleExerciseVariant(dayId, ex.order, ex.name, ex.score, true);
+
+      var cardDetails = document.getElementById('details_' + exKey);
+      if (cardDetails) {
+        cardDetails.open = shouldUnfold;
+      }
 
       for (var s = 1; s <= defaultSets; s++) {
         var wEl = document.getElementById(exKey + '_s' + s + '_w');
@@ -1545,6 +1585,11 @@
         }
       }
     });
+
+    var warmupDetails = document.getElementById('warmup_details_' + dayId);
+    if (warmupDetails) {
+      warmupDetails.open = (log && log.warmups && log.warmups.length > 0) || false;
+    }
 
     // Hydrate from log if available
     if (log) {
@@ -1824,20 +1869,22 @@
           altButtonsHTML += '</div>';
         }
 
-        formHTML += '<div class="exercise-card">';
+        formHTML += '<details class="exercise-card" id="details_' + exKey + '">';
         formHTML += '  <span class="card-saved-badge" id="card_saved_' + exKey + '">✅ Saved</span>';
-        formHTML += '  <div class="exercise-card-header">';
+        formHTML += '  <summary class="exercise-card-summary">';
         formHTML += '    <div class="exercise-main-row" id="main_row_' + exKey + '" onclick="toggleExerciseVariant(\'' + day.id + '\', ' + ex.order + ', \'' + ex.name + '\', \'' + ex.score + '\')">';
         formHTML += '      <span class="exercise-name">' + ex.order + '. ' + ex.name + '</span>';
         formHTML += '      <span class="score-badge">[' + ex.score + ']</span>';
         formHTML += '    </div>';
         formHTML += '    <div class="target-scheme-row">🎯 ' + ex.scheme + '</div>';
+        formHTML += '  </summary>';
+        formHTML += '  <div class="exercise-card-body">';
         formHTML += altButtonsHTML;
-        formHTML += '  </div>';
-        formHTML += '  <div class="sets-scroll-container" id="container_' + exKey + '">';
+        formHTML += '    <div class="sets-scroll-container" id="container_' + exKey + '">';
         formHTML += renderSetsTiles(day.id, ex, count);
+        formHTML += '    </div>';
         formHTML += '  </div>';
-        formHTML += '</div>';
+        formHTML += '</details>';
       });
 
       formHTML += '  <div class="save-section">';
