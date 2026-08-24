@@ -1445,11 +1445,11 @@
     }
   }
 
-  function fetchDataFromGDrive() {
+  function fetchDataFromGDrive(silent) {
     var input = document.getElementById('gdriveWebhookUrl');
     var url = localStorage.getItem('gdrive_webhook_url') || (input ? input.value.trim() : '');
     if (!url) {
-      alert('Please configure your Google Apps Script URL in the ⚙️ Cloud Sync tab first.');
+      if (!silent) alert('Please configure your Google Apps Script URL in the ⚙️ Cloud Sync tab first.');
       return;
     }
 
@@ -1459,15 +1459,15 @@
       if (input) input.value = url;
     }
 
-    showNotification('⏳ Pulling latest data from Google Drive...');
+    if (!silent) showNotification('⏳ Pulling latest data from Google Drive...');
 
     fetch(url)
       .then(function(res) { return res.json(); })
-      .then(function(data) { handleDriveDataResponse(data); })
-      .catch(function() { fetchDataViaJSONP(url); });
+      .then(function(data) { handleDriveDataResponse(data, silent); })
+      .catch(function() { fetchDataViaJSONP(url, silent); });
   }
 
-  function handleDriveDataResponse(data) {
+  function handleDriveDataResponse(data, silent) {
     if (data && data.workout_logs) {
       setPersistentLogs(data.workout_logs);
       var badge = document.getElementById('logCountBadge');
@@ -1476,23 +1476,25 @@
       hydrateAllDaysFromStoredLogs();
       renderHistoryLogs();
 
-      if (data.workout_logs.length > 0) {
-        showNotification('✅ Loaded ' + data.workout_logs.length + ' sessions from Google Drive!');
-      } else {
-        showNotification('Connected to Google Drive. No previous session logs found.');
+      if (!silent) {
+        if (data.workout_logs.length > 0) {
+          showNotification('✅ Loaded ' + data.workout_logs.length + ' sessions from Google Drive!');
+        } else {
+          showNotification('Connected to Google Drive. No previous session logs found.');
+        }
       }
-    } else {
+    } else if (!silent) {
       showNotification('Connected to Drive. No previous session logs found.');
     }
   }
 
-  function fetchDataViaJSONP(url) {
+  function fetchDataViaJSONP(url, silent) {
     var callbackName = 'gdrive_cb_' + Math.floor(Math.random() * 1000000);
     var script = document.createElement('script');
 
     window[callbackName] = function(data) {
       try {
-        handleDriveDataResponse(data);
+        handleDriveDataResponse(data, silent);
       } catch (err) {
         console.error("Error applying Drive data:", err);
       } finally {
@@ -1502,7 +1504,7 @@
     };
 
     script.onerror = function() {
-      showNotification('⚠️ Could not connect to Google Drive. Check that "Who has access" is set to "Anyone".');
+      if (!silent) showNotification('⚠️ Could not connect to Google Drive. Check that "Who has access" is set to "Anyone".');
       delete window[callbackName];
       if (script.parentNode) script.parentNode.removeChild(script);
     };
@@ -1698,7 +1700,8 @@
     var dayMatch = el.id.match(/^(day[0-9]+)/);
     var dayId = dayMatch ? dayMatch[1] : null;
 
-    if (dayId && !isWorkoutActive(dayId)) {
+    // Only block user interactive edits when workout is not active; allow programmatic hydration!
+    if (triggerAuto !== false && dayId && !isWorkoutActive(dayId)) {
       showNotification('🔒 Tap ▶️ Start Workout first to begin logging.');
       return;
     }
