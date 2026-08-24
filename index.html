@@ -28,7 +28,7 @@
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation; /* Prevents double-tap to zoom on iOS Safari */
+      touch-action: manipulation;
     }
 
     html, body {
@@ -72,7 +72,6 @@
       font-size: 0.85rem;
     }
 
-    /* Auto-save Status Pill */
     .save-indicator {
       display: inline-flex;
       align-items: center;
@@ -204,6 +203,136 @@
       text-align: center;
     }
 
+    /* Foldable / Collapsible Warmup Section on Each Day Card */
+    .warmup-accordion-wrapper {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .warmup-accordion-summary {
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      color: #fff;
+      font-size: 0.95rem;
+      background: rgba(15, 23, 42, 0.7);
+      list-style: none;
+      transition: background 0.2s;
+    }
+
+    .warmup-accordion-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .warmup-accordion-summary:active {
+      background: rgba(56, 189, 248, 0.1);
+    }
+
+    .warmup-accordion-content {
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      border-top: 1px solid rgba(51, 65, 85, 0.5);
+    }
+
+    .warmup-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.35);
+    }
+
+    .warmup-row:last-child {
+      border-bottom: none;
+    }
+
+    .warmup-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      flex-grow: 1;
+    }
+
+    .warmup-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .warmup-rec {
+      font-size: 0.725rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .warmup-stepper-box {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      flex-shrink: 0;
+    }
+
+    .warmup-stepper-btn {
+      background: var(--btn-stepper);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    .warmup-stepper-btn:active {
+      background: var(--accent);
+      color: #0b1120;
+    }
+
+    .warmup-val-display {
+      background: #0b1120;
+      border: 1px solid var(--border);
+      color: #64748b;
+      font-size: 15px;
+      font-weight: 700;
+      text-align: center;
+      width: 44px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+
+    .warmup-val-display.user-edited {
+      color: #ffffff !important;
+      border-color: rgba(56, 189, 248, 0.45);
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    /* Main Exercise Card */
     .exercise-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -428,7 +557,7 @@
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: manipulation; /* Critical to prevent iOS double-tap zoom */
+      touch-action: manipulation;
       transition: background 0.1s;
     }
 
@@ -437,30 +566,34 @@
       color: #0b1120;
     }
 
-    /* 16px minimum font size to prevent iOS Safari auto-zoom on input focus */
-    .stepper-input {
+    .stepper-val-display {
       background: #0b1120;
       border: 1px solid var(--border);
       color: #64748b;
-      font-size: 16px !important; 
+      font-size: 16px;
       font-weight: 700;
       text-align: center;
       width: 100%;
       height: 32px;
       border-radius: 6px;
-      padding: 0;
-      transition: color 0.15s, border-color 0.15s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: pointer;
       touch-action: manipulation;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
     }
 
-    .stepper-input.user-edited {
+    .stepper-val-display.user-edited {
       color: #ffffff !important;
-      border-color: rgba(56, 189, 248, 0.4);
+      border-color: rgba(56, 189, 248, 0.45);
+      background: rgba(56, 189, 248, 0.08);
     }
 
-    .stepper-input:focus {
-      outline: none;
-      border-color: var(--accent);
+    .stepper-val-display:active {
+      transform: scale(0.96);
     }
 
     .add-set-tile {
@@ -533,47 +666,6 @@
       font-size: 0.85rem;
       min-height: 40px;
       touch-action: manipulation;
-    }
-
-    .warmup-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1rem 1.15rem;
-      margin-bottom: 1rem;
-    }
-
-    .warmup-card h3 {
-      font-size: 1.05rem;
-      color: var(--accent);
-      margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .warmup-item {
-      padding: 0.5rem 0;
-      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
-      font-size: 0.85rem;
-      color: #cbd5e1;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .warmup-item:last-child {
-      border-bottom: none;
-    }
-
-    .warmup-tag {
-      background: rgba(56, 189, 248, 0.1);
-      color: var(--accent);
-      padding: 0.15rem 0.45rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      white-space: nowrap;
     }
 
     .log-item {
@@ -690,98 +782,13 @@
 
   <!-- Sticky Scrolling Navigation Tabs -->
   <div class="nav-tabs-wrapper">
-    <div class="nav-tabs" id="tabContainer">
-      <!-- Tabs injected via JS -->
-    </div>
+    <div class="nav-tabs" id="tabContainer"></div>
   </div>
 
-  <!-- 1. Dedicated Warmup Tab -->
-  <div id="warmupTabContent" class="tab-content">
-    <div class="day-header">
-      <div class="day-title">🔥 Dynamic Warmup Routine</div>
-      <div class="day-focus">Cardio, Full Body Activation & Joint Readiness</div>
-    </div>
-
-    <div class="warmup-card">
-      <h3>🏃 1. Cardio & Bodyweight Activation</h3>
-      <div class="warmup-item">
-        <span>Jumping Jacks</span>
-        <span class="warmup-tag">25–30 reps</span>
-      </div>
-      <div class="warmup-item">
-        <span>Knee-to-Elbow Crossover Touch Jumps</span>
-        <span class="warmup-tag">15–20 reps</span>
-      </div>
-      <div class="warmup-item">
-        <span>Bodyweight Jumping Squats (Soft Landing)</span>
-        <span class="warmup-tag">10–12 reps</span>
-      </div>
-      <div class="warmup-item">
-        <span>Push-Ups (Smooth Cadence)</span>
-        <span class="warmup-tag">12–15 reps</span>
-      </div>
-      <div class="warmup-item">
-        <span>Dead Hangs (Pull-Up Bar Decompression)</span>
-        <span class="warmup-tag">20–30 sec</span>
-      </div>
-    </div>
-
-    <div class="warmup-card">
-      <h3>🔄 2. Joint & Rotational Mobility</h3>
-      <div class="warmup-item">
-        <span>Leg & Ankle Rotations (Clockwise / Counter)</span>
-        <span class="warmup-tag">10 reps / side</span>
-      </div>
-      <div class="warmup-item">
-        <span>Wrist Rotations & Flexor Stretch</span>
-        <span class="warmup-tag">15–20 sec</span>
-      </div>
-      <div class="warmup-item">
-        <span>Dumbbell Halos (Around the Head Rotations)</span>
-        <span class="warmup-tag">8–10 reps / dir</span>
-      </div>
-    </div>
-
-    <div class="warmup-card">
-      <h3>⚡ 3. Light DB Muscle Priming (5–10 lbs)</h3>
-      <div class="warmup-item">
-        <span>Light DB Shoulder Press</span>
-        <span class="warmup-tag">10–12 reps</span>
-      </div>
-      <div class="warmup-item">
-        <span>Light DB Bicep Curls</span>
-        <span class="warmup-tag">10–12 reps</span>
-      </div>
-      <div class="warmup-item">
-        <span>Light DB Lateral / Front Raises</span>
-        <span class="warmup-tag">10–12 reps</span>
-      </div>
-    </div>
-
-    <div class="warmup-card">
-      <h3>🏋️ 4. Main Lift Feeder Sets Rule</h3>
-      <p style="font-size:0.85rem; color:#cbd5e1; line-height:1.45; margin-bottom:0.5rem;">
-        Before your heavy working sets on Barbell Bench, RDLs, or Squats:
-      </p>
-      <div class="warmup-item">
-        <span>Feeder Set 1: Empty Bar / Very Light</span>
-        <span class="warmup-tag">8–10 reps</span>
-      </div>
-      <div class="warmup-item">
-        <span>Feeder Set 2: ~60% Working Weight</span>
-        <span class="warmup-tag">4–5 crisp reps</span>
-      </div>
-      <div class="warmup-item">
-        <span>Working Sets: Begin your RPE 7–8 sets</span>
-        <span class="warmup-tag">Full Strength</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- 2. Dynamic Workout Forms Container (Day 1 to Day 4) -->
+  <!-- Dynamic Workout Forms Container (Day 1 to Day 4) -->
   <div id="workoutFormsContainer"></div>
 
-  <!-- 3. History Tab -->
+  <!-- History Tab -->
   <div id="historyTabContent" class="tab-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
       <h3 style="color:#fff; font-size:1.1rem;">Workout History</h3>
@@ -790,7 +797,7 @@
     <div id="logsContainer"></div>
   </div>
 
-  <!-- 4. Dedicated Google Drive & Sync Tab -->
+  <!-- Dedicated Google Drive & Sync Tab -->
   <div id="syncTabContent" class="tab-content">
     <div class="day-header">
       <div class="day-title">☁️ Google Drive & Cloud Sync</div>
@@ -819,11 +826,26 @@
   </div>
 
   <footer>
-    <p>Zero-Zoom Steppers &bull; Realtime Auto-Save &bull; iPhone Safari Ready</p>
+    <p>Zero-Zoom Steppers &bull; Foldable Warmup Accordion &bull; iPhone Safari Ready</p>
   </footer>
 </div>
 
 <script>
+  // Standard Dynamic Warmup List for all workout days
+  var standardWarmupList = [
+    { id: "w_jacks", name: "Jumping Jacks", rec: "25–30 reps", default_val: 25, step: 5, unit: "reps" },
+    { id: "w_cross_jumps", name: "Knee-Elbow Crossover Jumps", rec: "15–20 reps", default_val: 15, step: 5, unit: "reps" },
+    { id: "w_jump_squats", name: "Jump Squats (Soft Landing)", rec: "10–12 reps", default_val: 10, step: 2, unit: "reps" },
+    { id: "w_pushups", name: "Push-Ups (Smooth Cadence)", rec: "12–15 reps", default_val: 12, step: 2, unit: "reps" },
+    { id: "w_dead_hang", name: "Dead Hangs (Bar Decompression)", rec: "20–30 sec", default_val: 20, step: 5, unit: "sec" },
+    { id: "w_ankle_rot", name: "Leg & Ankle Rotations", rec: "10/side", default_val: 10, step: 2, unit: "reps" },
+    { id: "w_wrist_rot", name: "Wrist Rotations & Stretch", rec: "15–20 sec", default_val: 15, step: 5, unit: "sec" },
+    { id: "w_halos", name: "Dumbbell Halos (Around Head)", rec: "8–10/dir", default_val: 8, step: 2, unit: "reps" },
+    { id: "w_db_press", name: "Light DB Shoulder Press", rec: "10–12 reps", default_val: 10, step: 2, unit: "reps" },
+    { id: "w_db_curls", name: "Light DB Bicep Curls", rec: "10–12 reps", default_val: 10, step: 2, unit: "reps" },
+    { id: "w_db_raises", name: "Light DB Lateral / Front Raises", rec: "10–12 reps", default_val: 10, step: 2, unit: "reps" }
+  ];
+
   var workoutDataMaster = {
     "workout_split_plan": {
       "day1": {
@@ -831,12 +853,11 @@
         "name": "Day 1: Upper A",
         "focus": "Chest Mass, Pull-Ups & Biceps",
         "exercises": [
-          { "order": 1, "name": "10 lb Arm Circles / Rotations", "score": 5.0, "scheme": "2 sets × 15–20 reps (Shoulder Warmup)", "alt": "", "default_w": 10, "default_r": 15, "step_w": 2.5 },
-          { "order": 2, "name": "Barbell Flat Bench Press", "score": 9.5, "scheme": "3–4 sets × 6–10 reps (RPE 7–8)", "alt": "Strict Push-Ups [6.5]", "default_w": 115, "default_r": 8, "step_w": 5 },
-          { "order": 3, "name": "Strict Pull-Ups", "score": 9.5, "scheme": "3–4 sets × 6–10 reps (RPE 8)", "alt": "", "default_w": 0, "default_r": 8, "step_w": 5 },
-          { "order": 4, "name": "Incline DB Bench Press", "score": 9.0, "scheme": "3–4 sets × 8–12 reps (RPE 8)", "alt": "Close-Grip DB Press [7.5]", "default_w": 35, "default_r": 10, "step_w": 5 },
-          { "order": 5, "name": "Incline DB Bicep Curls", "score": 9.5, "scheme": "3–4 sets × 10–12 reps (RPE 8–9)", "alt": "Z-Bar Curls [8.5]", "default_w": 20, "default_r": 12, "step_w": 2.5 },
-          { "order": 6, "name": "DB Hammer Curls", "score": 9.0, "scheme": "3 sets × 12–15 reps (RPE 8)", "alt": "Standing DB Curls [8.5]", "default_w": 25, "default_r": 12, "step_w": 2.5 }
+          { "order": 1, "name": "Barbell Flat Bench Press", "score": 9.5, "scheme": "3–4 sets × 6–10 reps (RPE 7–8)", "alt": "Strict Push-Ups [6.5]", "default_w": 115, "default_r": 8, "step_w": 5 },
+          { "order": 2, "name": "Strict Pull-Ups", "score": 9.5, "scheme": "3–4 sets × 6–10 reps (RPE 8)", "alt": "", "default_w": 0, "default_r": 8, "step_w": 5 },
+          { "order": 3, "name": "Incline DB Bench Press", "score": 9.0, "scheme": "3–4 sets × 8–12 reps (RPE 8)", "alt": "Close-Grip DB Press [7.5]", "default_w": 35, "default_r": 10, "step_w": 5 },
+          { "order": 4, "name": "Incline DB Bicep Curls", "score": 9.5, "scheme": "3–4 sets × 10–12 reps (RPE 8–9)", "alt": "Z-Bar Curls [8.5]", "default_w": 20, "default_r": 12, "step_w": 2.5 },
+          { "order": 5, "name": "DB Hammer Curls", "score": 9.0, "scheme": "3 sets × 12–15 reps (RPE 8)", "alt": "Standing DB Curls [8.5]", "default_w": 25, "default_r": 12, "step_w": 2.5 }
         ]
       },
       "day2": {
@@ -968,7 +989,7 @@
     var input = document.getElementById('gdriveWebhookUrl');
     var url = localStorage.getItem('gdrive_webhook_url') || (input ? input.value.trim() : '');
     if (!url) {
-      alert('Please configure your Google Apps Script URL in the ☁️ Cloud Sync tab first.');
+      alert('Please configure your Google Apps Script URL in the ⚙️ Cloud Sync tab first.');
       return;
     }
 
@@ -1057,103 +1078,118 @@
 
       var dayPlan = workoutDataMaster.workout_split_plan[dayId];
 
-      log.entries.forEach(function(entry) {
-        var ex = findMatchingExercise(dayPlan, entry.exercise_name);
-        if (!ex) return;
-
-        var exKey = dayId + '_ex' + ex.order;
-
-        // Check if this was an alternative variant
-        if (ex.alt && ex.alt.toLowerCase().indexOf(entry.exercise_name.toLowerCase().trim()) !== -1) {
-          toggleExerciseVariant(dayId, ex.order, entry.exercise_name, '', true);
-        }
-
-        // Determine highest set count (e.g. 4th, 5th set)
-        var maxSet = 0;
-        if (entry.sets && entry.sets.length) {
-          entry.sets.forEach(function(s, idx) {
-            var sNum = parseInt(s.set, 10) || (idx + 1);
-            if (sNum > maxSet) maxSet = sNum;
+      // Populate warmups
+      if (log.warmups && log.warmups.length) {
+        log.warmups.forEach(function(w) {
+          var item = standardWarmupList.find(function(x) { 
+            return x.name.toLowerCase().trim() === w.name.toLowerCase().trim(); 
           });
-        }
-        if (maxSet < (entry.sets ? entry.sets.length : 0)) {
-          maxSet = entry.sets.length;
-        }
+          if (item) {
+            var el = document.getElementById(dayId + '_' + item.id);
+            if (el) {
+              el.innerText = w.value;
+              el.setAttribute('data-val', w.value);
+              markEdited(el, false);
+            }
+          }
+        });
+      }
 
-        if (maxSet > (exerciseSetCounts[exKey] || 3)) {
-          exerciseSetCounts[exKey] = maxSet;
-        }
+      // Populate main exercises
+      if (log.entries && log.entries.length) {
+        log.entries.forEach(function(entry) {
+          var ex = findMatchingExercise(dayPlan, entry.exercise_name);
+          if (!ex) return;
 
-        // Always re-render container to guarantee all 4+ set tiles exist
-        var container = document.getElementById('container_' + exKey);
-        if (container) {
-          container.innerHTML = renderSetsTiles(dayId, ex, exerciseSetCounts[exKey]);
-        }
+          var exKey = dayId + '_ex' + ex.order;
 
-        // Populate weight and reps in pure white
-        if (entry.sets && entry.sets.length) {
-          entry.sets.forEach(function(s, idx) {
-            var setNum = s.set || (idx + 1);
-            var wEl = document.getElementById(exKey + '_s' + setNum + '_w');
-            var rEl = document.getElementById(exKey + '_s' + setNum + '_r');
+          if (ex.alt && ex.alt.toLowerCase().indexOf(entry.exercise_name.toLowerCase().trim()) !== -1) {
+            toggleExerciseVariant(dayId, ex.order, entry.exercise_name, '', true);
+          }
 
-            var weight = s.weight;
-            var reps = s.reps;
+          var maxSet = 0;
+          if (entry.sets && entry.sets.length) {
+            entry.sets.forEach(function(s, idx) {
+              var sNum = parseInt(s.set, 10) || (idx + 1);
+              if (sNum > maxSet) maxSet = sNum;
+            });
+          }
+          if (maxSet < (entry.sets ? entry.sets.length : 0)) {
+            maxSet = entry.sets.length;
+          }
 
-            // Extract from result string if weight/reps keys were stringified
-            if ((weight === undefined || weight === null) && s.result) {
-              var parts = s.result.split(/[x×|]/);
-              if (parts.length >= 2) {
-                weight = parts[0].replace(/[^0-9.]/g, '').trim();
-                reps = parts[1].replace(/[^0-9.]/g, '').trim();
+          if (maxSet > (exerciseSetCounts[exKey] || 3)) {
+            exerciseSetCounts[exKey] = maxSet;
+          }
+
+          var container = document.getElementById('container_' + exKey);
+          if (container) {
+            container.innerHTML = renderSetsTiles(dayId, ex, exerciseSetCounts[exKey]);
+          }
+
+          if (entry.sets && entry.sets.length) {
+            entry.sets.forEach(function(s, idx) {
+              var setNum = s.set || (idx + 1);
+              var wEl = document.getElementById(exKey + '_s' + setNum + '_w');
+              var rEl = document.getElementById(exKey + '_s' + setNum + '_r');
+
+              var weight = s.weight;
+              var reps = s.reps;
+
+              if ((weight === undefined || weight === null) && s.result) {
+                var parts = s.result.split(/[x×|]/);
+                if (parts.length >= 2) {
+                  weight = parts[0].replace(/[^0-9.]/g, '').trim();
+                  reps = parts[1].replace(/[^0-9.]/g, '').trim();
+                }
               }
-            }
 
-            if (wEl && weight !== undefined && weight !== null && weight !== '') {
-              wEl.value = weight;
-              markEdited(wEl, false);
-            }
-            if (rEl && reps !== undefined && reps !== null && reps !== '') {
-              rEl.value = reps;
-              markEdited(rEl, false);
-            }
-          });
-        }
-      });
+              if (wEl && weight !== undefined && weight !== null && weight !== '') {
+                wEl.innerText = weight;
+                wEl.setAttribute('data-val', weight);
+                markEdited(wEl, false);
+              }
+              if (rEl && reps !== undefined && reps !== null && reps !== '') {
+                rEl.innerText = reps;
+                rEl.setAttribute('data-val', reps);
+                markEdited(rEl, false);
+              }
+            });
+          }
+        });
+      }
     });
   }
 
-  function markEdited(inputEl, triggerAuto) {
-    if (!inputEl) return;
-    inputEl.classList.add('user-edited');
-    inputEl.setAttribute('data-edited', 'true');
+  function markEdited(el, triggerAuto) {
+    if (!el) return;
+    el.classList.add('user-edited');
+    el.setAttribute('data-edited', 'true');
     
     if (triggerAuto !== false) {
-      var match = inputEl.id.match(/^((day[0-9]+)_ex[0-9]+)/);
+      var match = el.id.match(/^((day[0-9]+)(?:_ex[0-9]+)?)/);
       if (match) {
-        var exKey = match[1];
+        var cardKey = match[1];
         var dayId = match[2];
-        flashCardSavedBadge(exKey);
+        flashCardSavedBadge(cardKey);
         triggerAutoSave(dayId);
       }
     }
   }
 
-  // Tapping default value directly turns it white and commits the entry
-  function tapDefaultVal(inputEl) {
-    if (!inputEl) return;
-    if (!inputEl.classList.contains('user-edited')) {
-      markEdited(inputEl, true);
+  function tapDefaultVal(el) {
+    if (!el) return;
+    if (!el.classList.contains('user-edited')) {
+      markEdited(el, true);
     }
   }
 
-  // Momentary "Saved" badge flash directly on the edited card
-  function flashCardSavedBadge(exKey) {
-    var badge = document.getElementById('card_saved_' + exKey);
+  function flashCardSavedBadge(cardKey) {
+    var badge = document.getElementById('card_saved_' + cardKey);
     if (badge) {
       badge.style.display = 'inline-flex';
       badge.style.animation = 'none';
-      badge.offsetHeight; // trigger reflow
+      badge.offsetHeight;
       badge.style.animation = 'flashFade 1.6s ease forwards';
       setTimeout(function() {
         badge.style.display = 'none';
@@ -1161,22 +1197,27 @@
     }
   }
 
-  function modifyVal(inputId, delta, step) {
+  function modifyVal(valId, delta, step) {
     step = step || 1;
-    var input = document.getElementById(inputId);
-    if (!input) return;
+    var el = document.getElementById(valId);
+    if (!el) return;
 
-    var current = parseFloat(input.value);
+    var current = parseFloat(el.getAttribute('data-val') || el.innerText || el.value);
     if (isNaN(current)) current = 0;
 
     var nextVal = current + (delta * step);
     if (nextVal < 0) nextVal = 0;
 
-    input.value = Number.isInteger(nextVal) ? nextVal : nextVal.toFixed(1);
-    markEdited(input, true);
+    var formatted = Number.isInteger(nextVal) ? nextVal : nextVal.toFixed(1);
+    if (el.tagName === 'INPUT') {
+      el.value = formatted;
+    } else {
+      el.innerText = formatted;
+      el.setAttribute('data-val', formatted);
+    }
+    markEdited(el, true);
   }
 
-  // Seamless Debounced Auto-Save
   function triggerAutoSave(dayId) {
     clearTimeout(autoSaveTimer);
     var indicator = document.getElementById('globalAutoSaveBadge');
@@ -1224,6 +1265,34 @@
     }
   }
 
+  function renderWarmupAccordionHTML(dayId) {
+    var html = '<details class="warmup-accordion-wrapper">';
+    html += '  <summary class="warmup-accordion-summary">';
+    html += '    <span>🔥 Dynamic Warmup Protocol (Tap to Open)</span>';
+    html += '    <span class="card-saved-badge" id="card_saved_' + dayId + '">✅ Saved</span>';
+    html += '  </summary>';
+    html += '  <div class="warmup-accordion-content">';
+
+    standardWarmupList.forEach(function(w) {
+      var valId = dayId + '_' + w.id;
+      html += '    <div class="warmup-row">';
+      html += '      <div class="warmup-left">';
+      html += '        <span class="warmup-name">' + w.name + '</span>';
+      html += '        <span class="warmup-rec">Rec: ' + w.rec + '</span>';
+      html += '      </div>';
+      html += '      <div class="warmup-stepper-box">';
+      html += '        <button type="button" class="warmup-stepper-btn" onclick="modifyVal(\'' + valId + '\', -1, ' + w.step + ')">-</button>';
+      html += '        <div class="warmup-val-display" id="' + valId + '" data-val="' + w.default_val + '" onclick="tapDefaultVal(this)">' + w.default_val + '</div>';
+      html += '        <button type="button" class="warmup-stepper-btn" onclick="modifyVal(\'' + valId + '\', 1, ' + w.step + ')">+</button>';
+      html += '      </div>';
+      html += '    </div>';
+    });
+
+    html += '  </div>';
+    html += '</details>';
+    return html;
+  }
+
   function renderWorkoutForms() {
     var tabContainer = document.getElementById('tabContainer');
     var formsContainer = document.getElementById('workoutFormsContainer');
@@ -1232,7 +1301,7 @@
     var days = Object.values(workoutDataMaster.workout_split_plan);
     var today = getLocalDateString();
 
-    var tabHTML = '<button class="tab-btn" id="btn_warmupTabContent" onclick="switchTab(\'warmupTabContent\')">🔥 Warmup</button>';
+    var tabHTML = '';
     var formHTML = '';
 
     days.forEach(function(day, index) {
@@ -1245,6 +1314,10 @@
       formHTML += '    <div class="day-focus">' + day.focus + '</div>';
       formHTML += '  </div>';
 
+      // Insert Foldable Warmup Accordion on top of Day Card
+      formHTML += renderWarmupAccordionHTML(day.id);
+
+      // Render Main Working Exercises
       day.exercises.forEach(function(ex) {
         var exKey = day.id + '_ex' + ex.order;
         exerciseSetCounts[exKey] = exerciseSetCounts[exKey] || 3;
@@ -1315,13 +1388,13 @@
       html += '    <div class="stepper-column">';
       html += '      <span class="stepper-label">Weight</span>';
       html += '      <button type="button" class="stepper-btn" onclick="modifyVal(\'' + exKey + '_s' + s + '_w\', 1, ' + stepW + ')">+</button>';
-      html += '      <input type="text" class="stepper-input" id="' + exKey + '_s' + s + '_w" value="' + defaultWeight + '" onclick="tapDefaultVal(this)" oninput="markEdited(this)" onfocus="tapDefaultVal(this); onSetFocus(\'' + dayId + '\', ' + ex.order + ', ' + s + ')">';
+      html += '      <div class="stepper-val-display" id="' + exKey + '_s' + s + '_w" data-val="' + defaultWeight + '" onclick="tapDefaultVal(this)">' + defaultWeight + '</div>';
       html += '      <button type="button" class="stepper-btn" onclick="modifyVal(\'' + exKey + '_s' + s + '_w\', -1, ' + stepW + ')">-</button>';
       html += '    </div>';
       html += '    <div class="stepper-column">';
       html += '      <span class="stepper-label">Reps</span>';
       html += '      <button type="button" class="stepper-btn" onclick="modifyVal(\'' + exKey + '_s' + s + '_r\', 1, 1)">+</button>';
-      html += '      <input type="text" class="stepper-input" id="' + exKey + '_s' + s + '_r" value="' + defaultReps + '" onclick="tapDefaultVal(this)" oninput="markEdited(this)" onfocus="tapDefaultVal(this); onSetFocus(\'' + dayId + '\', ' + ex.order + ', ' + s + ')">';
+      html += '      <div class="stepper-val-display" id="' + exKey + '_s' + s + '_r" data-val="' + defaultReps + '" onclick="tapDefaultVal(this)">' + defaultReps + '</div>';
       html += '      <button type="button" class="stepper-btn" onclick="modifyVal(\'' + exKey + '_s' + s + '_r\', -1, 1)">-</button>';
       html += '    </div>';
       html += '  </div>';
@@ -1362,8 +1435,8 @@
       for (var s = 1; s < exerciseSetCounts[exKey]; s++) {
         var wEl = document.getElementById(exKey + '_s' + s + '_w');
         var rEl = document.getElementById(exKey + '_s' + s + '_r');
-        currentValues[exKey + '_s' + s + '_w'] = wEl ? wEl.value : null;
-        currentValues[exKey + '_s' + s + '_r'] = rEl ? rEl.value : null;
+        currentValues[exKey + '_s' + s + '_w'] = wEl ? (wEl.getAttribute('data-val') || wEl.innerText) : null;
+        currentValues[exKey + '_s' + s + '_r'] = rEl ? (rEl.getAttribute('data-val') || rEl.innerText) : null;
         editedFlags[exKey + '_s' + s + '_w'] = wEl && wEl.getAttribute('data-edited') === 'true';
         editedFlags[exKey + '_s' + s + '_r'] = rEl && rEl.getAttribute('data-edited') === 'true';
       }
@@ -1374,11 +1447,13 @@
         var wEl = document.getElementById(exKey + '_s' + s + '_w');
         var rEl = document.getElementById(exKey + '_s' + s + '_r');
         if (currentValues[exKey + '_s' + s + '_w'] !== undefined && wEl) {
-          wEl.value = currentValues[exKey + '_s' + s + '_w'];
+          wEl.innerText = currentValues[exKey + '_s' + s + '_w'];
+          wEl.setAttribute('data-val', currentValues[exKey + '_s' + s + '_w']);
           if (editedFlags[exKey + '_s' + s + '_w']) markEdited(wEl, false);
         }
         if (currentValues[exKey + '_s' + s + '_r'] !== undefined && rEl) {
-          rEl.value = currentValues[exKey + '_s' + s + '_r'];
+          rEl.innerText = currentValues[exKey + '_s' + s + '_r'];
+          rEl.setAttribute('data-val', currentValues[exKey + '_s' + s + '_r']);
           if (editedFlags[exKey + '_s' + s + '_r']) markEdited(rEl, false);
         }
       }
@@ -1426,8 +1501,23 @@
     var dayPlan = workoutDataMaster.workout_split_plan[dayId];
     var dateEl = document.getElementById(dayId + '_date');
     var date = dateEl ? dateEl.value : getLocalDateString();
-    var entries = [];
+    
+    // Collect active warmups
+    var warmupEntries = [];
+    standardWarmupList.forEach(function(w) {
+      var el = document.getElementById(dayId + '_' + w.id);
+      if (el && el.getAttribute('data-edited') === 'true') {
+        var val = (el.getAttribute('data-val') || el.innerText || '0').trim();
+        warmupEntries.push({
+          name: w.name,
+          value: val,
+          unit: w.unit
+        });
+      }
+    });
 
+    // Collect active working sets
+    var entries = [];
     dayPlan.exercises.forEach(function(ex) {
       var exKey = dayId + '_ex' + ex.order;
       var setCount = exerciseSetCounts[exKey] || 3;
@@ -1441,8 +1531,8 @@
                        (rEl && rEl.getAttribute('data-edited') === 'true');
 
         if (isEdited) {
-          var wVal = wEl ? wEl.value.trim() : '0';
-          var rVal = rEl ? rEl.value.trim() : '0';
+          var wVal = wEl ? (wEl.getAttribute('data-val') || wEl.innerText || '0').trim() : '0';
+          var rVal = rEl ? (rEl.getAttribute('data-val') || rEl.innerText || '0').trim() : '0';
           var wStr = (wVal && wVal !== '0') ? wVal + ' lbs' : 'BW';
           var rStr = rVal + ' reps';
           var resultStr = wStr + ' × ' + rStr;
@@ -1465,18 +1555,18 @@
       }
     });
 
-    if (entries.length === 0) return;
+    if (entries.length === 0 && warmupEntries.length === 0) return;
 
     var logs = getPersistentLogs();
-    // Update existing session for today+dayId if present, else insert new
     var existingIndex = logs.findIndex(function(l) { return l.date === date && l.day_id === dayId; });
-    
+
     var logEntry = {
       id: (existingIndex !== -1) ? logs[existingIndex].id : ("log_" + Date.now()),
       date: date,
       day_id: dayId,
       session_name: dayName,
       timestamp: new Date().toISOString(),
+      warmups: warmupEntries,
       entries: entries
     };
 
@@ -1492,7 +1582,7 @@
     if (badge) badge.innerText = logs.length;
 
     if (localStorage.getItem('gdrive_webhook_url')) {
-      syncCurrentDataToGDrive(true); // Silent sync on auto-save
+      syncCurrentDataToGDrive(true);
     }
   }
 
@@ -1533,13 +1623,24 @@
       html += '    </div>';
       html += '    <button class="btn-sync" style="background:rgba(239, 68, 68, 0.15); color:#f87171; border:1px solid rgba(239, 68, 68, 0.3); padding:0.25rem 0.6rem; font-size:0.75rem; border-radius:6px; min-height:30px;" onclick="deleteSingleLog(\'' + log.id + '\')">🗑️ Delete</button>';
       html += '  </div>';
-      html += '  <div class="log-ex-list">';
-      log.entries.forEach(function(e) {
-        html += '  <div class="log-ex-row">';
-        html += '    <span style="color:#fff; font-weight:500;">' + e.exercise_name + '</span>';
-        html += '    <span class="log-sets-val">' + e.sets.map(function(s) { return s.result; }).join(' | ') + '</span>';
+
+      // Render Warmups if recorded
+      if (log.warmups && log.warmups.length > 0) {
+        html += '  <div style="font-size:0.8rem; color:var(--accent); margin-bottom:0.4rem; padding-bottom:0.35rem; border-bottom:1px dashed rgba(51,65,85,0.6);">';
+        html += '    <strong>🔥 Warmups: </strong>' + log.warmups.map(function(w) { return w.name + ' (' + w.value + ' ' + w.unit + ')'; }).join(', ');
         html += '  </div>';
-      });
+      }
+
+      // Render Main Working Exercises
+      html += '  <div class="log-ex-list">';
+      if (log.entries && log.entries.length > 0) {
+        log.entries.forEach(function(e) {
+          html += '  <div class="log-ex-row">';
+          html += '    <span style="color:#fff; font-weight:500;">' + e.exercise_name + '</span>';
+          html += '    <span class="log-sets-val">' + e.sets.map(function(s) { return s.result; }).join(' | ') + '</span>';
+          html += '  </div>';
+        });
+      }
       html += '  </div>';
       html += '</div>';
       return html;
@@ -1570,7 +1671,7 @@
   document.addEventListener('touchend', function(event) {
     var now = (new Date()).getTime();
     if (now - lastTouchEnd <= 300) {
-      if (event.target && (event.target.classList.contains('stepper-btn') || event.target.tagName === 'BUTTON')) {
+      if (event.target && (event.target.classList.contains('stepper-btn') || event.target.classList.contains('warmup-stepper-btn') || event.target.classList.contains('stepper-val-display') || event.target.classList.contains('warmup-val-display') || event.target.tagName === 'BUTTON')) {
         event.preventDefault();
       }
     }
