@@ -99,25 +99,6 @@
       text-align: center;
     }
 
-    .vitals-accordion {
-      background: rgba(30, 41, 59, 0.6);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 0.6rem 0.85rem;
-      margin-bottom: 1rem;
-      font-size: 0.8rem;
-      color: #cbd5e1;
-      display: flex;
-      justify-content: space-around;
-      text-align: center;
-    }
-
-    .v-item strong {
-      color: #fff;
-      display: block;
-      font-size: 0.95rem;
-    }
-
     /* Navigation Bar */
     .nav-tabs-wrapper {
       position: sticky;
@@ -845,46 +826,6 @@
       line-height: 1;
     }
 
-    .save-section {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1rem;
-      margin-top: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .date-row {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .date-input {
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      color: #fff;
-      padding: 0.5rem 0.75rem;
-      border-radius: 8px;
-      font-size: 16px !important;
-      flex-grow: 1;
-      touch-action: manipulation;
-    }
-
-    .btn-today {
-      background: #334155;
-      color: var(--accent);
-      border: 1px solid var(--border);
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.85rem;
-      min-height: 40px;
-      touch-action: manipulation;
-    }
-
     .log-item {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -987,14 +928,6 @@
   </header>
 
   <div id="notifyBanner" class="notify-banner"></div>
-
-  <!-- Top Vitals Strip -->
-  <div class="vitals-accordion">
-    <div class="v-item"><span>Goal Weight</span><strong>70.0 kg</strong></div>
-    <div class="v-item"><span>Target Fat</span><strong>14–16%</strong></div>
-    <div class="v-item"><span>Waist Limit</span><strong>&le; 32.0"</strong></div>
-    <div class="v-item"><span>Protein</span><strong>130g/day</strong></div>
-  </div>
 
   <!-- Sticky Scrolling Navigation Tabs -->
   <div class="nav-tabs-wrapper">
@@ -1899,13 +1832,6 @@
         formHTML += '</details>';
       });
 
-      formHTML += '  <div class="save-section">';
-      formHTML += '    <div class="date-row">';
-      formHTML += '      <input type="date" id="' + day.id + '_date" value="' + today + '" class="date-input" onchange="onDateChange(\'' + day.id + '\')">';
-      formHTML += '      <button class="btn-today" type="button" onclick="setTodayDate(\'' + day.id + '\')">Today</button>';
-      formHTML += '    </div>';
-      formHTML += '  </div>';
-
       formHTML += '</div>'; // close #workout_active_area_${day.id}
       formHTML += '</div>';
     });
@@ -2015,21 +1941,6 @@
     }
   }
 
-  function setTodayDate(dayId) {
-    var today = getLocalDateString();
-    var dateInput = document.getElementById(dayId + '_date');
-    if (dateInput) {
-      dateInput.value = today;
-      hydrateDayForm(dayId, today);
-    }
-  }
-
-  function onDateChange(dayId) {
-    var dateInput = document.getElementById(dayId + '_date');
-    var dateVal = dateInput ? dateInput.value : getLocalDateString();
-    hydrateDayForm(dayId, dateVal);
-  }
-
   function switchTab(tabId) {
     var runningDayId = getActiveRunningDay();
     if (runningDayId && tabId !== runningDayId && tabId !== 'historyTabContent' && tabId !== 'syncTabContent') {
@@ -2049,9 +1960,7 @@
     if (activeContent) activeContent.classList.add('active');
 
     if (tabId.indexOf('day') === 0) {
-      var dateInput = document.getElementById(tabId + '_date');
-      var dateVal = dateInput ? dateInput.value : getLocalDateString();
-      hydrateDayForm(tabId, dateVal);
+      hydrateDayForm(tabId);
     }
 
     if (tabId === 'historyTabContent') renderHistoryLogs();
@@ -2070,8 +1979,7 @@
   // Multi-session unique ID and non-destructive save
   function saveSession(dayId, dayName, isAuto, timerData) {
     var dayPlan = workoutDataMaster.workout_split_plan[dayId];
-    var dateEl = document.getElementById(dayId + '_date');
-    var date = dateEl ? dateEl.value : getLocalDateString();
+    var date = getLocalDateString();
     var activeTimer = getActiveTimer(dayId);
     
     var targetSessionId = (timerData && timerData.sessionId) || (activeTimer ? activeTimer.sessionId : ("log_" + Date.now()));
