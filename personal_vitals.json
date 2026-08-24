@@ -1,0 +1,81 @@
+{
+  "user_profile": {
+    "age": 45,
+    "height": "5'8.5\"",
+    "current_weight_kg": 66.0,
+    "target_weight_kg": 70.0,
+    "baseline_waist_inches": 31.0,
+    "target_waist_inches_max": 32.0,
+    "baseline_body_fat_pct": 16.0,
+    "target_body_fat_pct": "14.0% - 16.0%",
+    "diet": "Pure Vegetarian (No eggs)",
+    "daily_protein_target_g": "125 - 135",
+    "daily_creatine_intake_g": 5,
+    "daily_calorie_target_kcal": "2350 - 2450 (+300 kcal clean surplus)",
+    "health_constraints": [
+      "Inguinal hernia: Strictly RPE 7-8, no Valsalva breath-holding, continuous exhale on exertion",
+      "Weaker lower-body muscular endurance",
+      "Stubborn arm growth (biceps/triceps prioritized)"
+    ]
+  },
+  "circumference_vitals": {
+    "units": "inches",
+    "baseline": {
+      "chest": null,
+      "shoulders": null,
+      "biceps_flexed_right": null,
+      "biceps_flexed_left": null,
+      "biceps_unflexed_right": null,
+      "biceps_unflexed_left": null,
+      "waist": 31.0,
+      "hips_glutes": null,
+      "thigh_right": null,
+      "thigh_left": null,
+      "forearm_right": null,
+      "forearm_left": null,
+      "calf_right": null,
+      "calf_left": null
+    },
+    "targets_at_70kg": {
+      "chest": "+1.5 to +2.0 over baseline",
+      "shoulders": "+1.5 to +2.0 over baseline",
+      "biceps_flexed": "+0.75 to +1.0 over baseline",
+      "waist": "<= 32.0 max (Guardrail)",
+      "hips_glutes": "+1.0 to +1.25 over baseline",
+      "thighs": "+1.0 to +1.5 over baseline",
+      "forearms": "+0.5 over baseline",
+      "calves": "+0.5 over baseline"
+    }
+  },
+  "nutrition_blueprint": {
+    "daily_calories": "2,350 - 2,450 kcal (+300 surplus)",
+    "protein_yield_total": "~136g / day",
+    "meals": [
+      {
+        "meal": "Breakfast",
+        "description": "1 scoop Whey Isolate in milk/plant milk + 1/2 cup rolled oats, chia seeds, and berries",
+        "protein_g": 32
+      },
+      {
+        "meal": "Lunch",
+        "description": "150g Low-Fat Paneer or High-Protein Tofu + 1 cup Cooked Lentils/Dal + Quinoa or 2 Rotis + Vegetables",
+        "protein_g": 35
+      },
+      {
+        "meal": "Mid-Day Snack",
+        "description": "1 cup Plain Greek Yogurt (0-2%) or Cottage Cheese topped with pumpkin seeds & fruit",
+        "protein_g": 22
+      },
+      {
+        "meal": "Post-Workout",
+        "description": "1 scoop Protein Isolate mixed with water or almond milk + 5g Creatine Monohydrate",
+        "protein_g": 25
+      },
+      {
+        "meal": "Dinner",
+        "description": "1.5 cups Chickpeas / Black Beans or Edamame stir-fry with mixed greens, olive oil, and rice",
+        "protein_g": 22
+      }
+    ]
+  }
+}
