@@ -777,27 +777,56 @@
       return;
     }
 
+    // Ensure URL uses /exec
+    if (url.indexOf('/dev') !== -1) {
+      url = url.replace('/dev', '/exec');
+      localStorage.setItem('gdrive_webhook_url', url);
+      if (input) input.value = url;
+    }
+
     showNotification('⏳ Pulling latest data from Google Drive...');
 
+    // Method 1: Standard CORS fetch (Works natively on GitHub Pages with Google Apps Script)
+    fetch(url)
+      .then(function(res) {
+        return res.json();
+      })
+      .then(function(data) {
+        handleDriveDataResponse(data);
+      })
+      .catch(function(fetchErr) {
+        console.warn('Direct fetch blocked, attempting JSONP fallback...', fetchErr);
+        // Method 2: JSONP Fallback
+        fetchDataViaJSONP(url);
+      });
+  }
+
+  function handleDriveDataResponse(data) {
+    if (data && data.workout_logs) {
+      setPersistentLogs(data.workout_logs);
+      var badge = document.getElementById('logCountBadge');
+      if (badge) badge.innerText = data.workout_logs.length;
+
+      populateInputsFromLatestLogs(data.workout_logs);
+      renderHistoryLogs();
+
+      if (data.workout_logs.length > 0) {
+        showNotification('✅ Loaded ' + data.workout_logs.length + ' sessions from Google Drive!');
+      } else {
+        showNotification('Connected to Google Drive. No previous session logs found.');
+      }
+    } else {
+      showNotification('Connected to Drive. No previous session logs found.');
+    }
+  }
+
+  function fetchDataViaJSONP(url) {
     var callbackName = 'gdrive_cb_' + Math.floor(Math.random() * 1000000);
     var script = document.createElement('script');
 
     window[callbackName] = function(data) {
       try {
-        if (data && data.workout_logs) {
-          setPersistentLogs(data.workout_logs);
-          var badge = document.getElementById('logCountBadge');
-          if (badge) badge.innerText = data.workout_logs.length;
-
-          populateInputsFromLatestLogs(data.workout_logs);
-          renderHistoryLogs();
-
-          if (data.workout_logs.length > 0) {
-            showNotification('✅ Loaded ' + data.workout_logs.length + ' sessions from Drive!');
-          } else {
-            showNotification('Connected to Google Drive. No previous session logs found.');
-          }
-        }
+        handleDriveDataResponse(data);
       } catch (err) {
         console.error("Error applying Drive data:", err);
       } finally {
@@ -807,7 +836,7 @@
     };
 
     script.onerror = function() {
-      showNotification('⚠️ Could not connect to Google Drive. Check script deployment settings.');
+      showNotification('⚠️ Could not connect to Google Drive. Check that "Who has access" is set to "Anyone" and the URL ends in /exec');
       delete window[callbackName];
       if (script.parentNode) script.parentNode.removeChild(script);
     };
