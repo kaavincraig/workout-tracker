@@ -236,116 +236,126 @@
     .exercise-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 0.85rem 1rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      border-radius: 14px;
+      padding: 0.9rem 1rem;
+      margin-bottom: 1.1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
     }
 
-    .exercise-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 0.75rem;
-      gap: 0.5rem;
-    }
-
-    .exercise-left {
+    /* Stacked Header Layout (Eliminates Clump/Wrapping on Mobile) */
+    .exercise-card-header {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      gap: 0.2rem;
-      flex-grow: 1;
-      max-width: 65%;
+      gap: 0.4rem;
+      margin-bottom: 0.85rem;
+      width: 100%;
     }
 
-    .exercise-title-row {
+    /* Row 1: Exercise Name Left & Score Badge Right */
+    .exercise-main-row {
       display: flex;
-      align-items: baseline;
-      gap: 0.35rem;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
       cursor: pointer;
       user-select: none;
-      padding: 0.1rem 0;
     }
 
     .exercise-name {
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 700;
       color: #ffffff;
       line-height: 1.3;
       transition: color 0.2s ease;
     }
 
-    .score-bracket {
+    .score-badge {
+      background: rgba(56, 189, 248, 0.15);
       color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
       font-weight: 700;
-      font-size: 0.85rem;
-      white-space: nowrap;
-      transition: color 0.2s ease;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
     }
 
+    /* Row 2: Target Rep Scheme (Clean, uncompressed full width) */
+    .target-scheme-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.775rem;
+      color: var(--accent);
+      font-weight: 600;
+      background: rgba(56, 189, 248, 0.07);
+      padding: 0.2rem 0.5rem;
+      border-radius: 5px;
+      width: fit-content;
+    }
+
+    /* Row 3: Alternative Choice (Distinct Tappable Sub-Card) */
     .alt-options-container {
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
-      margin-top: 0.25rem;
+      gap: 0.3rem;
+      margin-top: 0.15rem;
     }
 
     .alt-btn {
-      display: inline-flex;
-      align-items: baseline;
-      gap: 0.35rem;
-      background: transparent;
-      border: none;
-      color: #64748b;
-      font-size: 1rem;
-      font-weight: 700;
-      padding: 0.15rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(51, 65, 85, 0.8);
+      color: #94a3b8;
+      font-size: 0.825rem;
+      font-weight: 500;
+      padding: 0.35rem 0.65rem;
+      border-radius: 8px;
       cursor: pointer;
       text-align: left;
       line-height: 1.25;
-      transition: color 0.2s ease;
+      transition: all 0.2s ease;
       user-select: none;
+      width: 100%;
     }
 
     .alt-btn:hover {
-      color: #94a3b8;
+      background: rgba(30, 41, 59, 0.8);
     }
 
+    /* Active Selected Alternative: Swaps font formatting */
     .alt-btn.selected-alt {
+      background: rgba(56, 189, 248, 0.12) !important;
+      border-color: var(--accent) !important;
       color: #ffffff !important;
       font-weight: 700 !important;
     }
 
-    .alt-btn.selected-alt .score-bracket {
-      color: var(--accent) !important;
-      font-weight: 700 !important;
+    .alt-btn.selected-alt .alt-score-bracket {
+      color: #0b1120 !important;
+      background: var(--accent) !important;
     }
 
-    .exercise-name.is-dimmed {
-      color: #64748b !important;
-      font-weight: 500 !important;
-    }
-
-    .exercise-title-row.is-dimmed .score-bracket {
-      color: #64748b !important;
-      font-weight: 500 !important;
-    }
-
-    .exercise-right {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      text-align: right;
-      gap: 0.15rem;
-      flex-shrink: 0;
-    }
-
-    .target-scheme {
-      font-size: 0.775rem;
+    .alt-score-bracket {
       color: var(--accent);
-      font-weight: 600;
-      line-height: 1.2;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    .exercise-main-row.is-dimmed .exercise-name {
+      color: #64748b !important;
+      font-weight: 500 !important;
+    }
+
+    .exercise-main-row.is-dimmed .score-badge {
+      opacity: 0.4;
+      border-color: transparent;
     }
 
     .sets-scroll-container {
@@ -924,19 +934,14 @@
     var isPrimary = (selectedName === ex.name);
     activeExerciseVariants[exKey] = selectedName;
 
-    var titleRowEl = document.getElementById('title_row_' + exKey);
-    var primaryNameEl = document.getElementById('name_' + exKey);
-    var primaryScoreEl = document.getElementById('score_' + exKey);
+    var mainRowEl = document.getElementById('main_row_' + exKey);
     var altBtns = document.querySelectorAll('.alt-btn-' + exKey);
 
     if (isPrimary) {
-      if (titleRowEl) titleRowEl.classList.remove('is-dimmed');
-      if (primaryNameEl) primaryNameEl.classList.remove('is-dimmed');
-      if (primaryScoreEl) primaryScoreEl.innerText = '[' + ex.score + ']';
+      if (mainRowEl) mainRowEl.classList.remove('is-dimmed');
       altBtns.forEach(function(btn) { btn.classList.remove('selected-alt'); });
     } else {
-      if (titleRowEl) titleRowEl.classList.add('is-dimmed');
-      if (primaryNameEl) primaryNameEl.classList.add('is-dimmed');
+      if (mainRowEl) mainRowEl.classList.add('is-dimmed');
       altBtns.forEach(function(btn) {
         if (btn.getAttribute('data-alt-name') === selectedName) {
           btn.classList.add('selected-alt');
@@ -984,25 +989,21 @@
             var scoreVal = scoreMatch ? scoreMatch[1] : '';
             var cleanName = item.replace(/\[[0-9.]+\]/, '').trim();
             altButtonsHTML += '<button type="button" class="alt-btn alt-btn-' + exKey + '" data-alt-name="' + cleanName + '" onclick="toggleExerciseVariant(\'' + day.id + '\', ' + ex.order + ', \'' + cleanName + '\', \'' + scoreVal + '\')">';
-            altButtonsHTML += '  <span>Alt: ' + cleanName + '</span>';
-            if (scoreVal) altButtonsHTML += '  <span class="score-bracket">[' + scoreVal + ']</span>';
+            altButtonsHTML += '  <span>🔄 Alt: ' + cleanName + '</span>';
+            if (scoreVal) altButtonsHTML += '  <span class="alt-score-bracket">[' + scoreVal + ']</span>';
             altButtonsHTML += '</button>';
           });
           altButtonsHTML += '</div>';
         }
 
         formHTML += '<div class="exercise-card">';
-        formHTML += '  <div class="exercise-top">';
-        formHTML += '    <div class="exercise-left">';
-        formHTML += '      <div class="exercise-title-row" id="title_row_' + exKey + '" onclick="toggleExerciseVariant(\'' + day.id + '\', ' + ex.order + ', \'' + ex.name + '\', \'' + ex.score + '\')">';
-        formHTML += '        <span class="exercise-name" id="name_' + exKey + '">' + ex.order + '. ' + ex.name + '</span>';
-        formHTML += '        <span class="score-bracket" id="score_' + exKey + '">[' + ex.score + ']</span>';
-        formHTML += '      </div>';
+        formHTML += '  <div class="exercise-card-header">';
+        formHTML += '    <div class="exercise-main-row" id="main_row_' + exKey + '" onclick="toggleExerciseVariant(\'' + day.id + '\', ' + ex.order + ', \'' + ex.name + '\', \'' + ex.score + '\')">';
+        formHTML += '      <span class="exercise-name">' + ex.order + '. ' + ex.name + '</span>';
+        formHTML += '      <span class="score-badge">[' + ex.score + ']</span>';
+        formHTML += '    </div>';
+        formHTML += '    <div class="target-scheme-row">🎯 ' + ex.scheme + '</div>';
         formHTML += altButtonsHTML;
-        formHTML += '    </div>';
-        formHTML += '    <div class="exercise-right">';
-        formHTML += '      <div class="target-scheme">' + ex.scheme + '</div>';
-        formHTML += '    </div>';
         formHTML += '  </div>';
         formHTML += '  <div class="sets-scroll-container" id="container_' + exKey + '">';
         formHTML += renderSetsTiles(day.id, ex, count);
