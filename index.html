@@ -203,7 +203,172 @@
       text-align: center;
     }
 
-    /* Foldable / Collapsible Warmup Section on Each Day Card */
+    /* Start / End Workout Session Timer Card (Centered) */
+    .session-timer-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .timer-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 0.6rem;
+      width: 100%;
+    }
+
+    .timer-ready-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-align: center;
+    }
+
+    .btn-timer-start {
+      background: #10b981;
+      color: #0b1120;
+      border: none;
+      padding: 0.65rem 1.75rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      touch-action: manipulation;
+      min-height: 42px;
+      margin: 0 auto;
+      transition: transform 0.1s, opacity 0.15s;
+    }
+
+    .btn-timer-start:active {
+      transform: scale(0.96);
+      opacity: 0.9;
+    }
+
+    .timer-live-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 0.25rem;
+      width: 100%;
+    }
+
+    .timer-live-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .timer-pulse-dot {
+      width: 10px;
+      height: 10px;
+      background: #34d399;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #34d399;
+      animation: pulseGlow 1.5s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.7; }
+    }
+
+    .timer-digits {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.05em;
+    }
+
+    .timer-start-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .btn-timer-end {
+      background: #ef4444;
+      color: #ffffff;
+      border: none;
+      padding: 0.65rem 1.75rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      touch-action: manipulation;
+      min-height: 42px;
+      margin: 0 auto;
+      transition: transform 0.1s, opacity 0.15s;
+    }
+
+    .btn-timer-end:active {
+      transform: scale(0.96);
+      opacity: 0.9;
+    }
+
+    .timer-complete-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 0.35rem;
+      width: 100%;
+    }
+
+    .timer-complete-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--success);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+
+    .timer-complete-detail {
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      text-align: center;
+    }
+
+    .btn-timer-restart {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      touch-action: manipulation;
+      margin-top: 0.2rem;
+    }
+
+    .btn-timer-restart:hover {
+      color: #fff;
+      border-color: #94a3b8;
+    }
+
+    /* Foldable Warmup Accordion */
     .warmup-accordion-wrapper {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -340,6 +505,7 @@
       padding: 0.9rem 1rem;
       margin-bottom: 1.1rem;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+      position: relative;
     }
 
     .exercise-card-header {
@@ -359,31 +525,29 @@
       user-select: none;
     }
 
-    .exercise-title-left {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-
+    /* Fixed Absolute Badge: Never shifts or pushes content when flashing */
     .card-saved-badge {
-      display: none;
+      position: absolute;
+      top: 0.85rem;
+      right: 3.5rem;
+      opacity: 0;
+      pointer-events: none;
+      display: inline-flex;
       align-items: center;
       gap: 0.25rem;
       font-size: 0.725rem;
       font-weight: 700;
       color: var(--success);
-      background: rgba(52, 211, 153, 0.15);
-      border: 1px solid rgba(52, 211, 153, 0.35);
-      padding: 0.15rem 0.45rem;
+      background: rgba(52, 211, 153, 0.18);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      padding: 0.12rem 0.45rem;
       border-radius: 6px;
-      animation: flashFade 1.6s ease forwards;
+      transition: opacity 0.25s ease;
+      z-index: 5;
     }
 
-    @keyframes flashFade {
-      0% { opacity: 0; transform: scale(0.95); }
-      15% { opacity: 1; transform: scale(1); }
-      75% { opacity: 1; transform: scale(1); }
-      100% { opacity: 0; transform: scale(0.95); }
+    .card-saved-badge.is-flashing {
+      opacity: 1;
     }
 
     .exercise-name {
@@ -826,12 +990,11 @@
   </div>
 
   <footer>
-    <p>Zero-Zoom Steppers &bull; Foldable Warmup Accordion &bull; iPhone Safari Ready</p>
+    <p>Zero-Zoom Steppers &bull; Session Timer &bull; iPhone Safari Ready</p>
   </footer>
 </div>
 
 <script>
-  // Standard Dynamic Warmup List for all workout days
   var standardWarmupList = [
     { id: "w_jacks", name: "Jumping Jacks", rec: "25–30 reps", default_val: 25, step: 5, unit: "reps" },
     { id: "w_cross_jumps", name: "Knee-Elbow Crossover Jumps", rec: "15–20 reps", default_val: 15, step: 5, unit: "reps" },
@@ -903,6 +1066,7 @@
   var exerciseSetCounts = {};
   var activeExerciseVariants = {};
   var autoSaveTimer = null;
+  var sessionTimerIntervals = {};
 
   function getPersistentLogs() {
     try {
@@ -929,6 +1093,172 @@
     var month = String(d.getMonth() + 1).padStart(2, '0');
     var day = String(d.getDate()).padStart(2, '0');
     return year + '-' + month + '-' + day;
+  }
+
+  function getActiveTimer(dayId) {
+    try {
+      var data = localStorage.getItem('active_timer_' + dayId);
+      return data ? JSON.parse(data) : null;
+    } catch(e) { return null; }
+  }
+
+  function setActiveTimer(dayId, timerObj) {
+    try {
+      if (timerObj) {
+        localStorage.setItem('active_timer_' + dayId, JSON.stringify(timerObj));
+      } else {
+        localStorage.removeItem('active_timer_' + dayId);
+      }
+    } catch(e) {}
+  }
+
+  function formatTimeDigits(totalSeconds) {
+    var mins = Math.floor(totalSeconds / 60);
+    var secs = totalSeconds % 60;
+    return String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+  }
+
+  function formatDurationText(totalSeconds) {
+    var mins = Math.round(totalSeconds / 60);
+    if (mins < 1) return totalSeconds + ' sec';
+    if (mins < 60) return mins + ' mins';
+    var hrs = Math.floor(mins / 60);
+    var remMins = mins % 60;
+    return hrs + 'h ' + remMins + 'm';
+  }
+
+  function startWorkoutSession(dayId) {
+    var now = Date.now();
+    var startTimeStr = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    var timerObj = {
+      startTime: now,
+      startTimeStr: startTimeStr,
+      dayId: dayId,
+      date: getLocalDateString()
+    };
+    setActiveTimer(dayId, timerObj);
+    updateTimerUI(dayId);
+    showNotification('▶️ Workout Started! Timer is running.');
+  }
+
+  function endWorkoutSession(dayId) {
+    var activeTimer = getActiveTimer(dayId);
+    var elapsedSeconds = 0;
+    var startTimeStr = '';
+    var endTimeStr = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+    if (activeTimer) {
+      elapsedSeconds = Math.floor((Date.now() - activeTimer.startTime) / 1000);
+      startTimeStr = activeTimer.startTimeStr;
+    } else {
+      elapsedSeconds = 60;
+      startTimeStr = endTimeStr;
+    }
+
+    var durationText = formatDurationText(elapsedSeconds);
+
+    if (sessionTimerIntervals[dayId]) {
+      clearInterval(sessionTimerIntervals[dayId]);
+      delete sessionTimerIntervals[dayId];
+    }
+    setActiveTimer(dayId, null);
+
+    var dayPlan = workoutDataMaster.workout_split_plan[dayId];
+    if (dayPlan) {
+      saveSession(dayId, dayPlan.name, false, {
+        duration: durationText,
+        start_time: startTimeStr,
+        end_time: endTimeStr,
+        elapsed_seconds: elapsedSeconds
+      });
+    }
+
+    updateTimerUI(dayId);
+    showNotification('⏹️ Workout Completed! Total Time: ' + durationText);
+  }
+
+  function updateTimerUI(dayId) {
+    var container = document.getElementById('timer_card_' + dayId);
+    if (!container) return;
+
+    var activeTimer = getActiveTimer(dayId);
+    var dateEl = document.getElementById(dayId + '_date');
+    var activeDate = dateEl ? dateEl.value : getLocalDateString();
+    var logs = getPersistentLogs();
+    var logForDate = logs.find(function(l) { return l.day_id === dayId && l.date === activeDate; });
+
+    if (sessionTimerIntervals[dayId]) {
+      clearInterval(sessionTimerIntervals[dayId]);
+      delete sessionTimerIntervals[dayId];
+    }
+
+    if (activeTimer && activeTimer.date === activeDate) {
+      var elapsed = Math.floor((Date.now() - activeTimer.startTime) / 1000);
+      container.innerHTML = '<div class="timer-box">' +
+        '  <div class="timer-live-center">' +
+        '    <div class="timer-live-row">' +
+        '      <span class="timer-pulse-dot"></span>' +
+        '      <span class="timer-digits" id="timer_digits_' + dayId + '">' + formatTimeDigits(elapsed) + '</span>' +
+        '    </div>' +
+        '    <div class="timer-start-time">Started ' + activeTimer.startTimeStr + '</div>' +
+        '  </div>' +
+        '  <button class="btn-timer-end" type="button" onclick="endWorkoutSession(\'' + dayId + '\')">⏹️ End Workout</button>' +
+        '</div>';
+
+      sessionTimerIntervals[dayId] = setInterval(function() {
+        var el = document.getElementById('timer_digits_' + dayId);
+        if (el) {
+          var sec = Math.floor((Date.now() - activeTimer.startTime) / 1000);
+          el.innerText = formatTimeDigits(sec);
+        }
+      }, 1000);
+
+    } else if (logForDate && logForDate.duration) {
+      container.innerHTML = '<div class="timer-box">' +
+        '  <div class="timer-complete-box">' +
+        '    <div class="timer-complete-title">✅ Session Completed</div>' +
+        '    <div class="timer-complete-detail">⏱️ Duration: <strong>' + logForDate.duration + '</strong> ' + (logForDate.start_time ? '(' + logForDate.start_time + ' – ' + logForDate.end_time + ')' : '') + '</div>' +
+        '  </div>' +
+        '  <button class="btn-timer-restart" type="button" onclick="startWorkoutSession(\'' + dayId + '\')">🔄 Restart Timer</button>' +
+        '</div>';
+    } else {
+      container.innerHTML = '<div class="timer-box">' +
+        '  <div class="timer-ready-text">Ready to begin today\'s workout?</div>' +
+        '  <button class="btn-timer-start" type="button" onclick="startWorkoutSession(\'' + dayId + '\')">▶️ Start Workout</button>' +
+        '</div>';
+    }
+  }
+
+  function renderSessionTimerHTML(dayId) {
+    return '<div class="session-timer-card" id="timer_card_' + dayId + '"></div>';
+  }
+
+  function renderWarmupAccordionHTML(dayId) {
+    var html = '<details class="warmup-accordion-wrapper">';
+    html += '  <summary class="warmup-accordion-summary">';
+    html += '    <span>🔥 Dynamic Warmup Protocol (Tap to Open)</span>';
+    html += '    <span class="card-saved-badge" id="card_saved_' + dayId + '_warmup">✅ Saved</span>';
+    html += '  </summary>';
+    html += '  <div class="warmup-accordion-content">';
+
+    standardWarmupList.forEach(function(w) {
+      var valId = dayId + '_' + w.id;
+      html += '    <div class="warmup-row">';
+      html += '      <div class="warmup-left">';
+      html += '        <span class="warmup-name">' + w.name + '</span>';
+      html += '        <span class="warmup-rec">Rec: ' + w.rec + '</span>';
+      html += '      </div>';
+      html += '      <div class="warmup-stepper-box">';
+      html += '        <button type="button" class="warmup-stepper-btn" onclick="modifyVal(\'' + valId + '\', -1, ' + w.step + ')">-</button>';
+      html += '        <div class="warmup-val-display" id="' + valId + '" data-val="' + w.default_val + '" onclick="tapDefaultVal(this)">' + w.default_val + '</div>';
+      html += '        <button type="button" class="warmup-stepper-btn" onclick="modifyVal(\'' + valId + '\', 1, ' + w.step + ')">+</button>';
+      html += '      </div>';
+      html += '    </div>';
+    });
+
+    html += '  </div>';
+    html += '</details>';
+    return html;
   }
 
   function saveGDriveUrl() {
@@ -1013,7 +1343,7 @@
       var badge = document.getElementById('logCountBadge');
       if (badge) badge.innerText = data.workout_logs.length;
 
-      populateInputsFromLatestLogs(data.workout_logs);
+      hydrateAllDaysFromStoredLogs();
       renderHistoryLogs();
 
       if (data.workout_logs.length > 0) {
@@ -1068,17 +1398,56 @@
     });
   }
 
-  function populateInputsFromLatestLogs(logs) {
-    if (!logs || logs.length === 0) return;
+  function hydrateDayForm(dayId, targetDate) {
+    if (!dayId || !workoutDataMaster.workout_split_plan[dayId]) return;
+    var dayPlan = workoutDataMaster.workout_split_plan[dayId];
+    var dateEl = document.getElementById(dayId + '_date');
+    var date = targetDate || (dateEl ? dateEl.value : getLocalDateString());
+    
+    var logs = getPersistentLogs();
+    var log = logs.find(function(l) { return l.day_id === dayId && l.date === date; });
 
-    var logsReversed = logs.slice().reverse();
-    logsReversed.forEach(function(log) {
-      var dayId = log.day_id;
-      if (!dayId || !workoutDataMaster.workout_split_plan[dayId]) return;
+    // Reset warmups
+    standardWarmupList.forEach(function(w) {
+      var el = document.getElementById(dayId + '_' + w.id);
+      if (el) {
+        el.innerText = w.default_val;
+        el.setAttribute('data-val', w.default_val);
+        el.classList.remove('user-edited');
+        el.removeAttribute('data-edited');
+      }
+    });
 
-      var dayPlan = workoutDataMaster.workout_split_plan[dayId];
+    // Reset exercises
+    dayPlan.exercises.forEach(function(ex) {
+      var exKey = dayId + '_ex' + ex.order;
+      var defaultSets = exerciseSetCounts[exKey] || 3;
+      
+      toggleExerciseVariant(dayId, ex.order, ex.name, ex.score, true);
 
-      // Populate warmups
+      for (var s = 1; s <= defaultSets; s++) {
+        var wEl = document.getElementById(exKey + '_s' + s + '_w');
+        var rEl = document.getElementById(exKey + '_s' + s + '_r');
+        var defW = ex.default_w !== undefined ? ex.default_w : 0;
+        var defR = ex.default_r || 8;
+
+        if (wEl) {
+          wEl.innerText = defW;
+          wEl.setAttribute('data-val', defW);
+          wEl.classList.remove('user-edited');
+          wEl.removeAttribute('data-edited');
+        }
+        if (rEl) {
+          rEl.innerText = defR;
+          rEl.setAttribute('data-val', defR);
+          rEl.classList.remove('user-edited');
+          rEl.removeAttribute('data-edited');
+        }
+      }
+    });
+
+    // Hydrate if log exists
+    if (log) {
       if (log.warmups && log.warmups.length) {
         log.warmups.forEach(function(w) {
           var item = standardWarmupList.find(function(x) { 
@@ -1095,7 +1464,6 @@
         });
       }
 
-      // Populate main exercises
       if (log.entries && log.entries.length) {
         log.entries.forEach(function(entry) {
           var ex = findMatchingExercise(dayPlan, entry.exercise_name);
@@ -1120,11 +1488,10 @@
 
           if (maxSet > (exerciseSetCounts[exKey] || 3)) {
             exerciseSetCounts[exKey] = maxSet;
-          }
-
-          var container = document.getElementById('container_' + exKey);
-          if (container) {
-            container.innerHTML = renderSetsTiles(dayId, ex, exerciseSetCounts[exKey]);
+            var container = document.getElementById('container_' + exKey);
+            if (container) {
+              container.innerHTML = renderSetsTiles(dayId, ex, exerciseSetCounts[exKey]);
+            }
           }
 
           if (entry.sets && entry.sets.length) {
@@ -1158,6 +1525,17 @@
           }
         });
       }
+    }
+
+    updateTimerUI(dayId);
+  }
+
+  function hydrateAllDaysFromStoredLogs() {
+    var days = Object.keys(workoutDataMaster.workout_split_plan);
+    days.forEach(function(dayId) {
+      var dateInput = document.getElementById(dayId + '_date');
+      var dateVal = dateInput ? dateInput.value : getLocalDateString();
+      hydrateDayForm(dayId, dateVal);
     });
   }
 
@@ -1167,12 +1545,13 @@
     el.setAttribute('data-edited', 'true');
     
     if (triggerAuto !== false) {
-      var match = el.id.match(/^((day[0-9]+)(?:_ex[0-9]+)?)/);
+      var match = el.id.match(/^((day[0-9]+)(?:_ex[0-9]+|_w_[a-z0-9_]+)?)/);
       if (match) {
         var cardKey = match[1];
-        var dayId = match[2];
+        var dayMatch = el.id.match(/^(day[0-9]+)/);
+        var dayId = dayMatch ? dayMatch[1] : null;
         flashCardSavedBadge(cardKey);
-        triggerAutoSave(dayId);
+        if (dayId) triggerAutoSave(dayId);
       }
     }
   }
@@ -1186,14 +1565,15 @@
 
   function flashCardSavedBadge(cardKey) {
     var badge = document.getElementById('card_saved_' + cardKey);
+    if (!badge && cardKey.indexOf('_w_') !== -1) {
+      var dayPrefix = cardKey.split('_')[0];
+      badge = document.getElementById('card_saved_' + dayPrefix + '_warmup');
+    }
     if (badge) {
-      badge.style.display = 'inline-flex';
-      badge.style.animation = 'none';
-      badge.offsetHeight;
-      badge.style.animation = 'flashFade 1.6s ease forwards';
+      badge.classList.add('is-flashing');
       setTimeout(function() {
-        badge.style.display = 'none';
-      }, 1600);
+        badge.classList.remove('is-flashing');
+      }, 1400);
     }
   }
 
@@ -1265,34 +1645,6 @@
     }
   }
 
-  function renderWarmupAccordionHTML(dayId) {
-    var html = '<details class="warmup-accordion-wrapper">';
-    html += '  <summary class="warmup-accordion-summary">';
-    html += '    <span>🔥 Dynamic Warmup Protocol (Tap to Open)</span>';
-    html += '    <span class="card-saved-badge" id="card_saved_' + dayId + '">✅ Saved</span>';
-    html += '  </summary>';
-    html += '  <div class="warmup-accordion-content">';
-
-    standardWarmupList.forEach(function(w) {
-      var valId = dayId + '_' + w.id;
-      html += '    <div class="warmup-row">';
-      html += '      <div class="warmup-left">';
-      html += '        <span class="warmup-name">' + w.name + '</span>';
-      html += '        <span class="warmup-rec">Rec: ' + w.rec + '</span>';
-      html += '      </div>';
-      html += '      <div class="warmup-stepper-box">';
-      html += '        <button type="button" class="warmup-stepper-btn" onclick="modifyVal(\'' + valId + '\', -1, ' + w.step + ')">-</button>';
-      html += '        <div class="warmup-val-display" id="' + valId + '" data-val="' + w.default_val + '" onclick="tapDefaultVal(this)">' + w.default_val + '</div>';
-      html += '        <button type="button" class="warmup-stepper-btn" onclick="modifyVal(\'' + valId + '\', 1, ' + w.step + ')">+</button>';
-      html += '      </div>';
-      html += '    </div>';
-    });
-
-    html += '  </div>';
-    html += '</details>';
-    return html;
-  }
-
   function renderWorkoutForms() {
     var tabContainer = document.getElementById('tabContainer');
     var formsContainer = document.getElementById('workoutFormsContainer');
@@ -1313,6 +1665,9 @@
       formHTML += '    <div class="day-title">' + day.name + '</div>';
       formHTML += '    <div class="day-focus">' + day.focus + '</div>';
       formHTML += '  </div>';
+
+      // Insert Start/End Session Timer Card
+      formHTML += renderSessionTimerHTML(day.id);
 
       // Insert Foldable Warmup Accordion on top of Day Card
       formHTML += renderWarmupAccordionHTML(day.id);
@@ -1340,13 +1695,11 @@
         }
 
         formHTML += '<div class="exercise-card">';
+        formHTML += '  <span class="card-saved-badge" id="card_saved_' + exKey + '">✅ Saved</span>';
         formHTML += '  <div class="exercise-card-header">';
         formHTML += '    <div class="exercise-main-row" id="main_row_' + exKey + '" onclick="toggleExerciseVariant(\'' + day.id + '\', ' + ex.order + ', \'' + ex.name + '\', \'' + ex.score + '\')">';
-        formHTML += '      <div class="exercise-title-left">';
-        formHTML += '        <span class="exercise-name">' + ex.order + '. ' + ex.name + '</span>';
-        formHTML += '        <span class="score-badge">[' + ex.score + ']</span>';
-        formHTML += '      </div>';
-        formHTML += '      <span class="card-saved-badge" id="card_saved_' + exKey + '">✅ Saved</span>';
+        formHTML += '      <span class="exercise-name">' + ex.order + '. ' + ex.name + '</span>';
+        formHTML += '      <span class="score-badge">[' + ex.score + ']</span>';
         formHTML += '    </div>';
         formHTML += '    <div class="target-scheme-row">🎯 ' + ex.scheme + '</div>';
         formHTML += altButtonsHTML;
@@ -1359,7 +1712,7 @@
 
       formHTML += '  <div class="save-section">';
       formHTML += '    <div class="date-row">';
-      formHTML += '      <input type="date" id="' + day.id + '_date" value="' + today + '" class="date-input" onchange="triggerAutoSave(\'' + day.id + '\')">';
+      formHTML += '      <input type="date" id="' + day.id + '_date" value="' + today + '" class="date-input" onchange="onDateChange(\'' + day.id + '\')">';
       formHTML += '      <button class="btn-today" type="button" onclick="setTodayDate(\'' + day.id + '\')">Today</button>';
       formHTML += '    </div>';
       formHTML += '  </div>';
@@ -1471,8 +1824,14 @@
     var dateInput = document.getElementById(dayId + '_date');
     if (dateInput) {
       dateInput.value = today;
-      triggerAutoSave(dayId);
+      hydrateDayForm(dayId, today);
     }
+  }
+
+  function onDateChange(dayId) {
+    var dateInput = document.getElementById(dayId + '_date');
+    var dateVal = dateInput ? dateInput.value : getLocalDateString();
+    hydrateDayForm(dayId, dateVal);
   }
 
   function switchTab(tabId) {
@@ -1484,6 +1843,12 @@
 
     var activeContent = document.getElementById(tabId);
     if (activeContent) activeContent.classList.add('active');
+
+    if (tabId.indexOf('day') === 0) {
+      var dateInput = document.getElementById(tabId + '_date');
+      var dateVal = dateInput ? dateInput.value : getLocalDateString();
+      hydrateDayForm(tabId, dateVal);
+    }
 
     if (tabId === 'historyTabContent') renderHistoryLogs();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1497,18 +1862,18 @@
     setTimeout(function() { banner.style.display = 'none'; }, 3000);
   }
 
-  function saveSession(dayId, dayName, isAuto) {
+  function saveSession(dayId, dayName, isAuto, timerData) {
     var dayPlan = workoutDataMaster.workout_split_plan[dayId];
     var dateEl = document.getElementById(dayId + '_date');
     var date = dateEl ? dateEl.value : getLocalDateString();
     
-    // Collect active warmups
-    var warmupEntries = [];
+    // Collect active warmups on screen
+    var screenWarmups = [];
     standardWarmupList.forEach(function(w) {
       var el = document.getElementById(dayId + '_' + w.id);
       if (el && el.getAttribute('data-edited') === 'true') {
         var val = (el.getAttribute('data-val') || el.innerText || '0').trim();
-        warmupEntries.push({
+        screenWarmups.push({
           name: w.name,
           value: val,
           unit: w.unit
@@ -1516,8 +1881,8 @@
       }
     });
 
-    // Collect active working sets
-    var entries = [];
+    // Collect active working sets on screen
+    var screenEntries = [];
     dayPlan.exercises.forEach(function(ex) {
       var exKey = dayId + '_ex' + ex.order;
       var setCount = exerciseSetCounts[exKey] || 3;
@@ -1531,8 +1896,8 @@
                        (rEl && rEl.getAttribute('data-edited') === 'true');
 
         if (isEdited) {
-          var wVal = wEl ? (wEl.getAttribute('data-val') || wEl.innerText || '0').trim() : '0';
-          var rVal = rEl ? (rEl.getAttribute('data-val') || rEl.innerText || '0').trim() : '0';
+          var wVal = wEl ? (wEl.getAttribute('data-val') || wEl.innerText || wEl.value || '0').trim() : '0';
+          var rVal = rEl ? (rEl.getAttribute('data-val') || rEl.innerText || rEl.value || '0').trim() : '0';
           var wStr = (wVal && wVal !== '0') ? wVal + ' lbs' : 'BW';
           var rStr = rVal + ' reps';
           var resultStr = wStr + ' × ' + rStr;
@@ -1548,17 +1913,53 @@
 
       if (sets.length > 0) {
         var loggedName = activeExerciseVariants[exKey] || ex.name;
-        entries.push({
+        screenEntries.push({
           exercise_name: loggedName,
           sets: sets
         });
       }
     });
 
-    if (entries.length === 0 && warmupEntries.length === 0) return;
+    if (screenEntries.length === 0 && screenWarmups.length === 0 && !timerData) return;
 
     var logs = getPersistentLogs();
     var existingIndex = logs.findIndex(function(l) { return l.date === date && l.day_id === dayId; });
+
+    var finalWarmups = screenWarmups;
+    var finalEntries = screenEntries;
+
+    if (existingIndex !== -1) {
+      var prevLog = logs[existingIndex];
+
+      var mergedWarmups = (prevLog.warmups || []).slice();
+      screenWarmups.forEach(function(sw) {
+        var idx = mergedWarmups.findIndex(function(pw) { return pw.name.toLowerCase().trim() === sw.name.toLowerCase().trim(); });
+        if (idx !== -1) {
+          mergedWarmups[idx] = sw;
+        } else {
+          mergedWarmups.push(sw);
+        }
+      });
+      finalWarmups = mergedWarmups;
+
+      var mergedEntries = (prevLog.entries || []).slice();
+      screenEntries.forEach(function(se) {
+        var idx = mergedEntries.findIndex(function(pe) {
+          return findMatchingExercise(dayPlan, pe.exercise_name) === findMatchingExercise(dayPlan, se.exercise_name);
+        });
+        if (idx !== -1) {
+          mergedEntries[idx] = se;
+        } else {
+          mergedEntries.push(se);
+        }
+      });
+      finalEntries = mergedEntries;
+    }
+
+    var logDuration = (timerData && timerData.duration) || (existingIndex !== -1 ? logs[existingIndex].duration : null);
+    var logStartTime = (timerData && timerData.start_time) || (existingIndex !== -1 ? logs[existingIndex].start_time : null);
+    var logEndTime = (timerData && timerData.end_time) || (existingIndex !== -1 ? logs[existingIndex].end_time : null);
+    var logElapsedSec = (timerData && timerData.elapsed_seconds) || (existingIndex !== -1 ? logs[existingIndex].elapsed_seconds : null);
 
     var logEntry = {
       id: (existingIndex !== -1) ? logs[existingIndex].id : ("log_" + Date.now()),
@@ -1566,8 +1967,12 @@
       day_id: dayId,
       session_name: dayName,
       timestamp: new Date().toISOString(),
-      warmups: warmupEntries,
-      entries: entries
+      duration: logDuration,
+      start_time: logStartTime,
+      end_time: logEndTime,
+      elapsed_seconds: logElapsedSec,
+      warmups: finalWarmups,
+      entries: finalEntries
     };
 
     if (existingIndex !== -1) {
@@ -1617,21 +2022,22 @@
     container.innerHTML = logs.map(function(log) {
       var html = '<div class="log-item" id="item_' + log.id + '">';
       html += '  <div class="log-header">';
-      html += '    <div>';
+      html += '    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:0.4rem;">';
       html += '      <span style="color:var(--accent); font-weight:700;">' + log.session_name + '</span>';
-      html += '      <span style="color:#fff; font-size:0.8rem; margin-left:6px;">📅 ' + log.date + '</span>';
+      html += '      <span style="color:#fff; font-size:0.8rem;">📅 ' + log.date + '</span>';
+      if (log.duration) {
+        html += '      <span style="background:rgba(56,189,248,0.12); color:var(--accent); border:1px solid rgba(56,189,248,0.3); padding:0.12rem 0.45rem; border-radius:4px; font-size:0.75rem; font-weight:700;">⏱️ ' + log.duration + '</span>';
+      }
       html += '    </div>';
       html += '    <button class="btn-sync" style="background:rgba(239, 68, 68, 0.15); color:#f87171; border:1px solid rgba(239, 68, 68, 0.3); padding:0.25rem 0.6rem; font-size:0.75rem; border-radius:6px; min-height:30px;" onclick="deleteSingleLog(\'' + log.id + '\')">🗑️ Delete</button>';
       html += '  </div>';
 
-      // Render Warmups if recorded
       if (log.warmups && log.warmups.length > 0) {
         html += '  <div style="font-size:0.8rem; color:var(--accent); margin-bottom:0.4rem; padding-bottom:0.35rem; border-bottom:1px dashed rgba(51,65,85,0.6);">';
         html += '    <strong>🔥 Warmups: </strong>' + log.warmups.map(function(w) { return w.name + ' (' + w.value + ' ' + w.unit + ')'; }).join(', ');
         html += '  </div>';
       }
 
-      // Render Main Working Exercises
       html += '  <div class="log-ex-list">';
       if (log.entries && log.entries.length > 0) {
         log.entries.forEach(function(e) {
@@ -1666,7 +2072,6 @@
     a.remove();
   }
 
-  // Prevent double-tap zoom gesture in iOS Safari
   var lastTouchEnd = 0;
   document.addEventListener('touchend', function(event) {
     var now = (new Date()).getTime();
@@ -1689,6 +2094,7 @@
   }, 100);
 
   renderWorkoutForms();
+  hydrateAllDaysFromStoredLogs();
 </script>
 
 </body>
