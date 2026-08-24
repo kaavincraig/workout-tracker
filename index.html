@@ -955,7 +955,7 @@
     if (!tabContainer || !formsContainer) return;
 
     var days = Object.values(workoutDataMaster.workout_split_plan);
-    var today = new Date().toISOString().split('T')[0];
+    var today = getLocalDateString();
 
     var tabHTML = '';
     var formHTML = '';
@@ -1115,8 +1115,17 @@
     }
   }
 
+  // Helper to format local device date (YYYY-MM-DD) avoiding UTC conversion bug
+  function getLocalDateString() {
+    var d = new Date();
+    var year = d.getFullYear();
+    var month = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return year + '-' + month + '-' + day;
+  }
+
   function setTodayDate(dayId) {
-    var today = new Date().toISOString().split('T')[0];
+    var today = getLocalDateString();
     var dateInput = document.getElementById(dayId + '_date');
     if (dateInput) dateInput.value = today;
   }
@@ -1146,7 +1155,7 @@
   function saveSession(dayId, dayName) {
     var dayPlan = workoutDataMaster.workout_split_plan[dayId];
     var dateEl = document.getElementById(dayId + '_date');
-    var date = dateEl ? dateEl.value : new Date().toISOString().split('T')[0];
+    var date = dateEl ? dateEl.value : getLocalDateString();
     var entries = [];
 
     dayPlan.exercises.forEach(function(ex) {
