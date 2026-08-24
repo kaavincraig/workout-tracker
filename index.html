@@ -212,13 +212,13 @@
       line-height: 1.2;
     }
 
-    /* Start / End Workout Session Timer Card (Centered) */
+    /* Start / End Workout Session Timer Card (Compact & Centered) */
     .session-timer-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 0.85rem 1rem;
-      margin-bottom: 1rem;
+      border-radius: 12px;
+      padding: 0.55rem 0.85rem;
+      margin-bottom: 0.75rem;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
     }
 
@@ -228,12 +228,12 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      gap: 0.6rem;
+      gap: 0.4rem;
       width: 100%;
     }
 
     .timer-ready-text {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: #94a3b8;
       text-align: center;
@@ -243,17 +243,17 @@
       background: #10b981;
       color: #0b1120;
       border: none;
-      padding: 0.65rem 1.75rem;
+      padding: 0.42rem 1.15rem;
       border-radius: 9999px;
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0.45rem;
+      gap: 0.35rem;
       touch-action: manipulation;
-      min-height: 42px;
+      min-height: 34px;
       margin: 0 auto;
       transition: transform 0.1s, opacity 0.15s;
     }
@@ -269,7 +269,7 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      gap: 0.25rem;
+      gap: 0.15rem;
       width: 100%;
     }
 
@@ -277,15 +277,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
+      gap: 0.45rem;
     }
 
     .timer-pulse-dot {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       background: #34d399;
       border-radius: 50%;
-      box-shadow: 0 0 8px #34d399;
+      box-shadow: 0 0 6px #34d399;
       animation: pulseGlow 1.5s infinite;
     }
 
@@ -297,14 +297,14 @@
 
     .timer-digits {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       font-weight: 800;
       color: #fff;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
     }
 
     .timer-start-time {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
       text-align: center;
     }
@@ -313,17 +313,17 @@
       background: #ef4444;
       color: #ffffff;
       border: none;
-      padding: 0.65rem 1.75rem;
+      padding: 0.42rem 1.15rem;
       border-radius: 9999px;
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0.45rem;
+      gap: 0.35rem;
       touch-action: manipulation;
-      min-height: 42px;
+      min-height: 34px;
       margin: 0 auto;
       transition: transform 0.1s, opacity 0.15s;
     }
@@ -339,12 +339,12 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      gap: 0.35rem;
+      gap: 0.25rem;
       width: 100%;
     }
 
     .timer-complete-title {
-      font-size: 0.95rem;
+      font-size: 0.875rem;
       font-weight: 700;
       color: var(--success);
       display: flex;
@@ -354,22 +354,30 @@
     }
 
     .timer-complete-detail {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: #cbd5e1;
       text-align: center;
+    }
+
+    .already-worked-text {
+      font-size: 0.725rem;
+      color: #94a3b8;
+      text-align: center;
+      margin-top: 0.15rem;
+      line-height: 1.2;
     }
 
     .btn-timer-restart {
       background: transparent;
       border: 1px solid var(--border);
       color: var(--text-muted);
-      padding: 0.4rem 0.9rem;
+      padding: 0.35rem 0.75rem;
       border-radius: 9999px;
-      font-size: 0.75rem;
+      font-size: 0.725rem;
       font-weight: 600;
       cursor: pointer;
       touch-action: manipulation;
-      margin-top: 0.2rem;
+      margin-top: 0.15rem;
     }
 
     .btn-timer-restart:hover {
@@ -1327,19 +1335,20 @@
         areaEl.classList.add('workout-content-locked');
       }
 
-      // Find the most recent completed log for today (or most recent overall)
+      // Find the most recent completed log for today
       var completedToday = logs.find(function(l) { return l.day_id === dayId && l.date === activeDate; });
       var dayPlan = workoutDataMaster.workout_split_plan[dayId];
       var dayTitleText = dayPlan ? dayPlan.name : dayId;
+      var durationStr = (completedToday && completedToday.duration) ? completedToday.duration : (completedToday && completedToday.elapsed_seconds ? formatDurationText(completedToday.elapsed_seconds) : "a session");
 
-      if (completedToday && completedToday.duration) {
+      if (completedToday) {
         container.innerHTML = '<div class="timer-box">' +
           '  <div class="timer-complete-box">' +
           '    <div class="timer-complete-title">✅ Session Completed &amp; Locked</div>' +
-          '    <div class="timer-complete-detail">⏱️ Duration: <strong>' + completedToday.duration + '</strong> ' + (completedToday.start_time ? '(' + completedToday.start_time + ' – ' + (completedToday.end_time || '') + ')' : '') + '</div>' +
+          (completedToday.duration ? ('<div class="timer-complete-detail">⏱️ Duration: <strong>' + completedToday.duration + '</strong> ' + (completedToday.start_time ? '(' + completedToday.start_time + ' – ' + (completedToday.end_time || '') + ')' : '') + '</div>') : '') +
           '  </div>' +
           '  <button class="btn-timer-start" type="button" onclick="startWorkoutSession(\'' + dayId + '\')">▶️ Start New Workout</button>' +
-          '  <div style="font-size:0.75rem; color:#94a3b8; text-align:center; margin-top:0.15rem;">You already worked out ' + dayTitleText + ' for ' + completedToday.duration + ' today</div>' +
+          '  <div class="already-worked-text">You already worked out ' + dayTitleText + ' for ' + durationStr + ' today</div>' +
           '</div>';
       } else {
         container.innerHTML = '<div class="timer-box">' +
