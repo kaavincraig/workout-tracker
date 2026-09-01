@@ -7,6 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0b1120">
   <title>Master Workout & Vitals Tracker</title>
+  <script>window.APP_VERSION = "1.2.0";</script>
   <style>
     :root {
       --bg-color: #0b1120;
@@ -976,7 +977,14 @@
 
   <footer>
     <p>Locked Input Security &bull; Start/End Timer &bull; Multi-Session Unique Key</p>
+    <p style="margin-top:0.25rem;"><span id="appVersion">v--</span></p>
   </footer>
+  <script>
+    (function(){
+      var el = document.getElementById('appVersion');
+      if (el) el.innerText = 'v' + window.APP_VERSION;
+    })();
+  </script>
 </div>
 
 <script>
