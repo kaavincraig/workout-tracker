@@ -1021,8 +1021,8 @@
         "name": "Day 2: Lower A",
         "focus": "Quads & Knee-Dominant Endurance",
         "exercises": [
-          { "order": 1, "name": "DB Goblet Squat (to Bench)", "score": 9.0, "scheme": "3–4 sets × 10–15 reps (RPE 7–8)", "alt": "Lightweight Barbell Squat [8.5]", "default_w": 45, "default_r": 12, "step_w": 5 },
-          { "order": 2, "name": "Lightweight Barbell Squat", "score": 8.5, "scheme": "5 sets × 5 reps (Speed, RPE 6–7)", "alt": "DB Goblet Squat [9.0]", "default_w": 95, "default_r": 5, "step_w": 5 },
+          { "order": 1, "name": "DB Goblet Squat (to Bench)", "score": 9.0, "scheme": "3–4 sets × 10–15 reps (RPE 7–8)", "alt": "Barbell Squat [9.5]", "default_w": 45, "default_r": 12, "step_w": 5 },
+          { "order": 2, "name": "Barbell Squat", "score": 9.5, "scheme": "3–4 sets × 6–8 reps (RPE 7–8)", "alt": "DB Goblet Squat [9.0]", "default_w": 105, "default_r": 7, "step_w": 5 },
           { "order": 3, "name": "DB Reverse Lunges", "score": 8.5, "scheme": "3 sets × 10–12 reps/leg (RPE 8)", "alt": "DB Step-Ups on Bench [7.5]", "default_w": 25, "default_r": 10, "step_w": 5 },
           { "order": 4, "name": "Standing DB Calf Raises", "score": 8.0, "scheme": "3–4 sets × 15–20 reps (RPE 9)", "alt": "Single-Leg Calf Raises [8.0]", "default_w": 30, "default_r": 18, "step_w": 5 },
           { "order": 5, "name": "DB Suitcase Carry", "score": 9.0, "scheme": "3 sets × 40–50 paces/side", "alt": "Deadbugs [7.5]", "default_w": 40, "default_r": 45, "step_w": 5 }
@@ -1474,21 +1474,30 @@
   function hydrateDayForm(dayId, targetDate, forceLatest) {
     if (!dayId || !workoutDataMaster.workout_split_plan[dayId]) return;
     var dayPlan = workoutDataMaster.workout_split_plan[dayId];
-    var dateEl = document.getElementById(dayId + '_date');
-    var date = targetDate || (dateEl ? dateEl.value : getLocalDateString());
     var today = getLocalDateString();
-    var isToday = (date === today);
-    
     var logs = getPersistentLogs();
-    
-    // Auto-load ONLY if a workout exists for TODAY'S local date, OR if forceLatest is requested
+
+    // Sets value + data-val without the white "user-edited" styling and without
+    // triggering the saved badge / auto-save. Used for gray pre-fills from past logs.
+    function setGrayValue(el, value) {
+      if (!el) return;
+      el.innerText = value;
+      el.setAttribute('data-val', value);
+      el.classList.remove('user-edited');
+      el.removeAttribute('data-edited');
+    }
+
+    // Look for TODAY's log first (white). If none, fall back to the most-recent log
+    // for this day (gray pre-fill only; values shown with default styling).
     var log = null;
-    if (forceLatest) {
-      log = logs.find(function(l) { return l.day_id === dayId; });
-    } else if (isToday) {
-      log = logs.find(function(l) { return l.day_id === dayId && l.date === today; });
+    var isTodayLog = false;
+    var todayLog = logs.find(function(l) { return l.day_id === dayId && l.date === today; });
+    if (todayLog) {
+      log = todayLog;
+      isTodayLog = true;
     } else {
-      log = logs.find(function(l) { return l.day_id === dayId && l.date === date; });
+      log = logs.find(function(l) { return l.day_id === dayId; });
+      isTodayLog = false;
     }
 
     var isRunning = isWorkoutActive(dayId);
@@ -1553,9 +1562,8 @@
           if (item) {
             var el = document.getElementById(dayId + '_' + item.id);
             if (el) {
-              el.innerText = w.value;
-              el.setAttribute('data-val', w.value);
-              markEdited(el, false);
+              if (isTodayLog) { el.innerText = w.value; el.setAttribute('data-val', w.value); markEdited(el, false); }
+              else { setGrayValue(el, w.value); }
             }
           }
         });
@@ -1609,14 +1617,12 @@
               }
 
               if (wEl && weight !== undefined && weight !== null && weight !== '') {
-                wEl.innerText = weight;
-                wEl.setAttribute('data-val', weight);
-                markEdited(wEl, false);
+                if (isTodayLog) { wEl.innerText = weight; wEl.setAttribute('data-val', weight); markEdited(wEl, false); }
+                else { setGrayValue(wEl, weight); }
               }
               if (rEl && reps !== undefined && reps !== null && reps !== '') {
-                rEl.innerText = reps;
-                rEl.setAttribute('data-val', reps);
-                markEdited(rEl, false);
+                if (isTodayLog) { rEl.innerText = reps; rEl.setAttribute('data-val', reps); markEdited(rEl, false); }
+                else { setGrayValue(rEl, reps); }
               }
             });
           }
