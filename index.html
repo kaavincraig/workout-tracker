@@ -2127,7 +2127,19 @@
     }
   }
 
+  var DELETE_PIN = "1981";
+  var CLEAR_ALL_PIN = "1986";
+
+  function verifyDeletePin(expectedPin) {
+    var pin = window.prompt('🔒 Enter PIN to authorize deletion:');
+    if (pin === null) return false;
+    if (pin.trim() === expectedPin) return true;
+    window.alert('🚫 Incorrect PIN. Deletion blocked.');
+    return false;
+  }
+
   function deleteSingleLog(logId) {
+    if (!verifyDeletePin(DELETE_PIN)) return;
     if (!confirm('Are you sure you want to delete this session log?')) return;
 
     var logs = getPersistentLogs();
@@ -2190,6 +2202,7 @@
   }
 
   function clearWorkoutHistory() {
+    if (!verifyDeletePin(CLEAR_ALL_PIN)) return;
     if (confirm('Clear all logged workout history?')) {
       setPersistentLogs([]);
       renderHistoryLogs();
