@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0b1120">
   <title>Master Workout & Vitals Tracker</title>
-  <script>window.APP_VERSION = "1.2.0";</script>
+  <script>window.APP_VERSION = "1.3.0";</script>
   <style>
     :root {
       --bg-color: #0b1120;
@@ -918,6 +918,125 @@
       color: var(--text-muted);
       font-size: 0.75rem;
     }
+
+    /* Custom-workout builder view */
+    .builder-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .builder-box h3 { color: #fff; font-size: 1.05rem; margin-bottom: 0.5rem; }
+    .builder-name-input {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      font-size: 16px;
+      width: 100%;
+    }
+    .catalog-search {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 0.55rem 0.75rem;
+      border-radius: 8px;
+      font-size: 16px;
+      width: 100%;
+      margin-bottom: 0.75rem;
+    }
+    .builder-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+    .builder-section-header {
+      padding: 0.8rem 1rem;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(15, 23, 42, 0.7);
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+      font-size: 0.95rem;
+    }
+    .builder-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+    }
+    .builder-row:last-child { border-bottom: none; }
+    .builder-row-info { display:flex; flex-direction:column; gap:0.15rem; min-width:0; }
+    .builder-row-name { color:#fff; font-weight:600; font-size:0.9rem; }
+    .builder-row-sub { color:var(--accent); font-size:0.725rem; font-weight:600; }
+    .builder-add-btn {
+      background: rgba(56,189,248,0.1);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      min-width: 76px;
+      padding: 0.4rem 0.8rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      touch-action: manipulation;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .builder-add-btn:active { transform: scale(0.96); }
+    .builder-add-btn.added {
+      background: var(--accent);
+      color: #0b1120;
+      border-color: var(--accent);
+    }
+    .builder-selected {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0.9rem 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .builder-selected h3 { color:#fff; font-size:1rem; margin-bottom:0.6rem; }
+    .builder-selected-list { display:flex; flex-direction:column; gap:0.5rem; }
+    .builder-selected-empty { color:var(--text-muted); font-size:0.85rem; font-style:italic; }
+    .builder-selected-item {
+      display:flex; justify-content:space-between; align-items:center; gap:0.6rem;
+      background: rgba(15,23,42,0.6);
+      border: 1px solid rgba(51,65,85,0.8);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+    }
+    .builder-selected-item-num {
+      background: var(--accent); color:#0b1120; font-weight:800;
+      width:24px; height:24px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0; font-size:0.8rem;
+    }
+    .builder-selected-item-name { color:#fff; font-weight:600; font-size:0.9rem; flex:1; min-width:0; }
+    .builder-remove-btn {
+      background: rgba(239,68,68,0.12); color:#f87171;
+      border: 1px solid rgba(239,68,68,0.35);
+      padding: 0.3rem 0.7rem; border-radius: 6px;
+      font-weight: 700; font-size: 0.775rem;
+      cursor: pointer; touch-action: manipulation;
+    }
+    .builder-actions {
+      display:flex; justify-content:space-between; align-items:center; gap:0.6rem;
+      flex-wrap:wrap; padding-top: 0.25rem;
+    }
+    .builder-save-btn {
+      background: var(--accent); color:#0b1120;
+      border:none; padding: 0.65rem 1.25rem;
+      border-radius: 8px; font-weight:800; font-size:0.9rem;
+      cursor:pointer; touch-action: manipulation; min-height: 44px;
+    }
+    .tab-btn.builder-tab { background: transparent; color: var(--accent); border: 1px dashed rgba(56,189,248,0.5); font-size:1rem; padding: 0.4rem 0.85rem; }
+    .tab-btn.builder-tab.active { background: var(--accent); color:#0b1120; border-style:solid; }
   </style>
 </head>
 <body>
@@ -938,6 +1057,34 @@
   <!-- Dynamic Workout Forms Container (Day 1 to Day 4) -->
   <div id="workoutFormsContainer"></div>
 
+  <!-- Custom Workout Builder View -->
+  <div id="builderTabContent" class="tab-content">
+    <div class="day-header">
+      <div class="day-title">➕ Build Custom Workout</div>
+      <div class="day-focus">Pick any exercises, name it, save a new routine</div>
+    </div>
+
+    <div class="builder-box">
+      <h3>🎯 Name your workout</h3>
+      <input type="text" id="builderNameInput" class="builder-name-input">
+    </div>
+
+    <div class="builder-selected">
+      <h3>✅ Your workout (tap to add/remove)</h3>
+      <div id="builderSelectedList" class="builder-selected-list"><span class="builder-selected-empty">Tap “+ Add” on any exercise below to start building.</span></div>
+      <div class="builder-actions">
+        <div id="builderEmptyHint" style="color:var(--text-muted); font-size:0.8rem;">No exercises selected yet.</div>
+        <button class="builder-save-btn" id="builderSaveBtn" onclick="saveCustomWorkout()">💾 Save Workout</button>
+      </div>
+    </div>
+
+    <div class="builder-box">
+      <h3>📚 Exercise Library</h3>
+      <input type="text" id="builderSearch" class="catalog-search" placeholder="🔍 Search exercises…" oninput="filterBuilder()">
+    </div>
+    <div id="builderCatalog"></div>
+  </div>
+
   <!-- History Tab -->
   <div id="historyTabContent" class="tab-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
@@ -956,13 +1103,29 @@
 
     <div class="sync-tab-box">
       <h3>🔗 Google Apps Script Webhook</h3>
-      <p>Enter your Web App URL to automatically sync your logged workout sessions directly into <code>workout_data.json</code> in your Google Drive folder.</p>
+      <p>Sync your data into your Google Drive <strong>Workout Tracker</strong> folder: session log &amp; static split go to <code>workout_data.json</code>, and your custom workout routines go to <code>custom_workouts.json</code>.</p>
       <input type="text" id="gdriveWebhookUrl" class="sync-input" placeholder="https://script.google.com/macros/s/.../exec">
       <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
         <button class="btn-sync" onclick="saveGDriveUrl()">💾 Save URL</button>
-        <button class="btn-sync" style="background:#334155; color:#fff;" onclick="syncCurrentDataToGDrive()">☁️ Push to Drive</button>
-        <button class="btn-sync" style="background:#1e293b; color:var(--accent); border:1px solid var(--border);" onclick="fetchDataFromGDrive()">📥 Pull from Drive</button>
       </div>
+
+      <!-- Push is automatic: every save/end/delete of a session or custom workout
+           syncs to Drive. These buttons are pull-only (restore / inspect). -->
+      <div style="margin-top:0.9rem; padding-top:0.9rem; border-top:1px dashed rgba(51,65,85,0.6);">
+        <div style="font-weight:700; color:#fff; font-size:0.85rem; margin-bottom:0.5rem;">📄 workout_data.json (logs + static split)</div>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button class="btn-sync" style="background:#1e293b; color:var(--accent); border:1px solid var(--border);" onclick="fetchDataFromGDrive(false, 'workout')">📥 Pull from Drive</button>
+        </div>
+      </div>
+
+      <div style="margin-top:0.9rem; padding-top:0.9rem; border-top:1px dashed rgba(51,65,85,0.6);">
+        <div style="font-weight:700; color:#fff; font-size:0.85rem; margin-bottom:0.5rem;">➕ custom_workouts.json (custom routines)</div>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button class="btn-sync" style="background:#1e293b; color:var(--accent); border:1px solid var(--border);" onclick="fetchDataFromGDrive(false, 'custom_workouts')">📥 Pull Custom</button>
+          <button class="btn-sync" style="background:transparent; color:var(--text-muted); border:1px solid var(--border); font-size:0.75rem; padding:0.35rem 0.65rem;" onclick="debugVerifyCustomsOnDrive()" title="Read the file directly from Drive to diagnose">🔍 Verify On Drive</button>
+        </div>
+      </div>
+
       <div id="gdriveStatus" style="font-size:0.85rem; color:var(--success); margin-top:0.75rem; font-weight:600;"></div>
     </div>
 
@@ -1002,6 +1165,63 @@
     { id: "w_db_curls", name: "Light DB Bicep Curls", rec: "10–12 reps", default_val: 10, step: 2, unit: "reps" },
     { id: "w_db_raises", name: "Light DB Lateral / Front Raises", rec: "10–12 reps", default_val: 10, step: 2, unit: "reps" }
   ];
+
+  // ===== Custom-workout builder: exercise catalog (extracted from exercise_master_list.html) =====
+  var CATEGORIES = [
+    { name: "Chest (Pectorals)", exercises: [
+      { id: "bb_flat_bench_press", name: "Barbell Flat Bench Press", score: 9.5, scheme: "3–4 × 6–10 RPE 7–8 · 90–120s", target: "Mid-lower chest, front delts" },
+      { id: "incline_db_bench_press", name: "Incline DB Bench Press", score: 9.0, scheme: "3–4 × 8–12 RPE 8 · 90s", target: "Upper clavicular chest" },
+      { id: "close_grip_db_press", name: "Close-Grip DB Press", score: 7.5, scheme: "3 × 10–12 RPE 8 · 60–90s", target: "Inner chest, triceps" },
+      { id: "strict_pushups", name: "Strict Push-Ups", score: 6.5, scheme: "2–3 × 12–20 (warmup/finisher)", target: "Chest + serratus + core" }
+    ]},
+    { name: "Back (Lats & Upper Back)", exercises: [
+      { id: "strict_pullups", name: "Strict Pull-Ups / Chin-Ups", score: 9.5, scheme: "3–4 × 6–10 RPE 8 · 90–120s", target: "Lat width, teres, biceps" },
+      { id: "single_arm_db_row", name: "Single-Arm DB Row (braced)", score: 9.0, scheme: "3–4 × 8–12/side RPE 8 · 60–90s", target: "Lat thickness, mid-back" },
+      { id: "bent_bb_row", name: "Bent-Over Barbell Row", score: 8.5, scheme: "3–4 × 6–10 RPE 7–8 · 90–120s", target: "Full back + spinal erectors" },
+      { id: "chest_supported_row", name: "Chest-Supported Incline DB Row", score: 8.5, scheme: "3 × 10–12 RPE 8–9 · 60–90s", target: "Upper back, rear delts" }
+    ]},
+    { name: "Shoulders (Delts & Traps)", exercises: [
+      { id: "seated_db_shoulder_press", name: "Seated DB Shoulder Press", score: 9.5, scheme: "3–4 × 8–12 RPE 7–8 · 90s", target: "Anterior + lateral delts" },
+      { id: "rom_180_lateral_raises", name: "Full-ROM 180° Lateral Raises", score: 9.0, scheme: "3–4 × 12–15 RPE 8 · 60s (light)", target: "Side delts + serratus" },
+      { id: "bb_overhead_press", name: "Barbell Overhead Press (OHP)", score: 8.5, scheme: "3–4 × 6–8 RPE 7 · 90–120s", target: "Anterior + lateral delts" },
+      { id: "std_db_lateral_raises", name: "Standard DB Lateral Raises", score: 8.5, scheme: "3 × 12–15 RPE 8–9 · 60s", target: "Lateral deltoid" },
+      { id: "seated_db_arnold_press", name: "Seated DB Arnold Press", score: 8.0, scheme: "3 × 8–12 RPE 7–8 · 75–90s", target: "Delts (rotational sweep)" },
+      { id: "light_arm_circles", name: "10 lb Arm Circles / Rotations", score: 5.0, scheme: "2 × 15–20 (joint prep)", target: "Cuff & stabilizers" }
+    ]},
+    { name: "Biceps & Forearms", exercises: [
+      { id: "incline_db_bicep_curls", name: "Incline DB Bicep Curls", score: 9.5, scheme: "3–4 × 10–12 RPE 8–9 · 60–75s", target: "Long head (max stretch)" },
+      { id: "db_hammer_curls", name: "DB Hammer Curls", score: 9.0, scheme: "3 × 10–15 RPE 8 · 60s", target: "Brachialis & forearms" },
+      { id: "std_db_z_bar_curls", name: "Standing DB / Z-Bar Curls", score: 8.5, scheme: "3 × 8–10 RPE 8 · 75s", target: "Both heads of bicep" }
+    ]},
+    { name: "Triceps", exercises: [
+      { id: "seated_overhead_db_ext", name: "Seated Overhead DB Extension", score: 9.5, scheme: "3–4 × 10–12 RPE 8–9 · 60–75s", target: "Long head (back of arm)" },
+      { id: "bench_triceps_dips", name: "Bench Tricep Dips", score: 8.5, scheme: "3 × 12–15 RPE 8–9 · 45–60s", target: "Lateral/medial heads" },
+      { id: "flat_bench_db_skull_crushers", name: "Flat Bench DB Skull Crushers", score: 8.0, scheme: "3 × 10–12 RPE 8 · 60–75s", target: "Long + lateral heads" }
+    ]},
+    { name: "Lower Body: Quads & Endurance", exercises: [
+      { id: "db_goblet_squat", name: "DB Goblet Squat (to Bench)", score: 9.0, scheme: "3–4 × 10–15 RPE 7–8 · 75–90s", target: "Quads, glutes, adductors" },
+      { id: "light_bb_squat", name: "Barbell Squat", score: 9.5, scheme: "3–4 × 6–8 RPE 7–8 · 90s", target: "Full quads, glutes, core" },
+      { id: "db_reverse_lunges", name: "DB Reverse Lunges", score: 8.5, scheme: "3 × 10–12/leg RPE 8 · 60–75s", target: "Quads + unilateral balance" },
+      { id: "db_stepups", name: "DB Step-Ups on Bench", score: 7.5, scheme: "3 × 12–15/leg RPE 8 · 60s", target: "Quads, unilateral" }
+    ]},
+    { name: "Lower Body: Hamstrings, Glutes & Calves", exercises: [
+      { id: "bb_rdl", name: "Barbell Romanian Deadlift (RDL)", score: 9.5, scheme: "3–4 × 8–10 RPE 7–8 · 90–120s", target: "Hamstrings + glutes" },
+      { id: "db_rdl", name: "Dumbbell Romanian Deadlift (DB RDL)", score: 9.0, scheme: "3–4 × 8–12 RPE 8 · 75–90s", target: "Posterior chain + grip" },
+      { id: "single_leg_db_rdl", name: "Single-Leg / Kickstand DB RDL", score: 8.5, scheme: "3 × 10–12/leg RPE 8 · 60s", target: "Unilateral hamstrings + glutes" },
+      { id: "kb_swing", name: "Kettlebell Swing (Light)", score: 9.0, scheme: "3–4 × 12–15 RPE 7–8 · 60–90s", target: "Posterior chain (explosive hip hinge)" },
+      { id: "bb_hip_thrust", name: "Barbell Hip Thrust", score: 9.0, scheme: "3 × 10–12 RPE 8 · 90s", target: "Direct glute isolation" },
+      { id: "standing_db_calf_raises", name: "Standing DB Calf Raises", score: 8.0, scheme: "3–4 × 15–20 RPE 9 (2s stretch pause)", target: "Gastrocnemius" }
+    ]},
+    { name: "Core & Anti-Hernia Trunk", exercises: [
+      { id: "db_suitcase_carry", name: "DB Suitcase Carry", score: 9.0, scheme: "3 × 40–50 paces/side · Upright", target: "Obliques + transverse abs" },
+      { id: "farmers_walk", name: "Farmer’s Walk", score: 8.5, scheme: "3 × 40–60 paces · RPE 8", target: "Full core bracing + traps" },
+      { id: "deadbugs", name: "Deadbugs", score: 7.5, scheme: "3 × 10–12/side · Slow", target: "Deep inner core" }
+    ]}
+  ];
+
+  // Builder in-memory state
+  var builderSelected = [];    // array of catalog exercise objects, in order
+  var builderCustomCounter = 0;
 
   var workoutDataMaster = {
     "workout_split_plan": {
@@ -1346,14 +1566,37 @@
     showNotification('Google Drive Webhook URL saved!');
   }
 
-  function syncCurrentDataToGDrive(silent) {
+  function getCustomWorkoutArray() {
+    var arr = [];
+    Object.keys(workoutDataMaster.workout_split_plan).forEach(function(k) {
+      var p = workoutDataMaster.workout_split_plan[k];
+      if (p && p.custom) arr.push(p);
+    });
+    return arr;
+  }
+
+  function syncCurrentDataToGDrive(silent, target) {
+    var t = target || 'workout';
     var input = document.getElementById('gdriveWebhookUrl');
     var url = localStorage.getItem('gdrive_webhook_url') || (input ? input.value.trim() : '');
     if (!url) return;
 
-    if (!silent) showNotification('⏳ Syncing to Google Drive...');
+    if (!silent) showNotification('⏳ Syncing to Google Drive (' + (t === 'custom_workouts' ? 'custom_workouts.json' : 'workout_data.json') + ')…');
     workoutDataMaster.workout_logs = getPersistentLogs();
-    var payload = JSON.stringify(workoutDataMaster);
+
+    var payload;
+    if (t === 'custom_workouts') {
+      payload = JSON.stringify(getCustomWorkoutArray());
+    } else {
+      // Only push the static split + logs (customs live in their own Drive file)
+      var staticSplit = {};
+      Object.keys(workoutDataMaster.workout_split_plan).forEach(function(k) {
+        var p = workoutDataMaster.workout_split_plan[k];
+        if (p && p.custom) return;
+        staticSplit[k] = p;
+      });
+      payload = JSON.stringify({ workout_split_plan: staticSplit, workout_logs: workoutDataMaster.workout_logs });
+    }
 
     try {
       var iframe = document.getElementById('gdrive_sync_iframe');
@@ -1371,11 +1614,17 @@
       form.target = 'gdrive_sync_iframe';
       form.style.display = 'none';
 
-      var hiddenInput = document.createElement('input');
-      hiddenInput.type = 'hidden';
-      hiddenInput.name = 'contents';
-      hiddenInput.value = payload;
-      form.appendChild(hiddenInput);
+      var contentsInput = document.createElement('input');
+      contentsInput.type = 'hidden';
+      contentsInput.name = 'contents';
+      contentsInput.value = payload;
+      form.appendChild(contentsInput);
+
+      var targetInput = document.createElement('input');
+      targetInput.type = 'hidden';
+      targetInput.name = 'target';
+      targetInput.value = t;
+      form.appendChild(targetInput);
 
       document.body.appendChild(form);
       form.submit();
@@ -1387,7 +1636,8 @@
     }
   }
 
-  function fetchDataFromGDrive(silent) {
+  function fetchDataFromGDrive(silent, target) {
+    var t = target || 'workout';
     var input = document.getElementById('gdriveWebhookUrl');
     var url = localStorage.getItem('gdrive_webhook_url') || (input ? input.value.trim() : '');
     if (!url) {
@@ -1401,12 +1651,57 @@
       if (input) input.value = url;
     }
 
-    if (!silent) showNotification('⏳ Pulling latest data from Google Drive...');
+    if (!silent) showNotification('⏳ Pulling ' + (t === 'custom_workouts' ? 'custom_workouts.json' : 'workout_data.json') + ' from Google Drive...');
 
-    fetch(url)
+    var base = url.indexOf('?') !== -1 ? url + '&' : url + '?';
+    var targetParam = 'target=' + encodeURIComponent(t);
+    fetch(base + targetParam)
       .then(function(res) { return res.json(); })
-      .then(function(data) { handleDriveDataResponse(data, silent); })
-      .catch(function() { fetchDataViaJSONP(url, silent); });
+      .then(function(data) { t === 'custom_workouts' ? handleCustomWorkoutsResponse(data, silent) : handleDriveDataResponse(data, silent); })
+      .catch(function() {
+        var sep = (url.indexOf('?') !== -1) ? '&' : '?';
+        var src = url + sep + targetParam;
+        t === 'custom_workouts' ? fetchDataViaJSONP(src, silent, handleCustomWorkoutsResponse) : fetchDataViaJSONP(src, silent, handleDriveDataResponse);
+      });
+  }
+
+  function handleCustomWorkoutsResponse(data, silent) {
+    var arr = Array.isArray(data) ? data : (data && Array.isArray(data.workouts) ? data.workouts : []);
+    if (!Array.isArray(arr)) arr = [];
+    var valid = arr.filter(function(p) { return p && p.id && p.exercises && p.exercises.length; });
+
+    // Merge into split plan (customs only), replacing/adding
+    valid.forEach(function(p) {
+      if (p.custom !== true) p.custom = true;
+      workoutDataMaster.workout_split_plan[p.id] = p;
+    });
+
+    // Refresh cache: keep customs currently in localStorage, merge in drive customs, drop orphaned local customs
+    var localIdx = [];
+    try { localIdx = JSON.parse(localStorage.getItem('customworkout_indices') || '[]'); } catch (e) { localIdx = []; }
+    // Keep local customs not overridden by drive? We prefer the union: drive takes precedence by id.
+    var merged = Object.keys(workoutDataMaster.workout_split_plan).filter(function(k) {
+      var p = workoutDataMaster.workout_split_plan[k];
+      return p && p.custom;
+    });
+    merged.forEach(function(id) {
+      try {
+        var plan = workoutDataMaster.workout_split_plan[id];
+        if (plan && plan.id) localStorage.setItem('customworkout_' + plan.id, JSON.stringify(plan));
+      } catch (e) {}
+      if (localIdx.indexOf(id) === -1) localIdx.push(id);
+    });
+    // Drop local customs no longer in the plan
+    localIdx = localIdx.filter(function(id) { return workoutDataMaster.workout_split_plan[id] && workoutDataMaster.workout_split_plan[id].custom; });
+    try { localStorage.setItem('customworkout_indices', JSON.stringify(localIdx)); } catch (e) {}
+
+    renderWorkoutForms();
+    hydrateAllDaysFromStoredLogs();
+    updateTabBarLockState();
+    if (!silent) {
+      if (arr.length > 0) showNotification('✅ Loaded ' + arr.length + ' custom workout(s) from Google Drive!');
+      else showNotification('Connected to Drive. No custom workouts found.');
+    }
   }
 
   function handleDriveDataResponse(data, silent) {
@@ -1430,13 +1725,14 @@
     }
   }
 
-  function fetchDataViaJSONP(url, silent) {
+  function fetchDataViaJSONP(url, silent, handler) {
+    var cb = (handler || handleDriveDataResponse);
     var callbackName = 'gdrive_cb_' + Math.floor(Math.random() * 1000000);
     var script = document.createElement('script');
 
     window[callbackName] = function(data) {
       try {
-        handleDriveDataResponse(data, silent);
+        cb(data, silent);
       } catch (err) {
         console.error("Error applying Drive data:", err);
       } finally {
@@ -1643,10 +1939,23 @@
     });
   }
 
+  // Map a DOM element/field id (e.g. "customabc_ex2_s1_w" or "customabc_w_jacks")
+  // back to its owning split-plan day id. Works for Day 1–4 and any custom id
+  // (which may contain underscores), by matching against the real plan keys.
+  function resolveDayId(id) {
+    if (!id) return null;
+    var keys = Object.keys(workoutDataMaster.workout_split_plan);
+    keys.sort(function(a, b) { return b.length - a.length; });
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (id === k || id.indexOf(k + '_') === 0) return k;
+    }
+    return null;
+  }
+
   function markEdited(el, triggerAuto) {
     if (!el) return;
-    var dayMatch = el.id.match(/^(day[0-9]+)/);
-    var dayId = dayMatch ? dayMatch[1] : null;
+    var dayId = resolveDayId(el.id);
 
     // Only block user interactive edits when workout is not active; allow programmatic hydration!
     if (triggerAuto !== false && dayId && !isWorkoutActive(dayId)) {
@@ -1658,9 +1967,8 @@
     el.setAttribute('data-edited', 'true');
     
     if (triggerAuto !== false) {
-      var match = el.id.match(/^((day[0-9]+)(?:_ex[0-9]+|_w_[a-z0-9_]+)?)/);
-      if (match && dayId) {
-        var cardKey = match[1];
+      if (dayId) {
+        var cardKey = dayId;
         flashCardSavedBadge(cardKey);
         triggerAutoSave(dayId);
       }
@@ -1669,8 +1977,7 @@
 
   function tapDefaultVal(el) {
     if (!el) return;
-    var dayMatch = el.id.match(/^(day[0-9]+)/);
-    var dayId = dayMatch ? dayMatch[1] : null;
+    var dayId = resolveDayId(el.id);
 
     if (dayId && !isWorkoutActive(dayId)) {
       showNotification('🔒 Tap ▶️ Start Workout first to begin logging.');
@@ -1685,8 +1992,7 @@
   function flashCardSavedBadge(cardKey) {
     var badge = document.getElementById('card_saved_' + cardKey);
     if (!badge && cardKey.indexOf('_w_') !== -1) {
-      var dayPrefix = cardKey.split('_')[0];
-      badge = document.getElementById('card_saved_' + dayPrefix + '_warmup');
+      badge = document.getElementById('card_saved_' + resolveDayId(cardKey) + '_warmup');
     }
     if (badge) {
       badge.classList.add('is-flashing');
@@ -1697,8 +2003,7 @@
   }
 
   function modifyVal(valId, delta, step) {
-    var dayMatch = valId.match(/^(day[0-9]+)/);
-    var dayId = dayMatch ? dayMatch[1] : null;
+    var dayId = resolveDayId(valId);
 
     if (dayId && !isWorkoutActive(dayId)) {
       showNotification('🔒 Tap ▶️ Start Workout first to begin logging.');
@@ -1788,6 +2093,8 @@
     var tabHTML = '';
     var formHTML = '';
 
+    tabHTML += '<button class="tab-btn builder-tab" id="btn_builderTabContent" onclick="switchTab(\'builderTabContent\')" title="Add a custom workout">＋</button>';
+
     days.forEach(function(day, index) {
       var activeClass = (index === 0) ? 'active' : '';
       tabHTML += '<button class="tab-btn ' + activeClass + '" id="btn_' + day.id + '" onclick="switchTab(\'' + day.id + '\')">' + day.name + '</button>';
@@ -1796,6 +2103,9 @@
       formHTML += '  <div class="day-header">';
       formHTML += '    <div class="day-title">' + day.name + '</div>';
       formHTML += '    <div class="day-focus">' + day.focus + '</div>';
+      if (day.custom) {
+        formHTML += '    <button type="button" style="margin-top:0.5rem; background:rgba(239,68,68,0.12); color:#f87171; border:1px solid rgba(239,68,68,0.35); padding:0.25rem 0.75rem; border-radius:6px; font-size:0.725rem; font-weight:600; cursor:pointer; touch-action:manipulation;" onclick="deleteCustomWorkout(\'' + day.id + '\')">🗑️ Delete this custom workout</button>';
+      }
       formHTML += '  </div>';
 
       // Insert Centered Start/End Session Timer Card
@@ -1958,7 +2268,7 @@
 
   function switchTab(tabId) {
     var runningDayId = getActiveRunningDay();
-    if (runningDayId && tabId !== runningDayId && tabId !== 'historyTabContent' && tabId !== 'syncTabContent') {
+    if (runningDayId && tabId !== runningDayId && tabId !== 'historyTabContent' && tabId !== 'syncTabContent' && tabId !== 'builderTabContent') {
       var runningPlan = workoutDataMaster.workout_split_plan[runningDayId];
       var name = runningPlan ? runningPlan.name : runningDayId;
       showNotification('🔒 ' + name + ' is currently in progress. Tap ⏹️ End Workout before switching days.');
@@ -1974,8 +2284,12 @@
     var activeContent = document.getElementById(tabId);
     if (activeContent) activeContent.classList.add('active');
 
-    if (tabId.indexOf('day') === 0) {
+    if (tabId.indexOf('day') === 0 || tabId.indexOf('custom') === 0) {
       hydrateDayForm(tabId);
+    }
+
+    if (tabId === 'builderTabContent') {
+      initBuilder();
     }
 
     if (tabId === 'historyTabContent') renderHistoryLogs();
@@ -2124,7 +2438,7 @@
     if (badge) badge.innerText = logs.length;
 
     if (localStorage.getItem('gdrive_webhook_url')) {
-      syncCurrentDataToGDrive(true);
+      syncCurrentDataToGDrive(true, 'workout');
     }
   }
 
@@ -2137,6 +2451,238 @@
     if (pin.trim() === expectedPin) return true;
     window.alert('🚫 Incorrect PIN. Deletion blocked.');
     return false;
+  }
+
+  // ===== Custom-workout builder =====
+  function initBuilder() {
+    var search = document.getElementById('builderSearch');
+    if (search) search.value = '';
+    if (builderSelected.length === 0) {
+      var inp = document.getElementById('builderNameInput');
+      if (inp) inp.value = 'CustomWorkout_' + getLocalDateString();
+    }
+    renderBuilderCatalog();
+    renderBuilderSelection();
+  }
+
+  function renderBuilderCatalog() {
+    var container = document.getElementById('builderCatalog');
+    if (!container) return;
+    var q = (document.getElementById('builderSearch') ? document.getElementById('builderSearch').value.toLowerCase().replace(/[^a-z0-9]/g, '') : '');
+    var html = '';
+    CATEGORIES.forEach(function(cat) {
+      var rows = cat.exercises.filter(function(ex) {
+        if (!q) return true;
+        var hay = (ex.name + ' ' + (ex.target || '')).toLowerCase().replace(/[^a-z0-9]/g, '');
+        return hay.indexOf(q) !== -1;
+      });
+      if (rows.length === 0) return;
+      html += '<div class="builder-section">';
+      html += '  <div class="builder-section-header">' + cat.name + ' <span style="color:var(--text-muted); font-weight:500; font-size:0.725rem;">(' + rows.length + ')</span></div>';
+      rows.forEach(function(ex) {
+        var added = builderSelected.some(function(s) { return s.id === ex.id; });
+        var label = added ? '✓ Added' : '+ Add';
+        var cls = 'builder-add-btn' + (added ? ' added' : '');
+        html += '    <div class="builder-row">';
+        html += '      <div class="builder-row-info">';
+        html += '        <span class="builder-row-name">' + ex.name + '</span>';
+        html += '        <span class="builder-row-sub">[' + ex.score + '] ' + (ex.target || '') + '</span>';
+        html += '      </div>';
+        html += '      <button type="button" class="' + cls + '" onclick="toggleBuilderSelection(\'' + ex.id + '\')">' + label + '</button>';
+        html += '    </div>';
+      });
+      html += '</div>';
+    });
+    if (!html) {
+      html = '<div class="builder-box"><span style="color:var(--text-muted);">No exercises match “' + (document.getElementById('builderSearch') ? document.getElementById('builderSearch').value : '') + '”.</span></div>';
+    }
+    container.innerHTML = html;
+  }
+
+  function toggleBuilderSelection(exId) {
+    var found = null;
+    CATEGORIES.forEach(function(c) {
+      c.exercises.forEach(function(e) { if (e.id === exId) found = e; });
+    });
+    if (!found) return;
+    var idx = builderSelected.findIndex(function(s) { return s.id === exId; });
+    if (idx !== -1) builderSelected.splice(idx, 1);
+    else builderSelected.push(found);
+    renderBuilderCatalog();
+    renderBuilderSelection();
+  }
+
+  function removeBuilderSelection(exId) {
+    var idx = builderSelected.findIndex(function(s) { return s.id === exId; });
+    if (idx !== -1) builderSelected.splice(idx, 1);
+    renderBuilderCatalog();
+    renderBuilderSelection();
+  }
+
+  function renderBuilderSelection() {
+    var list = document.getElementById('builderSelectedList');
+    var hint = document.getElementById('builderEmptyHint');
+    var saveBtn = document.getElementById('builderSaveBtn');
+    if (!list) return;
+    if (builderSelected.length === 0) {
+      list.innerHTML = '<span class="builder-selected-empty">Tap “+ Add” on any exercise above to start building your custom routine.</span>';
+      if (hint) hint.style.display = 'block';
+      if (saveBtn) saveBtn.disabled = true;
+      if (saveBtn) saveBtn.style.opacity = '0.4';
+      return;
+    }
+    if (saveBtn) saveBtn.disabled = false;
+    if (saveBtn) saveBtn.style.opacity = '1';
+    if (hint) hint.style.display = 'none';
+    list.innerHTML = builderSelected.map(function(ex, i) {
+      return '<div class="builder-selected-item">' +
+        '<div class="builder-selected-item-num">' + (i + 1) + '</div>' +
+        '<div class="builder-selected-item-name">' + ex.name + ' <span style="color:var(--accent); font-size:0.725rem; font-weight:600;">[' + ex.score + ']</span></div>' +
+        '<button type="button" class="builder-remove-btn" onclick="removeBuilderSelection(\'' + ex.id + '\')">✕ Remove</button>' +
+        '</div>';
+    }).join('');
+  }
+
+  function filterBuilder() { renderBuilderCatalog(); }
+
+  function saveCustomWorkout() {
+    if (builderSelected.length === 0) {
+      window.alert('Please add at least one exercise before saving.');
+      return;
+    }
+    var nameInput = document.getElementById('builderNameInput');
+    var name = (nameInput && nameInput.value) ? nameInput.value.trim() : '';
+    if (!name) {
+      name = 'CustomWorkout_' + getLocalDateString();
+      if (nameInput) nameInput.value = name;
+    }
+
+    builderCustomCounter += 1;
+    var id = 'custom' + Date.now().toString(36) + '_' + builderCustomCounter;
+
+    var exercises = builderSelected.map(function(ex, i) {
+      return {
+        order: i + 1,
+        name: ex.name,
+        score: ex.score,
+        scheme: ex.scheme,
+        alt: '',
+        default_w: 0,
+        default_r: 10,
+        step_w: 5
+      };
+    });
+
+    var plan = {
+      id: id,
+      name: name,
+      focus: 'Custom routine · ' + exercises.length + ' exercises',
+      custom: true,
+      created_at: getLocalDateString(),
+      exercises: exercises
+    };
+
+    workoutDataMaster.workout_split_plan[id] = plan;
+
+    try {
+      var key = 'customworkout_' + id;
+      localStorage.setItem(key, JSON.stringify(plan));
+      var idxs = JSON.parse(localStorage.getItem('customworkout_indices') || '[]');
+      idxs.push(id);
+      localStorage.setItem('customworkout_indices', JSON.stringify(idxs));
+    } catch (e) {}
+
+    builderSelected = [];
+
+    renderWorkoutForms();
+    hydrateAllDaysFromStoredLogs();
+    updateTabBarLockState();
+    pushCustomsToDrive(true);
+    showNotification('✅ Custom workout saved! Find it under “' + name + '”.');
+    switchTab(id);
+    if (nameInput) nameInput.value = 'CustomWorkout_' + getLocalDateString();
+  }
+
+  function deleteCustomWorkout(id) {
+    var plan = workoutDataMaster.workout_split_plan[id];
+    if (!plan || !plan.custom) return;
+    if (!confirm('Delete the custom workout “' + (plan.name || id) + '”? Session logs remain in history.')) return;
+    delete workoutDataMaster.workout_split_plan[id];
+    try {
+      localStorage.removeItem('customworkout_' + id);
+      var idxs = JSON.parse(localStorage.getItem('customworkout_indices') || '[]');
+      idxs = idxs.filter(function(x) { return x !== id; });
+      localStorage.setItem('customworkout_indices', JSON.stringify(idxs));
+    } catch (e) {}
+    renderWorkoutForms();
+    updateTabBarLockState();
+    pushCustomsToDrive(true);
+    switchTab('day1');
+    showNotification('🗑️ Custom workout deleted.');
+  }
+
+  function loadCustomWorkoutPlans() {
+    var idxs = [];
+    try {
+      idxs = JSON.parse(localStorage.getItem('customworkout_indices') || '[]');
+    } catch (e) { idxs = []; }
+    (idxs || []).forEach(function(id) {
+      try {
+        var raw = localStorage.getItem('customworkout_' + id);
+        if (!raw) return;
+        var plan = JSON.parse(raw);
+        if (plan && plan.id && plan.exercises && plan.exercises.length) {
+          if (plan.custom !== true) plan.custom = true;
+          workoutDataMaster.workout_split_plan[plan.id] = plan;
+        }
+      } catch (e) {}
+    });
+  }
+
+  function pushCustomsToDrive(silent) {
+    if (localStorage.getItem('gdrive_webhook_url')) {
+      syncCurrentDataToGDrive(silent, 'custom_workouts');
+      if (!silent) {
+        setTimeout(function() {
+          verifyDriveFile('custom_workouts', function(data) {
+            var count = Array.isArray(data) ? data.length : 0;
+            if (count === 0) showNotification('⚠️ Push complete but Drive file is empty. Confirm the Apps Script is redeployed with `target` support AND you pressed Save Custom first.');
+            else showNotification('✅ Verified: ' + count + ' custom workout(s) on Drive in custom_workouts.json.');
+          }, function() {
+            showNotification('⚠️ Push complete but the follow-up read failed. Check DevTools → Network for the URL.');
+          });
+        }, 2000);
+      }
+    }
+  }
+
+  function verifyDriveFile(target, onOk, onErr) {
+    var input = document.getElementById('gdriveWebhookUrl');
+    var url = localStorage.getItem('gdrive_webhook_url') || (input ? input.value.trim() : '');
+    if (!url) { onErr && onErr(new Error('no url')); return; }
+    var sep = url.indexOf('?') !== -1 ? '&' : '?';
+    fetch(url + sep + 'target=' + encodeURIComponent(target))
+      .then(function(r) { return r.json(); })
+      .then(onOk)
+      .catch(function() { fetchDataViaJSONP(url + sep + 'target=' + encodeURIComponent(target), true, onOk); });
+  }
+
+  function debugVerifyCustomsOnDrive() {
+    verifyDriveFile('custom_workouts', function(data) {
+      if (data && Object.prototype.hasOwnProperty.call(data, 'workout_logs')) {
+        showNotification('❌ Drive returned workout_data.json (has workout_logs). Your Apps Script is running OLD code that ignores `target`. Redeploy: Deploy → Manage deployments → ⋯ → Edit → Version: New version → Deploy.');
+        return;
+      }
+      var count = Array.isArray(data) ? data.length : 0;
+      if (count === 0) {
+        showNotification('✅ Apps Script is new (target works), but custom_workouts.json is empty/missing. Use “Push Custom” to write your saved customs to Drive. Open DevTools console for the raw data.');
+      } else {
+        showNotification('✅ Found ' + count + ' custom workout(s) in Drive custom_workouts.json. Now try “Pull Custom”.');
+      }
+      try { console.log('custom_workouts.json from Drive:', JSON.stringify(data)); } catch (e) {}
+    }, function(err) {
+      showNotification('❌ Could not read custom_workouts.json from Drive. ' + (err && err.message ? err.message : ''));
+    });
   }
 
   function deleteSingleLog(logId) {
@@ -2154,7 +2700,7 @@
     showNotification('🗑️ Session log deleted.');
 
     if (localStorage.getItem('gdrive_webhook_url')) {
-      syncCurrentDataToGDrive(true);
+      syncCurrentDataToGDrive(true, 'workout');
     }
   }
 
@@ -2244,6 +2790,7 @@
   }, 100);
 
   // Initial load
+  loadCustomWorkoutPlans();
   renderWorkoutForms();
   hydrateAllDaysFromStoredLogs();
   updateTabBarLockState();

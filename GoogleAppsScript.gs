@@ -1,4 +1,13 @@
 var MY_SECRET_KEY = "MYJEY";
+var FOLDER_NAME = "Workout Tracker";
+var FILES = {
+  workout: "workout_data.json",
+  custom_workouts: "custom_workouts.json"
+};
+
+function resolveFileName(target) {
+  return FILES[target] || FILES.workout;
+}
 
 function doGet(e) {
   // Check if API key matches
@@ -9,20 +18,19 @@ function doGet(e) {
   }
 
   try {
-    var folderName = "Workout Tracker";
-    var fileName = "workout_data.json";
-    var folders = DriveApp.getFoldersByName(folderName);
-    var workoutData = { workout_logs: [] };
-    
+    var fileName = resolveFileName(e.parameter && e.parameter.target);
+    var folders = DriveApp.getFoldersByName(FOLDER_NAME);
+    var content = e.parameter.target === 'custom_workouts' ? [] : { workout_logs: [] };
+
     if (folders.hasNext()) {
       var folder = folders.next();
       var files = folder.getFilesByName(fileName);
       if (files.hasNext()) {
-        workoutData = JSON.parse(files.next().getBlob().getDataAsString());
+        content = JSON.parse(files.next().getBlob().getDataAsString());
       }
     }
-    
-    var outputText = JSON.stringify(workoutData);
+
+    var outputText = JSON.stringify(content);
     var callback = e.parameter.callback;
     if (callback) {
       return ContentService.createTextOutput(callback + "(" + outputText + ");")
@@ -44,11 +52,10 @@ function doPost(e) {
   try {
     var contents = (e.parameter && e.parameter.contents) ? e.parameter.contents : (e.postData ? e.postData.contents : "");
     var data = JSON.parse(contents);
-    var folderName = "Workout Tracker";
-    var fileName = "workout_data.json";
-    
-    var folders = DriveApp.getFoldersByName(folderName);
-    var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
+    var fileName = resolveFileName(e.parameter && e.parameter.target);
+
+    var folders = DriveApp.getFoldersByName(FOLDER_NAME);
+    var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(FOLDER_NAME);
     var files = folder.getFilesByName(fileName);
     var file;
     if (files.hasNext()) {
