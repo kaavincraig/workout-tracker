@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0b1120">
   <title>Master Workout & Vitals Tracker</title>
-  <script>window.APP_VERSION = "1.3.0";</script>
+  <script>window.APP_VERSION = "1.3.1";</script>
   <style>
     :root {
       --bg-color: #0b1120;
@@ -1695,13 +1695,38 @@
     localIdx = localIdx.filter(function(id) { return workoutDataMaster.workout_split_plan[id] && workoutDataMaster.workout_split_plan[id].custom; });
     try { localStorage.setItem('customworkout_indices', JSON.stringify(localIdx)); } catch (e) {}
 
+    // Capture current tab before re-rendering (renderWorkoutForms re-sets
+    // the first day tab to active, which would visually yank the user
+    // away from Cloud Sync / Builder if they were there).
+    var prevActiveTab = document.querySelector('.tab-content.active');
+    var prevTabId = prevActiveTab ? prevActiveTab.id : null;
+
     renderWorkoutForms();
     hydrateAllDaysFromStoredLogs();
     updateTabBarLockState();
+    if (prevTabId && prevTabId.indexOf('day') !== 0) {
+      switchTab(prevTabId);
+    }
     if (!silent) {
       if (arr.length > 0) showNotification('✅ Loaded ' + arr.length + ' custom workout(s) from Google Drive!');
       else showNotification('Connected to Drive. No custom workouts found.');
     }
+  }
+
+  // Re-rendering rebuilds all tabs and defaults Day 1 to active. If the user
+  // was viewing a specific tab (e.g. Cloud Sync / builder) before a pull,
+  // put them back where they were.
+  function restoreActiveTab() {
+    var prev = document.querySelector('.tab-content.active');
+    var prevId = prev ? prev.id : null;
+    if (!prevId || prevId.indexOf('day') === 0) return; // Day 1 default is fine
+
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+    var btn = document.getElementById('btn_' + prevId);
+    if (btn) btn.classList.add('active');
+    var content = document.getElementById(prevId);
+    if (content) content.classList.add('active');
   }
 
   function handleDriveDataResponse(data, silent) {
@@ -1710,8 +1735,13 @@
       var badge = document.getElementById('logCountBadge');
       if (badge) badge.innerText = data.workout_logs.length;
 
+      var prevActiveTab = document.querySelector('.tab-content.active');
+      var prevTabId = prevActiveTab ? prevActiveTab.id : null;
       hydrateAllDaysFromStoredLogs();
       renderHistoryLogs();
+      if (prevTabId && prevTabId.indexOf('day') !== 0) {
+        switchTab(prevTabId);
+      }
 
       if (!silent) {
         if (data.workout_logs.length > 0) {
@@ -2607,6 +2637,9 @@
     var plan = workoutDataMaster.workout_split_plan[id];
     if (!plan || !plan.custom) return;
     if (!confirm('Delete the custom workout “' + (plan.name || id) + '”? Session logs remain in history.')) return;
+    var prevActiveTab = document.querySelector('.tab-content.active');
+    var prevTabId = prevActiveTab ? prevActiveTab.id : null;
+
     delete workoutDataMaster.workout_split_plan[id];
     try {
       localStorage.removeItem('customworkout_' + id);
@@ -2617,7 +2650,9 @@
     renderWorkoutForms();
     updateTabBarLockState();
     pushCustomsToDrive(true);
-    switchTab('day1');
+    // If we're viewing the deleted tab, move to Day 1 (since that tab no longer
+    // exists). Otherwise stay where the user was (e.g. Cloud Sync / builder).
+    if (prevTabId === id) switchTab('day1');
     showNotification('🗑️ Custom workout deleted.');
   }
 
