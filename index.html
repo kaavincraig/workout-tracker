@@ -147,6 +147,16 @@
     [data-theme="glacier"] .exhist-chip:not(.pr), [data-theme="ivory-chalk"] .exhist-chip:not(.pr) {
       color: var(--accent);
     }
+    /* Exercise names must stay readable on light themes: the base rule paints
+       them #ffffff and the dimmed state paints them a low-contrast #64748b
+       gray (both `!important`-competitive), so force a dark color here. */
+    [data-theme="glacier"] .exercise-name, [data-theme="ivory-chalk"] .exercise-name {
+      color: var(--text-main) !important;
+    }
+    [data-theme="glacier"] .exercise-main-row.is-dimmed .exercise-name,
+    [data-theme="ivory-chalk"] .exercise-main-row.is-dimmed .exercise-name {
+      color: #475569 !important;
+    }
 
     * {
       box-sizing: border-box;
