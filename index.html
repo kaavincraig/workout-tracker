@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0b1120">
   <title>Master Workout & Vitals Tracker</title>
-  <script>window.APP_VERSION = "1.6.0";</script>
+  <script>window.APP_VERSION = "1.7.0";</script>
   <style>
     :root {
       --bg-color: #0b1120;
@@ -1399,6 +1399,59 @@
     .ss-metric strong { color: #fff; font-weight: 800; }
     .ss-metric-1rm strong { color: #fbbf24; }
     .ss-row-1rmname { font-size: 0.68rem; color: var(--text-muted); }
+
+    /* #1 Progress charts */
+    .pg-metric-switch {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 0.9rem;
+      flex-wrap: wrap;
+    }
+    .pg-metric-btn {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .pg-metric-btn.active {
+      background: var(--accent);
+      color: #0b1120;
+      border-color: var(--accent);
+    }
+    .pg-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.7rem 0.85rem;
+      margin-bottom: 0.7rem;
+    }
+    .pg-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.6rem;
+      margin-bottom: 0.45rem;
+    }
+    .pg-card-name { color: #fff; font-weight: 700; font-size: 0.88rem; }
+    .pg-card-meta { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; }
+    .pg-card-meta strong { color: var(--accent); font-weight: 800; }
+    .progress-svg {
+      display: block;
+      width: 100%;
+      max-width: 560px;
+      height: auto;
+      background: rgba(11, 17, 32, 0.5);
+      border-radius: 8px;
+    }
+    .progress-svg path { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+    .progress-svg .pg-dot { fill: var(--accent); }
+    .progress-svg .pg-grid { stroke: rgba(51, 65, 85, 0.5); stroke-width: 1; }
+    .progress-svg .pg-label { fill: var(--text-muted); font-size: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .progress-svg .pg-peak { fill: #fbbf24; font-size: 10px; font-weight: 700; }
   </style>
 </head>
 <body>
@@ -1474,6 +1527,19 @@
     </div>
     <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.75rem;">Your heaviest set per exercise, across all logged sessions.</p>
     <div id="prsContainer"></div>
+  </div>
+
+  <!-- Progress Charts Tab -->
+  <div id="progressTabContent" class="tab-content">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <h3 style="color:#fff; font-size:1.1rem;">📈 Progress Charts</h3>
+    </div>
+    <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.75rem;">Each exercise's heaviest loaded set and total volume by session, over time. Drawn only from your logs.</p>
+    <div class="pg-metric-switch">
+      <button type="button" class="pg-metric-btn active" id="pgMetricPeak" onclick="switchProgressMetric('peak')">Peak set (heaviest/rep-PR)</button>
+      <button type="button" class="pg-metric-btn" id="pgMetricVolume" onclick="switchProgressMetric('volume')">Volume (lbs)</button>
+    </div>
+    <div id="progressContainer"></div>
   </div>
 
   <!-- Session Stats Tab -->
@@ -2638,6 +2704,7 @@
     });
 
     var logCount = getPersistentLogs().length;
+    tabHTML += '<button class="tab-btn" id="btn_progressTabContent" onclick="switchTab(\'progressTabContent\')" title="Progress Charts">📈</button>';
     tabHTML += '<button class="tab-btn" id="btn_statsTabContent" onclick="switchTab(\'statsTabContent\')" title="Session Stats">📊</button>';
     tabHTML += '<button class="tab-btn" id="btn_prsTabContent" onclick="switchTab(\'prsTabContent\')" title="Personal Records">🏆</button>';
     tabHTML += '<button class="tab-btn" id="btn_historyTabContent" onclick="switchTab(\'historyTabContent\')" title="Workout Logs (' + logCount + ')">📜</button>';
@@ -3229,12 +3296,156 @@
             '</div>';
         }).join('') +
       '</div>' +
-      '<p style="color:var(--text-muted); font-size:0.72rem; margin-top:0.75rem;">Avg volume per logged session: <strong>' + fmtWeight(avgVolume) + ' lbs</strong>. Est 1RM uses the Epley formula: weight × (1 + reps/30). Bodyweight sets are excluded.</p>';
+       '<p style="color:var(--text-muted); font-size:0.72rem; margin-top:0.75rem;">Avg volume per logged session: <strong>' + fmtWeight(avgVolume) + ' lbs</strong>. Est 1RM uses the Epley formula: weight × (1 + reps/30). Bodyweight sets are excluded.</p>';
+  }
+
+  // ================================================================
+  // #1  PROGRESS CHARTS — per exercise, over time (pure SVG, no deps).
+  // Series per (normalized) exercise across logged sessions:
+  //   peak   = heaviest loaded set in the session (weight lbs)
+  //   volume = total lbs (sum of weight × reps) across every set
+  // A line is drawn only for exercises with >= 2 loaded data points.
+  // ================================================================
+  var _progressMetric = 'peak';
+
+  function escHtml(s) {
+    return String(s).replace(/[&<>"]/g, function(c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c];
+    });
+  }
+
+  // Distinct exercise names (display), with normalized keys, deduped.
+  function collectExerciseNames() {
+    var seen = {};
+    var out = [];
+    getPersistentLogs().forEach(function(log) {
+      (log.entries || []).forEach(function(entry) {
+        var name = entry.exercise_name;
+        if (!name) return;
+        var key = normalizeExerciseName(name);
+        if (!key || seen[key]) return;
+        seen[key] = true;
+        out.push(name);
+      });
+    });
+    return out;
+  }
+
+  // One series for a single exercise across all sessions (ascending by date).
+  function getExerciseProgress(name) {
+    var sessions = getExerciseSessions(name); // newest first
+    sessions.reverse(); // chronological
+    var points = [];
+    sessions.forEach(function(s) {
+      var sets = s.sets || [];
+      var loaded = sets.map(parseSetWeightReps).filter(function(p) { return p.weight > 0 && p.reps > 0; });
+      if (!loaded.length) return;
+      var heaviest = loaded[0];
+      var vol = 0;
+      loaded.forEach(function(p) {
+        vol += p.weight * p.reps;
+        if (p.weight > heaviest.weight) heaviest = p;
+      });
+      points.push({ date: s.date, weight: heaviest.weight, reps: heaviest.reps, volume: vol });
+    });
+    return points;
+  }
+
+  function buildLineSVG(points, yFmt, peakVal) {
+    var n = points.length;
+    var W = 320, H = 140, padL = 16, padR = 26, padT = 16, padB = 20;
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+
+    var ys = points.map(function(p) { return p.value; });
+    var minY = Math.min.apply(null, ys);
+    var maxY = Math.max.apply(null, ys);
+    if (minY === maxY) { minY -= 1; maxY += 1; }
+
+    function px(i) { return n === 1 ? padL + plotW / 2 : padL + (plotW * i) / (n - 1); }
+    function py(v) { return padT + plotH - (plotH * (v - minY)) / (maxY - minY); }
+
+    var d = points.map(function(p, i) {
+      return (i === 0 ? 'M' : 'L') + px(i).toFixed(1) + ' ' + py(p.value).toFixed(1);
+    }).join(' ');
+
+    var dots = points.map(function(p, i) {
+      return '<circle class="pg-dot" cx="' + px(i).toFixed(1) + '" cy="' + py(p.value).toFixed(1) + '" r="3"><title>' +
+        escHtml(p.date) + ' · ' + escHtml(yFmt(p.value)) + '</title></circle>';
+    }).join('');
+
+    var first = points[0], peak = { value: -Infinity, i: 0 };
+    points.forEach(function(p, i) { if (p.value > peak.value) { peak = { value: p.value, i: i }; } });
+
+    var midDate = n > 2 ? points[Math.floor(n / 2)].date : '';
+    var grid =
+      '<line class="pg-grid" x1="' + padL + '" y1="' + padT + '" x2="' + padL + '" y2="' + (H - padB) + '"/>' +
+      '<line class="pg-grid" x1="' + padL + '" y1="' + (H - padB) + '" x2="' + (W - padR) + '" y2="' + (H - padB) + '"/>' +
+      '<text class="pg-label" x="' + padL + '" y="' + (H - padB + 14) + '">' + escHtml(first.date) + '</text>' +
+      (midDate ? '<text class="pg-label" x="' + (W / 2) + '" y="' + (H - padB + 14) + '" text-anchor="middle">' + escHtml(midDate) + '</text>' : '') +
+      '<text class="pg-label" x="' + (W - padR) + '" y="' + (H - padB + 14) + '" text-anchor="end">' + escHtml(points[n - 1].date) + '</text>' +
+      '<text class="pg-label" x="0" y="' + (padT - 4) + '">' + escHtml(yFmt(maxY)) + '</text>' +
+      '<text class="pg-label" x="' + (W - padR) + '" y="' + (py(peak.value) - 6) + '" text-anchor="end">' + (peakVal ? '★ ' : '') + escHtml(yFmt(peak.value)) + '</text>';
+
+    return '<svg class="progress-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">' + grid + '<path d="' + d + '"/>' + dots + '</svg>';
+  }
+
+  function renderProgressTab() {
+    var container = document.getElementById('progressContainer');
+    if (!container) return;
+
+    var names = collectExerciseNames();
+    var hasCharts = false;
+    var body = '';
+
+    names.forEach(function(name) {
+      var pts = getExerciseProgress(name);
+      if (pts.length < 2) return;
+      hasCharts = true;
+
+      var mapped, yFmt, unit, peakVal;
+      if (_progressMetric === 'volume') {
+        mapped = pts.map(function(p) { return { date: p.date, value: Math.round(p.volume) }; });
+        yFmt = function(v) { return fmtWeight(v) + ' lbs'; };
+        unit = 'volume (lbs)';
+        peakVal = false;
+      } else {
+        mapped = pts.map(function(p) { return { date: p.date, value: p.weight, reps: p.reps }; });
+        yFmt = function(v) { return fmtWeight(v) + ' lbs'; };
+        unit = 'heaviest set';
+        peakVal = true;
+      }
+
+      var best = mapped[0];
+      mapped.forEach(function(m) { if (m.value > best.value) best = m; });
+
+      body += '<div class="pg-card">' +
+        '<div class="pg-card-head">' +
+        '  <span class="pg-card-name">' + escHtml(name) + '</span>' +
+        '  <span class="pg-card-meta">' + pts.length + ' sessions · best <strong>' + escHtml(yFmt(best.value)) + '</strong></span>' +
+        '</div>' +
+        buildLineSVG(mapped, yFmt, peakVal) +
+        '<div class="pg-row-1rmname" style="margin-top:0.4rem;">' + unit + ' · oldest → newest</div>' +
+        '</div>';
+    });
+
+    if (!hasCharts) {
+      body = '<p style="padding:1rem; color:var(--text-muted); text-align:center; font-size:0.85rem;">📈 Not enough history yet. Log the same exercise across at least 2 sessions to draw a trend.</p>';
+    }
+    container.innerHTML = body;
+  }
+
+  function switchProgressMetric(metric) {
+    _progressMetric = (metric === 'volume') ? 'volume' : 'peak';
+    var peakBtn = document.getElementById('pgMetricPeak');
+    var volBtn = document.getElementById('pgMetricVolume');
+    if (peakBtn) peakBtn.classList.toggle('active', _progressMetric === 'peak');
+    if (volBtn) volBtn.classList.toggle('active', _progressMetric === 'volume');
+    renderProgressTab();
   }
 
   function switchTab(tabId) {
     var runningDayId = getActiveRunningDay();
-    if (runningDayId && tabId !== runningDayId && tabId !== 'historyTabContent' && tabId !== 'prsTabContent' && tabId !== 'statsTabContent' && tabId !== 'syncTabContent' && tabId !== 'settingsTabContent' && tabId !== 'builderTabContent') {
+    if (runningDayId && tabId !== runningDayId && tabId !== 'historyTabContent' && tabId !== 'prsTabContent' && tabId !== 'progressTabContent' && tabId !== 'statsTabContent' && tabId !== 'syncTabContent' && tabId !== 'settingsTabContent' && tabId !== 'builderTabContent') {
       var runningPlan = workoutDataMaster.workout_split_plan[runningDayId];
       var name = runningPlan ? runningPlan.name : runningDayId;
       showNotification('🔒 ' + name + ' is currently in progress. Tap ⏹️ End Workout before switching days.');
@@ -3260,6 +3471,7 @@
 
     if (tabId === 'historyTabContent') renderHistoryLogs();
     if (tabId === 'prsTabContent') renderPRsTab();
+    if (tabId === 'progressTabContent') renderProgressTab();
     if (tabId === 'statsTabContent') renderStatsTab();
     updateTabBarLockState();
     window.scrollTo({ top: 0, behavior: 'smooth' });

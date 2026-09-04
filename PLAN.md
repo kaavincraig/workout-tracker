@@ -10,7 +10,7 @@ Suggested features benchmarked against commercial workout trackers (Strong, Hevy
 
 | # | Feature | Status | Notes |
 |---|---|---|---|
-| 1 | **Progress charts** — weight/volume per exercise over time | ⬜ | Strong/Hevy's core retention feature. Pure canvas/SVG, no deps. |
+| 1 | **Progress charts** — weight/volume per exercise over time | ✅ | 📈 tab: per-exercise line charts (peak set / volume), pure SVG, no deps. |
 | 2 | **PR detection** — flag new maxes, keep PR list | ✅ | Live badge on set tiles + dedicated 🏆 PRs tab. |
 | 3 | **Rest timer** — countdown presets between sets | ✅ | Global floating bar, enable in ⚙️ Settings. |
 | 4 | **Exercise history** — tap exercise, see all past sessions | ✅ | Bottom-sheet modal with per-set chips + PR stars. |
@@ -38,7 +38,7 @@ Group into three waves to maximize cheap wins first (all read existing logs):
 - #5 Body weight + chart
 
 ### Wave 3 — engagement / depth
-- #1 Progress charts
+- #1 Progress charts ✅
 - #8 Streaks & achievements
 - #9 Swap suggestions
 - #10 Notes
@@ -46,6 +46,15 @@ Group into three waves to maximize cheap wins first (all read existing logs):
 ---
 
 ## Done
+
+### v1.7.0 — #1 Progress charts
+- **📈 Progress Charts tab** — new tab between + and 📊.
+  - Per-exercise line chart over time (chronological sessions), pure inline SVG — no dependencies.
+  - Metric toggle: **Peak set** (heaviest loaded set per session) or **Volume (lbs)** (sum of weight × reps).
+  - Each card: exercise name, # of sessions, best value, ★ on the peak point; per-dot tooltip (date + value).
+  - Only exercises logged with a loaded set in **2+ sessions** are charted (bodyweight-only / single-session excluded) — keeps trend lines meaningful.
+  - Engine: `collectExerciseNames` / `getExerciseProgress` / `buildLineSVG` / `renderProgressTab` / `switchProgressMetric` (after `renderStatsTab`).
+  - Read-only; computed from `workout_master_logs`, no new data/deps.
 
 ### v1.6.0 — #6 Session stats
 - **📊 Session Stats tab** — new tab between + and 🏆.

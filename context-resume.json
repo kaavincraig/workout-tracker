@@ -2,13 +2,13 @@
   "project": "workout-tracker",
   "path": "/Users/skhimsara/gymstuff/workout-tracker",
   "captured": "2026-09-04",
-  "app_version": "1.6.0 (committed)",
+  "app_version": "1.7.0 (uncommitted)",
   "repo": {
     "branch": "main",
     "remote": "git@github.com:kaavincraig/workout-tracker.git",
     "deploy": "https://kaavincraig.github.io/workout-tracker/",
     "author": "kaavin craig <kaavincraig@gmail.com>",
-    "head_commit": "ddbd221 Add Session Stats tab (#6) and drop 2m/3m rest presets"
+    "head_commit": "ab430c7 Update context: reflect committed v1.6.0 + rest-timer preset trim"
   },
   "resume_instructions": [
     "Read CONTEXT.md at the repo root — it has the full architecture, invariants, data flow, bug history, dev workflow, and a line-number map of every important function.",
@@ -23,9 +23,11 @@
       "v1.5.0 PR tab (🏆) + live PR badges + rest timer (⏱) + exercise history modal + Settings tab (🎛️)",
       "v1.5.1 (98d4d75) delete custom workout verifies on Drive: 4-state toast + console log of raw array",
       "v1.5.2 (0079349) Pull Custom mirrors deletions across devices (drop local customs absent from drive) + failed-read guard",
-      "v1.6.0 (ddbd221) #6 Session Stats: new 📊 tab (between + and 🏆) with all-time summary (workouts / total sets / total + avg volume lbs) + per-session rows (newest first: sets, volume, best est 1RM via Epley weight×(1+reps/30) naming the exercise+set). Bodyweight/zero-rep rows excluded. Engine: estOneRM / computeSessionStats / renderStatsTab (after renderPRsTab). Rest-timer presets trimmed to 30s/60s/90s. App version bumped to 1.6.0."
+       "v1.6.0 (ddbd221) #6 Session Stats: new 📊 tab (between + and 🏆) with all-time summary (workouts / total sets / total + avg volume lbs) + per-session rows (newest first: sets, volume, best est 1RM via Epley weight×(1+reps/30) naming the exercise+set). Bodyweight/zero-rep rows excluded. Engine: estOneRM / computeSessionStats / renderStatsTab (after renderPRsTab). Rest-timer presets trimmed to 30s/60s/90s. App version bumped to 1.6.0."
     ],
-    "uncommitted": [],
+    "uncommitted": [
+      "v1.7.0 (index.html) #1 Progress Charts: new 📈 tab (between + and 📊) with per-exercise line charts over time (pure inline SVG, no deps). Metric toggle Peak set (heaviest loaded set/session) or Volume (lbs). Card shows exercise name, # sessions, best value, ★ on peak point. Only exercises with a loaded set in 2+ sessions are charted (BW-only/single-session excluded). Engine: collectExerciseNames / getExerciseProgress / buildLineSVG / renderProgressTab / switchProgressMetric (after renderStatsTab). App version bumped to 1.7.0. PLAN.md + CONTEXT.md updated. Headless test progress_test.mjs (scratch dir) all pass."
+    ],
     "open_bug": null,
     "resolved_bugs": [
       {
@@ -50,7 +52,8 @@
     "hydration": "today's log -> white (user-edited); non-today log -> gray via setGrayValue().",
     "pins": { "delete_one_log": "1981", "clear_all_history": "1986" },
     "autosave": "triggerAutoSave -> 600ms debounce -> saveSession; only fires when workout active; local save independent from cloud.",
-    "session_stats": "estOneRM Epley: weight×(1+reps/30). computeSessionStats(log) sums loaded sets' weight×reps into volume; best 1RM = max over loaded sets. BW (weight 0) / zero-rep rows excluded. renderStatsTab renders #statsContainer (summary grid + .ss-row rows newest first)."
+    "session_stats": "estOneRM Epley: weight×(1+reps/30). computeSessionStats(log) sums loaded sets' weight×reps into volume; best 1RM = max over loaded sets. BW (weight 0) / zero-rep rows excluded. renderStatsTab renders #statsContainer (summary grid + .ss-row rows newest first).",
+    "progress_charts": "renderProgressTab renders #progressContainer. One SVG line per (normalized) exercise across sessions (>=2 loaded pts). getExerciseProgress -> points {date,weight,reps,volume}; buildLineSVG draws polyline + dots + peak ★; switchProgressMetric toggles peak vs volume. Single-session/BW-only exercises are hidden."
   },
   "gotchas_learnt": [
     "Apps Script changes require REDeploy (Manage deployments -> New version) to the same /exec URL; save alone is not enough.",
@@ -61,8 +64,9 @@
   "next_actions_for_next_session": [
     "1. (DONE) CONTEXT.md + context-resume.json are tracked in the repo; keep updating both after each change.",
     "2. (DONE v1.5.1) cloud-sync-delete-not-propagating is fixed: delete now verifies on Drive with a 4-state toast + console log of the raw array. Re-test in the browser against a correctly-deployed Apps Script if the user still reports the deletion not landing.",
-    "3. Candidate next feature (PLAN Wave 2): #7 Progression suggestion (last-two-logs diff per exercise) or #5 Body weight + chart.",
-    "4. After any index.html change, run the node --check snippet from CONTEXT.md before committing.",
-    "5. Bump window.APP_VERSION (index.html line 10) per change; it's displayed in the footer."
+    "3. (DONE v1.6.0) #6 Session Stats shipped. (DONE v1.7.0) #1 Progress Charts shipped. Both Wave 1 + #6 + #1 complete.",
+    "4. Candidate next feature (PLAN): #7 Progression suggestion (last-two-logs diff per exercise) or #5 Body weight + chart (next easiest in Wave 2).",
+    "5. After any index.html change, run the node --check snippet from CONTEXT.md before committing.",
+    "6. Bump window.APP_VERSION (index.html line 10) per change; it's displayed in the footer."
   ]
 }
