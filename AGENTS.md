@@ -6,7 +6,7 @@ You are working in this repository as the primary coding agent.
 
 Before making changes:
 
-1. Read `CONTEXT.md` to understand the current project state.
+1. Read `CONTEXT.md` AND `context-resume.json` to understand the current project state.
 2. Inspect the relevant source files before modifying them.
 3. Follow the existing architecture and coding patterns.
 4. Prefer small, focused changes over large rewrites.
@@ -15,9 +15,9 @@ Before making changes:
 
 ## Project Context
 
-`CONTEXT.md` is the persistent project memory.
+`CONTEXT.md` and `context-resume.json` are the persistent project memory.
 
-It contains:
+`CONTEXT.md` contains:
 
 - Current objectives
 - Current implementation state
@@ -28,9 +28,13 @@ It contains:
 - Next steps
 - Important files
 
-Always read `CONTEXT.md` at the beginning of a new session, before doing anything else, even if no task has been given yet.
+`context-resume.json` is a machine-readable snapshot of the same state (repo/head-commit, resume instructions, status, key mechanics, gotchas, next-actions).
 
-After completing substantial work, update `CONTEXT.md` so that another fresh session can continue without relying on the previous conversation.
+**Whenever the user asks to "reload context" (or a synonym), read BOTH `CONTEXT.md` AND `context-resume.json` from the repo root.** Do not read only one.
+
+Always read both at the beginning of a new session, before doing anything else, even if no task has been given yet.
+
+After completing substantial work, update BOTH `CONTEXT.md` and `context-resume.json` so that another fresh session can continue without relying on the previous conversation.
 
 ## Coding Rules
 
