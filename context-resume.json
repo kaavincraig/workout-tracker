@@ -8,7 +8,7 @@
     "remote": "git@github.com:kaavincraig/workout-tracker.git",
     "deploy": "https://kaavincraig.github.io/workout-tracker/",
     "author": "kaavin craig <kaavincraig@gmail.com>",
-    "head_commit": "ab430c7 Update context: reflect committed v1.6.0 + rest-timer preset trim"
+    "head_commit": "83e2a03 Add Progress Charts tab (#1, v1.7.0)"
   },
   "resume_instructions": [
     "Read CONTEXT.md at the repo root — it has the full architecture, invariants, data flow, bug history, dev workflow, and a line-number map of every important function.",
@@ -23,11 +23,10 @@
       "v1.5.0 PR tab (🏆) + live PR badges + rest timer (⏱) + exercise history modal + Settings tab (🎛️)",
       "v1.5.1 (98d4d75) delete custom workout verifies on Drive: 4-state toast + console log of raw array",
       "v1.5.2 (0079349) Pull Custom mirrors deletions across devices (drop local customs absent from drive) + failed-read guard",
-       "v1.6.0 (ddbd221) #6 Session Stats: new 📊 tab (between + and 🏆) with all-time summary (workouts / total sets / total + avg volume lbs) + per-session rows (newest first: sets, volume, best est 1RM via Epley weight×(1+reps/30) naming the exercise+set). Bodyweight/zero-rep rows excluded. Engine: estOneRM / computeSessionStats / renderStatsTab (after renderPRsTab). Rest-timer presets trimmed to 30s/60s/90s. App version bumped to 1.6.0."
+       "v1.6.0 (ddbd221) #6 Session Stats: new 📊 tab (between + and 🏆) with all-time summary (workouts / total sets / total + avg volume lbs) + per-session rows (newest first: sets, volume, best est 1RM via Epley weight×(1+reps/30) naming the exercise+set). Bodyweight/zero-rep rows excluded. Engine: estOneRM / computeSessionStats / renderStatsTab (after renderPRsTab). Rest-timer presets trimmed to 30s/60s/90s. App version bumped to 1.6.0.",
+       "v1.7.0 (83e2a03) #1 Progress Charts: new 📈 tab (between + and 📊) with per-exercise line charts over time (pure inline SVG, no deps). Metric toggle Peak set (heaviest loaded set) / Volume (lbs). Only exercises with a loaded set in 2+ sessions are charted (BW-only/single-session excluded). Engine: collectExerciseNames / getExerciseProgress / buildLineSVG / renderProgressTab / switchProgressMetric (after renderStatsTab). App version bumped to 1.7.0."
     ],
-    "uncommitted": [
-      "v1.7.0 (index.html) #1 Progress Charts: new 📈 tab (between + and 📊) with per-exercise line charts over time (pure inline SVG, no deps). Metric toggle Peak set (heaviest loaded set/session) or Volume (lbs). Card shows exercise name, # sessions, best value, ★ on peak point. Only exercises with a loaded set in 2+ sessions are charted (BW-only/single-session excluded). Engine: collectExerciseNames / getExerciseProgress / buildLineSVG / renderProgressTab / switchProgressMetric (after renderStatsTab). App version bumped to 1.7.0. PLAN.md + CONTEXT.md updated. Headless test progress_test.mjs (scratch dir) all pass."
-    ],
+    "uncommitted": [],
     "open_bug": null,
     "resolved_bugs": [
       {
