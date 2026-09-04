@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0b1120">
   <title>Master Workout & Vitals Tracker</title>
-  <script>window.APP_VERSION = "1.4.0";</script>
+  <script>window.APP_VERSION = "1.5.0";</script>
   <style>
     :root {
       --bg-color: #0b1120;
@@ -1037,13 +1037,319 @@
     }
     .tab-btn.builder-tab { background: transparent; color: var(--accent); border: 1px dashed rgba(56,189,248,0.5); font-size:1rem; padding: 0.4rem 0.85rem; }
     .tab-btn.builder-tab.active { background: var(--accent); color:#0b1120; border-style:solid; }
+
+    /* ===== PR badges (on set tiles) ===== */
+    .set-pr-badge {
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #0b1120;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      margin-top: 0.4rem;
+      box-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+    }
+
+    /* ===== Rest timer ===== */
+    .rest-timer-bar {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(0.5rem + env(safe-area-inset-bottom));
+      z-index: 900;
+      display: none; /* hidden until enabled in Settings */
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.6rem;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      max-width: calc(100vw - 1rem);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .rest-timer-bar.rt-visible { display: flex; }
+
+    /* ===== Settings tab ===== */
+    .settings-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      margin-top: 0.75rem;
+    }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .settings-toggle {
+      position: relative;
+      display: inline-block;
+      width: 52px;
+      height: 30px;
+      flex-shrink: 0;
+    }
+    .settings-toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+    .settings-toggle-track {
+      position: absolute;
+      inset: 0;
+      background: var(--btn-stepper);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .settings-toggle-track::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left 0.2s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+    .settings-toggle input:checked + .settings-toggle-track {
+      background: var(--success);
+      border-color: transparent;
+    }
+    .settings-toggle input:checked + .settings-toggle-track::after {
+      left: 26px;
+    }
+    .settings-toggle-label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      flex: 1;
+      cursor: pointer;
+    }
+    .settings-toggle-title {
+      font-weight: 700;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+    .settings-toggle-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+    .rest-timer-bar::before {
+      content: "⏱ Rest";
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    .rest-timer-bar.rt-running {
+      border-color: rgba(52, 211, 153, 0.5);
+      background: rgba(52, 211, 153, 0.1);
+    }
+    .rest-timer-digits {
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #fff;
+      min-width: 52px;
+      text-align: center;
+    }
+    .rest-timer-bar.rt-running .rest-timer-digits { color: var(--success); }
+    .rest-preset-btn {
+      background: var(--btn-stepper);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.3rem 0.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      touch-action: manipulation;
+      min-height: 30px;
+    }
+    .rest-preset-btn.active {
+      background: var(--accent);
+      color: #0b1120;
+      border-color: transparent;
+    }
+    .rest-preset-btn:active { transform: scale(0.96); }
+
+    /* ===== Exercise history modal ===== */
+    .exhist-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      z-index: 1000;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+    }
+    .exhist-modal-overlay.is-open { display: flex; }
+    @media (min-width: 700px) {
+      .exhist-modal-overlay.is-open { align-items: center; padding: 1rem; }
+    }
+    .exhist-modal {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px 16px 0 0;
+      width: 100%;
+      max-width: 720px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    @media (min-width: 700px) {
+      .exhist-modal { border-radius: 16px; }
+    }
+    .exhist-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.6);
+    }
+    .exhist-modal-title {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .exhist-modal-close {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.35rem 0.7rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+      min-height: 34px;
+    }
+    .exhist-modal-summary {
+      padding: 0.65rem 1rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      background: rgba(56, 189, 248, 0.06);
+      border-bottom: 1px solid var(--border);
+    }
+    .exhist-modal-summary strong { color: #fff; }
+    .exhist-modal-body {
+      overflow-y: auto;
+      padding: 0.75rem 1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .exhist-row {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.65rem 0.8rem;
+    }
+    .exhist-row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+    .exhist-row-date { font-weight: 700; color: #fff; font-size: 0.85rem; }
+    .exhist-row-day { font-size: 0.75rem; color: var(--accent); font-weight: 600; }
+    .exhist-row-sets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+    .exhist-chip {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #fff;
+      padding: 0.18rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .exhist-chip.pr {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #0b1120;
+      border-color: transparent;
+      font-weight: 800;
+    }
+    .exhist-empty {
+      color: var(--text-muted);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.85rem;
+    }
+
+    /* ===== PR tab (🏆 PRs) ===== */
+    .pr-table {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .pr-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.55rem 0.8rem;
+    }
+    .pr-row-name {
+      font-weight: 600;
+      color: #fff;
+      font-size: 0.85rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .pr-row-val {
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      color: #fff;
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+    .pr-row-date {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    .pr-crown { color: #fbbf24; font-size: 0.9rem; margin-right: 0.2rem; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <header>
-    <h1>Sid’s Workout Tracker</h1>
+    <h1>FitSid</h1>
   </header>
 
   <div id="notifyBanner" class="notify-banner"></div>
@@ -1082,6 +1388,36 @@
       <input type="text" id="builderSearch" class="catalog-search" placeholder="🔍 Search exercises…" oninput="filterBuilder()">
     </div>
     <div id="builderCatalog"></div>
+  </div>
+
+  <!-- Settings Tab -->
+  <div id="settingsTabContent" class="tab-content">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <h3 style="color:#fff; font-size:1.1rem;">⚙️ Settings</h3>
+    </div>
+    <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.75rem;">App preferences. Toggles are saved to this device.</p>
+
+    <div class="settings-box">
+      <div class="settings-row">
+        <div class="settings-toggle-label">
+          <span class="settings-toggle-title">⏱ Rest timer</span>
+          <span class="settings-toggle-hint">Show the floating rest timer at the bottom of the screen. Tap a preset (30s / 60s / 90s / 2m / 3m) to start a countdown between sets.</span>
+        </div>
+        <label class="settings-toggle">
+          <input type="checkbox" id="restTimerToggle" onchange="toggleRestTimerEnabled(this.checked)">
+          <span class="settings-toggle-track"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRs Tab -->
+  <div id="prsTabContent" class="tab-content">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <h3 style="color:#fff; font-size:1.1rem;">🏆 Personal Records</h3>
+    </div>
+    <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.75rem;">Your heaviest set per exercise, across all logged sessions.</p>
+    <div id="prsContainer"></div>
   </div>
 
   <!-- History Tab -->
@@ -1149,6 +1485,29 @@
       if (el) el.innerText = 'v' + window.APP_VERSION;
     })();
   </script>
+</div>
+
+<!-- ===== Rest Timer (global floating bar) ===== -->
+<div class="rest-timer-bar" id="restTimerBar">
+  <span class="rest-timer-digits" id="restTimerDigits">--:--</span>
+  <button type="button" class="rest-preset-btn" data-rest="30" onclick="startRestTimer(30)">30s</button>
+  <button type="button" class="rest-preset-btn" data-rest="60" onclick="startRestTimer(60)">60s</button>
+  <button type="button" class="rest-preset-btn" data-rest="90" onclick="startRestTimer(90)">90s</button>
+  <button type="button" class="rest-preset-btn" data-rest="120" onclick="startRestTimer(120)">2m</button>
+  <button type="button" class="rest-preset-btn" data-rest="180" onclick="startRestTimer(180)">3m</button>
+  <button type="button" class="rest-preset-btn" id="restTimerStopBtn" onclick="stopRestTimer()" style="display:none; background:rgba(239,68,68,0.18); color:#f87171; border-color:rgba(239,68,68,0.35);">⏹ Stop</button>
+</div>
+
+<!-- ===== Exercise History Modal (global) ===== -->
+<div class="exhist-modal-overlay" id="exhistModal" onclick="closeExerciseHistory(event)">
+  <div class="exhist-modal" onclick="event.stopPropagation()">
+    <div class="exhist-modal-header">
+      <div class="exhist-modal-title" id="exhistTitle">Exercise History</div>
+      <button type="button" class="exhist-modal-close" onclick="closeExerciseHistory()">✕ Close</button>
+    </div>
+    <div class="exhist-modal-summary" id="exhistSummary"></div>
+    <div class="exhist-modal-body" id="exhistBody"></div>
+  </div>
 </div>
 
 <script>
@@ -2174,7 +2533,7 @@
         formHTML += '  <span class="card-saved-badge" id="card_saved_' + exKey + '">✅ Saved</span>';
         formHTML += '  <summary class="exercise-card-summary">';
         formHTML += '    <div class="exercise-main-row" id="main_row_' + exKey + '" onclick="toggleExerciseVariant(\'' + day.id + '\', ' + ex.order + ', \'' + ex.name + '\', \'' + ex.score + '\')">';
-        formHTML += '      <span class="exercise-name">' + ex.order + '. ' + ex.name + '</span>';
+        formHTML += '      <span class="exercise-name" style="cursor:pointer;" title="Click to view past sessions" onclick="event.stopPropagation(); openExerciseHistory(\'' + day.id + '\', \'' + ex.name.replace(/'/g, "\\'") + '\')">' + ex.order + '. ' + ex.name + '</span>';
         formHTML += '      <span class="score-badge">[' + ex.score + ']</span>';
         formHTML += '    </div>';
         formHTML += '    <div class="target-scheme-row">🎯 ' + ex.scheme + '</div>';
@@ -2193,8 +2552,10 @@
     });
 
     var logCount = getPersistentLogs().length;
-    tabHTML += '<button class="tab-btn" id="btn_historyTabContent" onclick="switchTab(\'historyTabContent\')">📜 Logs (' + logCount + ')</button>';
-    tabHTML += '<button class="tab-btn" id="btn_syncTabContent" onclick="switchTab(\'syncTabContent\')">⚙️ Cloud Sync</button>';
+    tabHTML += '<button class="tab-btn" id="btn_prsTabContent" onclick="switchTab(\'prsTabContent\')" title="Personal Records">🏆</button>';
+    tabHTML += '<button class="tab-btn" id="btn_historyTabContent" onclick="switchTab(\'historyTabContent\')" title="Workout Logs (' + logCount + ')">📜</button>';
+    tabHTML += '<button class="tab-btn" id="btn_syncTabContent" onclick="switchTab(\'syncTabContent\')" title="Cloud Sync">☁️</button>';
+    tabHTML += '<button class="tab-btn" id="btn_settingsTabContent" onclick="switchTab(\'settingsTabContent\')" title="Settings">⚙️</button>';
     tabContainer.innerHTML = tabHTML;
     formsContainer.innerHTML = formHTML;
   }
@@ -2297,9 +2658,403 @@
     }
   }
 
+  // ================================================================
+  // #2  PR DETECTION — computed on-the-fly from workout_master_logs.
+  // A PR for an exercise = its heaviest set (weight > 0) in the
+  // LATEST session that logged it, where that weight is strictly
+  // greater than every heaviest set from all earlier sessions of
+  // the same exercise (normalized name). Weight-only (BW rows and
+  // time/distance rows excluded).
+  // ================================================================
+  function normalizeExerciseName(name) {
+    return (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  }
+
+  function parseSetWeightReps(s) {
+    var w = parseFloat(s.weight);
+    var r = parseFloat(s.reps);
+    return { weight: isNaN(w) ? 0 : w, reps: isNaN(r) ? 0 : r };
+  }
+
+  // All logged sessions for one (normalized) exercise, newest first.
+  function getExerciseSessions(exName) {
+    var target = normalizeExerciseName(exName);
+    if (!target) return [];
+    var out = [];
+    getPersistentLogs().forEach(function(log) {
+      if (!log.entries) return;
+      log.entries.forEach(function(entry) {
+        if (normalizeExerciseName(entry.exercise_name) !== target) return;
+        if (!entry.sets || !entry.sets.length) return;
+        if (!log.date) return;
+        out.push({
+          date: log.date,
+          day_id: log.day_id,
+          session_name: log.session_name,
+          sets: entry.sets
+        });
+      });
+    });
+    out.sort(function(a, b) { return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0); });
+    return out;
+  }
+
+  function heaviestSet(sets) {
+    var best = null;
+    sets.forEach(function(s) {
+      var parsed = parseSetWeightReps(s);
+      if (parsed.weight <= 0) return;
+      if (!best || parsed.weight > best.weight) best = parsed;
+    });
+    return best;
+  }
+
+  // { name, weight, reps, date } | null
+  function getExercisePR(exName) {
+    var sessions = getExerciseSessions(exName);
+    for (var i = 0; i < sessions.length; i++) {
+      var cur = heaviestSet(sessions[i].sets);
+      if (!cur) continue;
+      var dominated = false;
+      for (var j = i + 1; j < sessions.length; j++) {
+        var prev = heaviestSet(sessions[j].sets);
+        if (prev && prev.weight >= cur.weight) { dominated = true; break; }
+      }
+      if (!dominated) return { name: exName, weight: cur.weight, reps: cur.reps, date: sessions[i].date };
+    }
+    return null;
+  }
+
+  // Best set (max weight; BW rows count as 0 — only returned when no loaded set)
+  // All PRs, sorted heaviest first
+  function getAllPRs(limit) {
+    var seen = {};
+    var prs = [];
+    var logs = getPersistentLogs();
+    logs.forEach(function(log) {
+      if (!log.entries) return;
+      log.entries.forEach(function(entry) {
+        if (!entry.sets) return;
+        var key = normalizeExerciseName(entry.exercise_name);
+        if (!key || seen[key]) return;
+        seen[key] = true;
+        var pr = getExercisePR(entry.exercise_name);
+        if (pr) prs.push(pr);
+      });
+    });
+    prs.sort(function(a, b) { return b.weight - a.weight; });
+    if (limit) prs = prs.slice(0, limit);
+    return prs;
+  }
+
+  // ---- live PR badge helpers (called from modifyVal) ----
+  function markExercisePRsLive(dayId) {
+    var dayPlan = workoutDataMaster.workout_split_plan[dayId];
+    if (!dayPlan) return;
+    var today = getLocalDateString();
+
+    dayPlan.exercises.forEach(function(ex) {
+      var exKey = dayId + '_ex' + ex.order;
+      var activeNames = [ex.name];
+      if (ex.alt) {
+        ex.alt.split('|').forEach(function(a) {
+          activeNames.push(a.replace(/\[[0-9.]+\]/, '').trim());
+        });
+      }
+      var loggedName = activeExerciseVariants[exKey] || ex.name;
+
+      // Which candidate(s) does the CURRENT screen state actually apply to?
+      var candidates = [loggedName];
+      activeNames.forEach(function(n) { if (n && n !== loggedName) candidates.push(n); });
+
+      var count = exerciseSetCounts[exKey] || 3;
+      var newPRs = [];
+      candidates.forEach(function(name) {
+        var sessions = getExerciseSessions(name);
+        // Baseline = heaviest set logged for this exercise BEFORE today.
+        // We deliberately skip today's own already-saved sessions: the in-progress
+        // screen state IS the candidate we're comparing, and if it matches
+        // pre-today + already exceeds it, that's still a new PR.
+        var prevBest = null;
+        sessions.forEach(function(sess) {
+          if (sess.date === today) return;
+          var h = heaviestSet(sess.sets);
+          if (h && (!prevBest || h.weight > prevBest.weight)) prevBest = h;
+        });
+        // First attempt at an exercise = not a "new PR" (nothing to beat).
+        if (!prevBest) return;
+        // Heaviest loaded set currently on screen, among edited tiles only.
+        // (Unedited tiles still hold the gray-pre-filled default — not a real attempt.)
+        var screenBest = null;
+        for (var s = 1; s <= count; s++) {
+          var wEl = document.getElementById(exKey + '_s' + s + '_w');
+          var rEl = document.getElementById(exKey + '_s' + s + '_r');
+          if (!wEl || !rEl) continue;
+          if (wEl.getAttribute('data-edited') !== 'true' && rEl.getAttribute('data-edited') !== 'true') continue;
+          // If only reps were edited, the weight is the gray prefilled value (still meaningful).
+          var w = parseFloat(wEl.getAttribute('data-val') || wEl.innerText) || 0;
+          if (w <= 0) continue;
+          var r = parseFloat(rEl.getAttribute('data-val') || rEl.innerText) || 0;
+          if (!screenBest || w > screenBest.weight || (w === screenBest.weight && r > screenBest.reps)) {
+            screenBest = { weight: w, reps: r };
+          }
+        }
+        if (!screenBest) return;
+        // PR = strictly heavier set than any previous attempt
+        // (OR same weight with strictly more reps — rep PR at equal load).
+        var isWeightPR = screenBest.weight > prevBest.weight;
+        var isRepPR = screenBest.weight === prevBest.weight && screenBest.reps > prevBest.reps;
+        if (isWeightPR || isRepPR) {
+          newPRs.push({ name: name, weight: screenBest.weight, reps: screenBest.reps });
+        }
+      });
+
+      // Render badge per set tile for the logged name's PRs
+      var prWeightMap = {};
+      newPRs.forEach(function(pr) { prWeightMap[pr.weight] = pr; });
+      for (var s2 = 1; s2 <= count; s2++) {
+        var tile = document.getElementById('tile_' + exKey + '_s' + s2);
+        if (!tile) continue;
+        var old = tile.querySelector('.set-pr-badge');
+        if (old) old.remove();
+        var wEl2 = document.getElementById(exKey + '_s' + s2 + '_w');
+        if (!wEl2) continue;
+        var wVal = parseFloat(wEl2.getAttribute('data-val') || wEl2.innerText) || 0;
+        if (wVal > 0 && prWeightMap[wVal]) {
+          var badge = document.createElement('div');
+          badge.className = 'set-pr-badge';
+          badge.textContent = '🏆 NEW PR · ' + fmtWeight(wVal) + ' × ' + prWeightMap[wVal].reps;
+          tile.appendChild(badge);
+        }
+      }
+    });
+  }
+
+  function clearLivePRBadges() {
+    document.querySelectorAll('.set-pr-badge').forEach(function(b) { b.remove(); });
+  }
+
+  // ================================================================
+  // #3  REST TIMER — global floating bar with preset durations
+  // ================================================================
+  var restTimer = { intervalId: null, remaining: 0, total: 0 };
+
+  function startRestTimer(seconds) {
+    stopRestTimer(false);
+    restTimer.total = seconds;
+    restTimer.remaining = seconds;
+    var digits = document.getElementById('restTimerDigits');
+    var bar = document.getElementById('restTimerBar');
+    var stopBtn = document.getElementById('restTimerStopBtn');
+    if (digits) digits.textContent = fmtRestTime(seconds);
+    if (bar) bar.classList.add('rt-running');
+    if (stopBtn) stopBtn.style.display = '';
+    document.querySelectorAll('.rest-preset-btn').forEach(function(b) {
+      b.classList.toggle('active', parseInt(b.getAttribute('data-rest'), 10) === seconds);
+    });
+    try { if ('vibrate' in navigator) navigator.vibrate(80); } catch (e) {}
+    restTimer.intervalId = setInterval(function() {
+      restTimer.remaining -= 1;
+      if (restTimer.remaining <= 0) {
+        restTimer.remaining = 0;
+        finishRestTimer();
+        return;
+      }
+      if (digits) digits.textContent = fmtRestTime(restTimer.remaining);
+      if (restTimer.remaining === 5 || restTimer.remaining === 1) {
+        try { if ('vibrate' in navigator) navigator.vibrate(120); } catch (e) {}
+      }
+    }, 1000);
+  }
+
+  function finishRestTimer() {
+    stopRestTimer(false);
+    var digits = document.getElementById('restTimerDigits');
+    if (digits) {
+      digits.textContent = "0:00 ✓";
+      setTimeout(function() {
+        digits.textContent = "--:--";
+      }, 2500);
+    }
+    try {
+      if ('vibrate' in navigator) navigator.vibrate([200, 100, 200, 100, 400]);
+    } catch (e) {}
+    try {
+      if (typeof AudioContext !== 'undefined') {
+        var ctx = new AudioContext();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 880;
+        gain.gain.value = 0.2;
+        osc.start();
+        osc.stop(ctx.currentTime + 0.4);
+      }
+    } catch (e) {}
+    var bar = document.getElementById('restTimerBar');
+    if (bar) {
+      bar.classList.remove('rt-running');
+      bar.style.boxShadow = "0 0 0 4px rgba(52, 211, 153, 0.4)";
+      setTimeout(function() { bar.style.boxShadow = ""; }, 1600);
+    }
+    showNotification('⏱️ Rest over! Ready for the next set.');
+  }
+
+  function stopRestTimer(clearState) {
+    if (restTimer.intervalId) {
+      clearInterval(restTimer.intervalId);
+      restTimer.intervalId = null;
+    }
+    // Note: rt-running class is removed here, but rt-visible (the Settings toggle)
+    // is the source of truth for showing/hiding the bar. Do not remove rt-visible
+    // in this function — setRestTimerEnabled() owns that.
+    var bar = document.getElementById('restTimerBar');
+    if (bar) bar.classList.remove('rt-running');
+    var stopBtn = document.getElementById('restTimerStopBtn');
+    if (stopBtn) stopBtn.style.display = 'none';
+    document.querySelectorAll('.rest-preset-btn').forEach(function(b) { b.classList.remove('active'); });
+    if (clearState !== false) {
+      restTimer.remaining = 0;
+      restTimer.total = 0;
+      var digits = document.getElementById('restTimerDigits');
+      if (digits) digits.textContent = "--:--";
+    }
+  }
+
+  function fmtRestTime(totalSeconds) {
+    var mins = Math.floor(totalSeconds / 60);
+    var secs = totalSeconds % 60;
+    return String(mins) + ':' + String(secs).padStart(2, '0');
+  }
+
+  // ---- Rest timer: show/hide (Settings toggle) ----
+  function isRestTimerEnabled() {
+    try { return localStorage.getItem('restTimerEnabled') === '1'; } catch (e) { return false; }
+  }
+  function setRestTimerEnabled(enabled) {
+    try {
+      if (enabled) localStorage.setItem('restTimerEnabled', '1');
+      else localStorage.removeItem('restTimerEnabled');
+    } catch (e) {}
+    var bar = document.getElementById('restTimerBar');
+    if (bar) bar.classList.toggle('rt-visible', !!enabled);
+    var toggle = document.getElementById('restTimerToggle');
+    if (toggle) toggle.checked = !!enabled;
+    if (!enabled) stopRestTimer();
+  }
+  function toggleRestTimerEnabled(enabled) {
+    setRestTimerEnabled(enabled);
+    if (enabled) {
+      showNotification('⏱ Rest timer enabled. Tap a preset to start a countdown.');
+    } else {
+      showNotification('⏱ Rest timer hidden.');
+    }
+  }
+
+  function fmtWeight(w) {
+    return (w % 1 === 0) ? String(w) : w.toFixed(1);
+  }
+
+  // Hook: after every user edit, refresh live PR badges for that day.
+  (function patchModifyVal() {
+    var original = window.modifyVal;
+    if (!original) return;
+    window.modifyVal = function(valId, delta, step) {
+      original.call(window, valId, delta, step);
+      var dId = resolveDayId(valId);
+      if (dId) {
+        clearLivePRBadges();
+        markExercisePRsLive(dId);
+      }
+    };
+  })();
+
+  // ================================================================
+  // #4  EXERCISE HISTORY MODAL — tap an exercise to review all past sessions
+  // ================================================================
+  var _exhistCurrentName = null;
+
+  function openExerciseHistory(dayId, exName) {
+    var overlay = document.getElementById('exhistModal');
+    var title = document.getElementById('exhistTitle');
+    var summary = document.getElementById('exhistSummary');
+    var body = document.getElementById('exhistBody');
+    if (!overlay || !title || !body) return;
+    _exhistCurrentName = exName;
+    title.textContent = exName;
+
+    var sessions = getExerciseSessions(exName);
+    var best = null;
+    if (sessions.length === 0) {
+      summary.innerHTML = 'No recorded sessions yet. Start a workout and log a set to build history.';
+      body.innerHTML = '<div class="exhist-empty">Nothing here yet — your first entry will appear when this exercise is logged.</div>';
+    } else {
+      sessions.forEach(function(sess) {
+        var h = heaviestSet(sess.sets);
+        if (h && (!best || h.weight > best.weight)) best = h;
+      });
+      summary.innerHTML = 'Across <strong>' + sessions.length + '</strong> session(s)' +
+        (best && best.weight > 0 ? ' · best loaded set <strong>' + fmtWeight(best.weight) + ' lbs × ' + best.reps + '</strong> on ' + best.date : '') +
+        (best ? '' : ' · bodyweight only');
+
+      var dayNameMap = {};
+      Object.keys(workoutDataMaster.workout_split_plan).forEach(function(k) {
+        dayNameMap[k] = workoutDataMaster.workout_split_plan[k].name;
+      });
+
+      body.innerHTML = sessions.map(function(sess) {
+        var top = heaviestSet(sess.sets);
+        var chips = sess.sets.map(function(s) {
+          var p = parseSetWeightReps(s);
+          var label = (p.weight > 0 ? fmtWeight(p.weight) + ' lbs' : 'BW') + ' × ' + (p.reps || (s.reps || '?'));
+          var isPR = top && p.weight === top.weight && p.reps === top.reps;
+          return '<span class="exhist-chip' + (isPR ? ' pr' : '') + '">' + label + (isPR ? ' ★' : '') + '</span>';
+        }).join('');
+        var dayLabel = sess.session_name || dayNameMap[sess.day_id] || (sess.day_id || '');
+        return '<div class="exhist-row">' +
+          '<div class="exhist-row-top">' +
+          '  <span class="exhist-row-date">📅 ' + sess.date + '</span>' +
+          '  <span class="exhist-row-day">' + dayLabel + '</span>' +
+          '</div>' +
+          '<div class="exhist-row-sets">' + chips + '</div>' +
+          '</div>';
+      }).join('');
+    }
+    overlay.classList.add('is-open');
+    try { document.body.style.overflow = 'hidden'; } catch (e) {}
+  }
+
+  function closeExerciseHistory(evt) {
+    if (evt && evt.target && !evt.target.classList.contains('exhist-modal-overlay')) return;
+    var overlay = document.getElementById('exhistModal');
+    if (!overlay) return;
+    overlay.classList.remove('is-open');
+    _exhistCurrentName = null;
+    try { document.body.style.overflow = ''; } catch (e) {}
+  }
+
+  // ---- render PRs tab ----
+  function renderPRsTab() {
+    var container = document.getElementById('prsContainer');
+    if (!container) return;
+    var prs = getAllPRs(50);
+    if (prs.length === 0) {
+      container.innerHTML = '<p style="padding:1rem; color:var(--text-muted); text-align:center; font-size:0.85rem;">🏆 No personal records yet. Log heavier sets across sessions to start collecting PRs.</p>';
+      return;
+    }
+    container.innerHTML = '<div class="pr-table">' + prs.map(function(p) {
+      return '<div class="pr-row">' +
+        '<div class="pr-row-name"><span class="pr-crown">🏆</span>' + p.name + '</div>' +
+        '<div class="pr-row-val">' + fmtWeight(p.weight) + ' lbs × ' + p.reps + '</div>' +
+        '<div class="pr-row-date">' + p.date + '</div>' +
+        '</div>';
+    }).join('') + '</div>';
+  }
+
   function switchTab(tabId) {
     var runningDayId = getActiveRunningDay();
-    if (runningDayId && tabId !== runningDayId && tabId !== 'historyTabContent' && tabId !== 'syncTabContent' && tabId !== 'builderTabContent') {
+    if (runningDayId && tabId !== runningDayId && tabId !== 'historyTabContent' && tabId !== 'prsTabContent' && tabId !== 'syncTabContent' && tabId !== 'settingsTabContent' && tabId !== 'builderTabContent') {
       var runningPlan = workoutDataMaster.workout_split_plan[runningDayId];
       var name = runningPlan ? runningPlan.name : runningDayId;
       showNotification('🔒 ' + name + ' is currently in progress. Tap ⏹️ End Workout before switching days.');
@@ -2324,6 +3079,7 @@
     }
 
     if (tabId === 'historyTabContent') renderHistoryLogs();
+    if (tabId === 'prsTabContent') renderPRsTab();
     updateTabBarLockState();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -2467,6 +3223,11 @@
 
     var badge = document.getElementById('logCountBadge');
     if (badge) badge.innerText = logs.length;
+
+    // Keep the PRs tab fresh if it happens to be in view
+    if (document.getElementById('prsTabContent') && document.getElementById('btn_prsTabContent') && document.getElementById('btn_prsTabContent').classList.contains('active')) {
+      renderPRsTab();
+    }
 
     if (localStorage.getItem('gdrive_webhook_url')) {
       syncCurrentDataToGDrive(true, 'workout');
@@ -2840,6 +3601,7 @@
   renderWorkoutForms();
   hydrateAllDaysFromStoredLogs();
   updateTabBarLockState();
+  setRestTimerEnabled(isRestTimerEnabled());
 </script>
 
 </body>

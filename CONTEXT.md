@@ -1,5 +1,36 @@
 # Workout-Tracker — Project Context (for resuming in a new session)
 
+> **v1.5.0 (not yet committed)** — four new features added in `index.html`:
+> - **🎛️ Settings tab** — new tab between ⚙️ Cloud Sync and the far right (uses the `🎛️` icon so it's distinct from the existing `⚙️ Cloud Sync`). Hosts all user preferences. Currently has a single toggle:
+>   - **Rest timer** — shows or hides the floating rest-timer bar. Toggle state persists in `localStorage` under `restTimerEnabled` (`"1"` / absent). Toggle is reachable mid-workout (added to the `switchTab` allow-list).
+> - **🏆 Personal Records** — new tab between + and 📜.
+>   - Live badges on set tiles in workout forms when current weight/rep beats prior best.
+>   - `getExercisePR` / `getAllPRs` / `heaviestSet` / `getExerciseSessions` / `parseSetWeightReps`.
+>   - `markExercisePRsLive` called after every `modifyVal` edit.
+>   - `renderPRsTab` — rendered when user taps 🏆 PRs tab.
+> - **⏱ Rest Timer** — hidden by default; enable in the ⚙️ Settings tab. Once enabled it appears as a global floating bar at bottom of viewport.
+>   - Fixed preset 30s / 60s / 90s / 2m / 3m via `startRestTimer(seconds)`.
+>   - `stopRestTimer` to cancel; auto-fires haptic + 880 Hz chime on completion.
+>   - `toggleRestTimerEnabled(checked)` / `setRestTimerEnabled(bool)` / `isRestTimerEnabled()` own the bar's visibility (class `.rt-visible`), separate from the live running state (`.rt-running`).
+>   - Single global bar (not per-set) so it survives scrolling between exercises.
+> - **Exercise history modal** — tap any exercise name on a day tab.
+>   - `openExerciseHistory` / `closeExerciseHistory`.
+>   - Bottom-sheet on mobile, centered card on desktop.
+>   - Lists all sessions for that (normalized) exercise name, most recent first.
+>   - Per-set chips; the heaviest set of the session gets a gold ★ PR marker.
+>   - Summary row: total sessions, best loaded set, date.
+>
+> Key implementation note for PRs: PR = **strictly heavier** set than any earlier logged
+> session for the same (normalized) exercise name. A `weight > 0` row is loaded.
+> Bodyweight rows do not count as PRs. Reps on a tie (equal weight) DO count as a
+> "rep PR" when strictly more than the prior loaded attempt.
+>
+> `hydrateDayForm` (existing) pre-fills a set tile's `data-val` with the **most recent**
+> log's set values (gray style), which is why the live PR badge baseline uses
+> sessions with `date !== today` and compares against the **screen** state of the tile
+> (only if `data-edited === "true"`). This avoids false-positive PR badges when the
+> user is editing a fresh session after having done the same exercise yesterday.
+
 ## What this is
 A personal gym workout tracker ("Sid's Workout Tracker") — a **client-only single-page app** served via GitHub Pages, with a **Google Apps Script** web app as its cloud backend. Two data files live in a Drive "Workout Tracker" folder:
 
@@ -13,6 +44,7 @@ A personal gym workout tracker ("Sid's Workout Tracker") — a **client-only sin
 | `GoogleAppsScript.gs` | Apps Script web app: `doGet`/`doPost` honoring a `target` parameter (`workout` / `custom_workouts`) mapping to a Drive file. |
 | `exercise_master_list.html` | Static read-only reference: vitals, nutrition, full exercise catalog. The catalog is transcribed into the app's `CATEGORIES` array. |
 | `personal_vitals.json` | Profile: age 45, 66 kg → 70 kg target, vegetarian, inguinal hernia constraints. |
+| `PLAN.md` | Feature roadmap (10 ranked ideas, build waves). #2 PR / #3 rest timer / #4 history are done; rest are not started. |
 | `CONTEXT.md` | This file. |
 
 ## Key invariants (don't break these)
@@ -63,6 +95,7 @@ A personal gym workout tracker ("Sid's Workout Tracker") — a **client-only sin
 5. **Kettlebell Swing (Light)** added to the warmup list (id `w_kb_swing`, after `w_ankle_rot`) and to the master list (Hip Hinge section).
 
 ## Version history
+- **1.5.0 (uncommitted)** — PR tab (🏆), live PR badge on set tiles, rest timer bar (⏱), per-exercise history modal.
 - **1.4.0** — "Export custom_workouts.json" button in Manual Backup & Restore (`downloadCustomWorkoutsJSON()`); "✨ Auto-Save Ready" badge moved from header to footer (above version number).
 - **1.3.1** — Fix: pull from Drive no longer jumps to Day 1.
 - **1.3.0** — Custom workout builder + custom_workouts.json + removed manual push buttons (push is automatic) + `resolveDayId` fix.
@@ -88,6 +121,11 @@ Headless-DOM sanity check (jsdom in `/var/folders/t_/dkx509097s3dbl3xhpfmdq98000
 - Load the real HTML with `runScripts: 'dangerously'`.
 - `startWorkoutSession('day1')`, `modifyVal('day1_ex1_s1_w', 1, 5)` → expect 1 local log + badge reset.
 - Mock `w.fetch` to return a valid `{workout_logs: [...]}` and call `fetchDataFromGDrive(false, 'workout')` → expect `getPersistentLogs().length === 1`.
+- v1.5.0 test (features_test.mjs):
+  - PR engine: `getExercisePR`, `getAllPRs`, `getExerciseSessions`, `heaviestSet` over 3 synthetic log arrays → expect correct PR (heaviest set of the session that beat every earlier one).
+  - Live PR badge: `modifyVal('day1_ex1_s1_w', 1, 5)` after seeding a prior 115-lb log → expect `.set-pr-badge` on `#tile_day1_ex1_s1` with `🏆 NEW PR · 120 × 8`.
+  - Rest timer: `startRestTimer(2)` → digit counts 0:02 → 0:01 → 0:00 ✓ within ~2.5s; `stopRestTimer` resets to `--:--`.
+  - Exercise modal: `openExerciseHistory('day1', 'Barbell Flat Bench Press')` → modal opens, body has 2 `.exhist-row`s, title matches; `closeExerciseHistory` un-opens.
 
 ## Commit / Push
 - Remote: `git@github.com:kaavincraig/workout-tracker.git` (SSH since v1.2.0 era).
@@ -120,6 +158,10 @@ Headless-DOM sanity check (jsdom in `/var/folders/t_/dkx509097s3dbl3xhpfmdq98000
 - `switchTab` — ~2190
 - `initBuilder` / `renderBuilderCatalog` / `toggleBuilderSelection` / `renderBuilderSelection` / `saveCustomWorkout` / `deleteCustomWorkout` / `loadCustomWorkoutPlans` / `pushCustomsToDrive` / `verifyDriveFile` / `debugVerifyCustomsOnDrive` — ~2540 onward
 - `deleteSingleLog` / `clearWorkoutHistory` / `renderHistoryLogs` — ~2660 / ~2720 / ~2760
+- **v1.5.0** — `normalizeExerciseName` / `parseSetWeightReps` / `getExerciseSessions` / `heaviestSet` / `getExercisePR` / `getExerciseBestLoadedSet` / `getAllPRs` — right before `patchModifyVal` (search for `// #2  PR DETECTION`).
+- **v1.5.0** — `markExercisePRsLive` / `clearLivePRBadges` / `fmtWeight` — right after `markExercisePRsLive`.
+- **v1.5.0** — `startRestTimer` / `stopRestTimer` / `finishRestTimer` / `fmtRestTime` — right after `clearLivePRBadges`.
+- **v1.5.0** — `openExerciseHistory` / `closeExerciseHistory` / `renderPRsTab` — right after `fmtRestTime`.
 - `downloadUpdatedWorkoutDataJSON` / `downloadCustomWorkoutsJSON` (manual backup exports) — ~2796 / ~2806
 - `lastTouchEnd` / saved-URL hydrator / initial-load — 2815+
 - **Note:** the `✨ Auto-Save Ready` badge (`#globalAutoSaveBadge` / `.save-indicator`) lives in the **footer** (above the version `<p>`), not the header — `triggerAutoSave` still swaps its text to `💾 Saving...`.
