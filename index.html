@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0b1120">
   <title>Master Workout & Vitals Tracker</title>
-  <script>window.APP_VERSION = "1.5.1";</script>
+  <script>window.APP_VERSION = "1.5.2";</script>
   <style>
     :root {
       --bg-color: #0b1120;
@@ -2026,20 +2026,43 @@
   }
 
   function handleCustomWorkoutsResponse(data, silent) {
+    // Guard: a failed/ambiguous read must NEVER wipe local customs.
+    // Unsuccessful reads come back as an OBJECT ({status:…} or the wrong
+    // file {workout_logs:…}); a real customs read is a JSON array.
+    if (data && typeof data === 'object' && !Array.isArray(data) &&
+        (data.status || Object.prototype.hasOwnProperty.call(data, 'workout_logs'))) {
+      if (!silent) {
+        if (data.status) showNotification('❌ Pull failed: Drive responded “' + data.status + '”. Check the saved /exec URL (needs ?key=MYJEY). Local customs are unchanged.');
+        else showNotification('❌ Pull failed: Drive returned workout_data.json. Your Apps Script is running OLD code without `target` support — redeploy. Local customs are unchanged.');
+      }
+      return;
+    }
     var arr = Array.isArray(data) ? data : (data && Array.isArray(data.workouts) ? data.workouts : []);
     if (!Array.isArray(arr)) arr = [];
     var valid = arr.filter(function(p) { return p && p.id && p.exercises && p.exercises.length; });
 
-    // Merge into split plan (customs only), replacing/adding
+    // MIRROR strategy: a custom currently in split_plan that is NOT in the
+    // drive array was deleted on another device (e.g. this one was pulled
+    // before that delete) → drop it from split_plan + localStorage.
+    var driveIds = {};
+    valid.forEach(function(p) { driveIds[p.id] = true; });
+    Object.keys(workoutDataMaster.workout_split_plan).forEach(function(k) {
+      var p = workoutDataMaster.workout_split_plan[k];
+      if (p && p.custom === true && !driveIds[k]) {
+        delete workoutDataMaster.workout_split_plan[k];
+        try { localStorage.removeItem('customworkout_' + k); } catch (e) {}
+      }
+    });
+
+    // Merge in drive customs (replace/add)
     valid.forEach(function(p) {
       if (p.custom !== true) p.custom = true;
       workoutDataMaster.workout_split_plan[p.id] = p;
     });
 
-    // Refresh cache: keep customs currently in localStorage, merge in drive customs, drop orphaned local customs
+    // Refresh cache: mirror split_plan customs into localStorage
     var localIdx = [];
     try { localIdx = JSON.parse(localStorage.getItem('customworkout_indices') || '[]'); } catch (e) { localIdx = []; }
-    // Keep local customs not overridden by drive? We prefer the union: drive takes precedence by id.
     var merged = Object.keys(workoutDataMaster.workout_split_plan).filter(function(k) {
       var p = workoutDataMaster.workout_split_plan[k];
       return p && p.custom;

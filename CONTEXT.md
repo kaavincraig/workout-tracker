@@ -1,11 +1,12 @@
 # Workout-Tracker — Project Context (for resuming in a new session)
 
-> **v1.5.1 (uncommitted)** — fixing the `cloud-sync-delete-not-propagating` open bug: `deleteCustomWorkout` now runs a **verified follow-up** after the silent push (2 s delay → `verifyDriveFile('custom_workouts')` GET). It logs the raw Drive array to console and toasts one of four states:
-> - `✅ Verified on Drive: "<name>" removed. N custom workout(s) remain…`
-> - `❌ …status "unauthorized"…` → saved URL needs `?key=MYJEY` (or redeploy).
-> - `❌ …returned workout_data.json` → old Apps Script without `target` support.
-> - `⚠️ …still on Drive…` → write rejected; check URL/network.
-> Headless test: `delete_verify_test.mjs` in the opencode scratch dir covers all three (ok / unauthorized / still-there).
+> **v1.5.2 (uncommitted)** — fixes the "deleting a custom on device A is not reflected on device B after Pull Custom" bug.
+> Root cause: `handleCustomWorkoutsResponse` was a **union/merge** — it added drive customs but never *removed* one that's gone from Drive, so a stale local custom persisted across a pull.
+> Fix: the pull is now a true **mirror**. Before merging, any `custom` in `workout_split_plan` that is **not** present in the drive array is dropped from `workout_split_plan` AND removed from `customworkout_<id>` / `customworkout_indices` (index.html:2028 `handleCustomWorkoutsResponse`).
+> Guard: a **failed/ambiguous read never wipes local customs**. Unsuccessful reads return an *object* (`{status:…}` or the wrong file `{workout_logs:…}`), while a real customs read is a JSON **array** — the handler bails early with a warning toast on an object (so `unauthorized` / old-script responses can't nuke local data).
+> Headless test: `pull_mirror_test.mjs` in the opencode scratch dir (empty-drive drops stale local; union still merges updates; unauthorized + wrong-file both preserve local customs).
+
+> **v1.5.1 (committed, 98d4d75)** — `deleteCustomWorkout` verified-on-Drive: silent push + 2 s delayed `verifyDriveFile('custom_workouts')` GET with 4-state toast (✅ removed / ❌ unauthorized → ?key=MYJEY / ❌ old-script / ⚠️ still-on-Drive) + console log of the raw array.
 
 > **v1.5.0 (committed, c5691a2)** — four new features added in `index.html`:
 > - **🎛️ Settings tab** — new tab between ⚙️ Cloud Sync and the far right (uses the `🎛️` icon so it's distinct from the existing `⚙️ Cloud Sync`). Hosts all user preferences. Currently has a single toggle:
@@ -102,7 +103,8 @@ A personal gym workout tracker ("Sid's Workout Tracker") — a **client-only sin
 5. **Kettlebell Swing (Light)** added to the warmup list (id `w_kb_swing`, after `w_ankle_rot`) and to the master list (Hip Hinge section).
 
 ## Version history
-- **1.5.1 (uncommitted)** — Delete custom workout now verifies on Drive: silent push + delayed `verifyDriveFile('custom_workouts')` GET with 4-state toast (verified / unauthorized / old-script / still-on-drive) + raw array logged to console. Closes the `cloud-sync-delete-not-propagating` open bug.
+- **1.5.2 (uncommitted)** — Pull Custom now mirrors Drive: a custom absent from the drive array is dropped from local `split_plan` + cache (fixes deletions on one device not reaching another after pull). Guard keeps local customs safe when the pull read fails (unauthorized / wrong file).
+- **1.5.1 (committed, 98d4d75)** — Delete custom workout: silent push + 2 s delayed Drive verify with 4-state toast + console log of the raw array. Closes `cloud-sync-delete-not-propagating`.
 - **1.5.0 (committed, c5691a2)** — PR tab (🏆), live PR badge on set tiles, rest timer bar (⏱), per-exercise history modal, 🎛️ Settings tab.
 - **1.4.0** — "Export custom_workouts.json" button in Manual Backup & Restore (`downloadCustomWorkoutsJSON()`); "✨ Auto-Save Ready" badge moved from header to footer (above version number).
 - **1.3.1** — Fix: pull from Drive no longer jumps to Day 1.

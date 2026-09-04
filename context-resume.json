@@ -1,14 +1,14 @@
 {
   "project": "workout-tracker",
   "path": "/Users/skhimsara/gymstuff/workout-tracker",
-  "captured": "2026-09-03",
-  "app_version": "1.4.0",
+  "captured": "2026-09-04",
+  "app_version": "1.5.2 (uncommitted)",
   "repo": {
     "branch": "main",
     "remote": "git@github.com:kaavincraig/workout-tracker.git",
     "deploy": "https://kaavincraig.github.io/workout-tracker/",
     "author": "kaavin craig <kaavincraig@gmail.com>",
-    "head_commit": "c894a44 Fix: Pull Custom / Pull from Drive no longer yanks user to Day 1 (v1.3.1)"
+    "head_commit": "98d4d75 Add verified-on-Drive check to custom workout delete (v1.5.1)"
   },
   "resume_instructions": [
     "Read CONTEXT.md at the repo root — it has the full architecture, invariants, data flow, bug history, dev workflow, and a line-number map of every important function.",
@@ -18,15 +18,24 @@
   "status": {
     "committed_and_pushed": [
       "v1.3.0 custom workout builder + custom_workouts.json + auto-push (push buttons removed) + resolveDayId underscore fix",
-      "v1.3.1 pull no longer jumps to Day 1"
+      "v1.3.1 pull no longer jumps to Day 1",
+      "v1.4.0 custom_workouts.json export button + Auto-Save Ready badge moved to footer",
+      "v1.5.0 PR tab (🏆) + live PR badges + rest timer (⏱) + exercise history modal + Settings tab (🎛️)",
+      "v1.5.1 (98d4d75) delete custom workout verifies on Drive: 4-state toast + console log of raw array"
     ],
     "uncommitted": [
-      "CONTEXT.md",
-      "context-resume.json",
-      "index.html — v1.5.1 verified-on-Drive delete"
+      "index.html — v1.5.2 Pull Custom mirrors deletions",
+      "context files (CONTEXT.md, context-resume.json)"
     ],
     "open_bug": null,
     "resolved_bugs": [
+      {
+        "id": "pull-doesn-drop-deleted-customs",
+        "fixed": "v1.5.2",
+        "report": "Delete custom on device A; device B (which had pulled it earlier) still shows it after re-pulling from Drive.",
+        "how": "Root cause was handleCustomWorkoutsResponse doing a union/merge (added drive customs, never removed absent ones). Changed to a MIRROR: before merging, any local custom id not in the drive array is deleted from workout_split_plan + customworkout_<id> + customworkout_indices. Guard: if the read returns an object ({status:…} or {workout_logs:…}) instead of an array, bail early with a warning so a failed/unauthorized pull can't wipe local customs.",
+        "test": "pull_mirror_test.mjs in opencode scratch dir (all pass: empty-drive drops stale local; union merges updates; unauthorized + wrong-file preserve local)."
+      },
       {
         "id": "cloud-sync-delete-not-propagating",
         "fixed": "v1.5.1",
