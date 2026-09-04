@@ -57,22 +57,6 @@
       --on-accent: #0b1120;
     }
 
-    [data-theme="glacier"] {
-      --bg-color: #eef2f7;
-      --card-bg: #ffffff;
-      --card-header: #e2e8f1;
-      --text-main: #1a2233;
-      --text-muted: #6b7688;
-      --accent: #2563eb;
-      --accent-glow: rgba(37, 99, 239, 0.15);
-      --border: #cfd8e6;
-      --success: #0d9488;
-      --input-bg: #f1f4f9;
-      --btn-stepper: #dce3ee;
-      --accent-rgb: 37, 99, 239;
-      --on-accent: #ffffff;
-    }
-
     [data-theme="aurora-teal"] {
       --bg-color: #07131a;
       --card-bg: #0e2029;
@@ -87,75 +71,6 @@
       --btn-stepper: #1e4352;
       --accent-rgb: 45, 212, 191;
       --on-accent: #04191a;
-    }
-
-    [data-theme="ivory-chalk"] {
-      --bg-color: #f3f1ea;
-      --card-bg: #ffffff;
-      --card-header: #e8e5db;
-      --text-main: #20291f;
-      --text-muted: #7d8577;
-      --accent: #1f6f43;
-      --accent-glow: rgba(31, 111, 67, 0.15);
-      --border: #d8d4c7;
-      --success: #0d9488;
-      --input-bg: #eeece3;
-      --btn-stepper: #e2ded2;
-      --accent-rgb: 31, 111, 67;
-      --on-accent: #ffffff;
-    }
-
-    /* Light-theme text readability: override themed-surface text (which was written
-       as white for the dark themes) to --text-main when a light theme is active.
-       Surfaces that stay dark in every theme (rest-timer bar, #0b1120 value wells,
-       rgba(15,23,42,…) boxes, red/gold PR chips) are NOT overridden — they keep white. */
-    [data-theme="glacier"] header h1, [data-theme="ivory-chalk"] header h1,
-    [data-theme="glacier"] .day-title, [data-theme="ivory-chalk"] .day-title,
-    [data-theme="glacier"] .timer-digits, [data-theme="ivory-chalk"] .timer-digits,
-    [data-theme="glacier"] .timer-start-time, [data-theme="ivory-chalk"] .timer-start-time,
-    [data-theme="glacier"] .timer-ready-text, [data-theme="ivory-chalk"] .timer-ready-text,
-    [data-theme="glacier"] .warmup-accordion-summary, [data-theme="ivory-chalk"] .warmup-accordion-summary,
-    [data-theme="glacier"] .warmup-row-name, [data-theme="ivory-chalk"] .warmup-row-name,
-    [data-theme="glacier"] .warmup-row-sub, [data-theme="ivory-chalk"] .warmup-row-sub,
-    [data-theme="glacier"] .warmup-stepper-btn, [data-theme="ivory-chalk"] .warmup-stepper-btn,
-    [data-theme="glacier"] .exercise-name, [data-theme="ivory-chalk"] .exercise-name,
-    [data-theme="glacier"] .alt-btn.selected-alt, [data-theme="ivory-chalk"] .alt-btn.selected-alt,
-    [data-theme="glacier"] .alt-btn-name, [data-theme="ivory-chalk"] .alt-btn-name,
-    [data-theme="glacier"] .alt-score, [data-theme="ivory-chalk"] .alt-score,
-    [data-theme="glacier"] .stepper-btn, [data-theme="ivory-chalk"] .stepper-btn,
-    [data-theme="glacier"] .btn-timer-restart,
-    [data-theme="glacier"] .btn-timer-restart:hover,
-    [data-theme="ivory-chalk"] .btn-timer-restart,
-    [data-theme="ivory-chalk"] .btn-timer-restart:hover,
-    [data-theme="glacier"] .sync-tab-box h3, [data-theme="ivory-chalk"] .sync-tab-box h3,
-    [data-theme="glacier"] .builder-box h3, [data-theme="ivory-chalk"] .builder-box h3,
-    [data-theme="glacier"] .builder-name-input, [data-theme="ivory-chalk"] .builder-name-input,
-    [data-theme="glacier"] .catalog-search, [data-theme="ivory-chalk"] .catalog-search,
-    [data-theme="glacier"] .builder-row-name, [data-theme="ivory-chalk"] .builder-row-name,
-    [data-theme="glacier"] .builder-selected h3, [data-theme="ivory-chalk"] .builder-selected h3,
-    [data-theme="glacier"] .settings-toggle-title, [data-theme="ivory-chalk"] .settings-toggle-title,
-    [data-theme="glacier"] .exhist-modal-title, [data-theme="ivory-chalk"] .exhist-modal-title,
-    [data-theme="glacier"] .exhist-modal-summary strong, [data-theme="ivory-chalk"] .exhist-modal-summary strong,
-    [data-theme="glacier"] .exhist-chip:not(.pr), [data-theme="ivory-chalk"] .exhist-chip:not(.pr),
-    [data-theme="glacier"] .pr-row-name, [data-theme="ivory-chalk"] .pr-row-name,
-    [data-theme="glacier"] .pr-row-val, [data-theme="ivory-chalk"] .pr-row-val,
-    [data-theme="glacier"] .ss-row-name, [data-theme="ivory-chalk"] .ss-row-name,
-    [data-theme="glacier"] .ss-metric strong, [data-theme="ivory-chalk"] .ss-metric strong,
-    [data-theme="glacier"] .pg-card-name, [data-theme="ivory-chalk"] .pg-card-name {
-      color: var(--text-main);
-    }
-    [data-theme="glacier"] .exhist-chip:not(.pr), [data-theme="ivory-chalk"] .exhist-chip:not(.pr) {
-      color: var(--accent);
-    }
-    /* Exercise names must stay readable on light themes: the base rule paints
-       them #ffffff and the dimmed state paints them a low-contrast #64748b
-       gray (both `!important`-competitive), so force a dark color here. */
-    [data-theme="glacier"] .exercise-name, [data-theme="ivory-chalk"] .exercise-name {
-      color: var(--text-main) !important;
-    }
-    [data-theme="glacier"] .exercise-main-row.is-dimmed .exercise-name,
-    [data-theme="ivory-chalk"] .exercise-main-row.is-dimmed .exercise-name {
-      color: #475569 !important;
     }
 
     * {
@@ -3301,9 +3216,7 @@
     { id: 'default', name: 'Midnight Slate', accent: '#38bdf8', bg: '#0b1120', card: '#1e293b' },
     { id: 'steel-cobalt', name: 'Steel Cobalt', accent: '#5b8def', bg: '#0e1420', card: '#182236' },
     { id: 'graphite-mono', name: 'Graphite Mono', accent: '#e5e5ea', bg: '#111113', card: '#1c1c1f' },
-    { id: 'aurora-teal', name: 'Aurora Teal', accent: '#2dd4bf', bg: '#07131a', card: '#0e2029' },
-    { id: 'glacier', name: 'Glacier', accent: '#2563eb', bg: '#eef2f7', card: '#ffffff' },
-    { id: 'ivory-chalk', name: 'Ivory Chalk', accent: '#1f6f43', bg: '#f3f1ea', card: '#ffffff' }
+    { id: 'aurora-teal', name: 'Aurora Teal', accent: '#2dd4bf', bg: '#07131a', card: '#0e2029' }
   ];
   function getStoredTheme() {
     try { return localStorage.getItem('appTheme') || 'default'; } catch (e) { return 'default'; }
