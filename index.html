@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0b1120">
   <title>Master Workout & Vitals Tracker</title>
-  <script>window.APP_VERSION = "1.7.0";</script>
+  <script>window.APP_VERSION = "1.8.0";</script>
   <style>
     :root {
       --bg-color: #0b1120;
@@ -16,11 +16,136 @@
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --accent: #38bdf8;
-      --accent-glow: rgba(56, 189, 248, 0.15);
+      --accent-glow: rgba(var(--accent-rgb), 0.15);
       --border: #334155;
       --success: #34d399;
       --input-bg: #0f172a;
       --btn-stepper: #334155;
+      --accent-rgb: 56, 189, 248;
+      --on-accent: #0b1120;
+    }
+
+    [data-theme="steel-cobalt"] {
+      --bg-color: #0e1420;
+      --card-bg: #182236;
+      --card-header: #1f2c45;
+      --text-main: #eef3fb;
+      --text-muted: #8fa2c0;
+      --accent: #5b8def;
+      --accent-glow: rgba(91, 141, 239, 0.15);
+      --border: #2a3a58;
+      --success: #4ade80;
+      --input-bg: #0f1828;
+      --btn-stepper: #2a3a58;
+      --accent-rgb: 91, 141, 239;
+      --on-accent: #0b1120;
+    }
+
+    [data-theme="graphite-mono"] {
+      --bg-color: #111113;
+      --card-bg: #1c1c1f;
+      --card-header: #26262a;
+      --text-main: #f5f5f7;
+      --text-muted: #9a9aa2;
+      --accent: #e5e5ea;
+      --accent-glow: rgba(229, 229, 234, 0.15);
+      --border: #333338;
+      --success: #a1a1aa;
+      --input-bg: #1a1a1d;
+      --btn-stepper: #2a2a2e;
+      --accent-rgb: 229, 229, 234;
+      --on-accent: #0b1120;
+    }
+
+    [data-theme="glacier"] {
+      --bg-color: #eef2f7;
+      --card-bg: #ffffff;
+      --card-header: #e2e8f1;
+      --text-main: #1a2233;
+      --text-muted: #6b7688;
+      --accent: #2563eb;
+      --accent-glow: rgba(37, 99, 239, 0.15);
+      --border: #cfd8e6;
+      --success: #0d9488;
+      --input-bg: #f1f4f9;
+      --btn-stepper: #dce3ee;
+      --accent-rgb: 37, 99, 239;
+      --on-accent: #ffffff;
+    }
+
+    [data-theme="aurora-teal"] {
+      --bg-color: #07131a;
+      --card-bg: #0e2029;
+      --card-header: #14303c;
+      --text-main: #ecfdf5;
+      --text-muted: #7fb8b8;
+      --accent: #2dd4bf;
+      --accent-glow: rgba(45, 212, 191, 0.15);
+      --border: #1e4352;
+      --success: #a78bfa;
+      --input-bg: #0a1c24;
+      --btn-stepper: #1e4352;
+      --accent-rgb: 45, 212, 191;
+      --on-accent: #04191a;
+    }
+
+    [data-theme="ivory-chalk"] {
+      --bg-color: #f3f1ea;
+      --card-bg: #ffffff;
+      --card-header: #e8e5db;
+      --text-main: #20291f;
+      --text-muted: #7d8577;
+      --accent: #1f6f43;
+      --accent-glow: rgba(31, 111, 67, 0.15);
+      --border: #d8d4c7;
+      --success: #0d9488;
+      --input-bg: #eeece3;
+      --btn-stepper: #e2ded2;
+      --accent-rgb: 31, 111, 67;
+      --on-accent: #ffffff;
+    }
+
+    /* Light-theme text readability: override themed-surface text (which was written
+       as white for the dark themes) to --text-main when a light theme is active.
+       Surfaces that stay dark in every theme (rest-timer bar, #0b1120 value wells,
+       rgba(15,23,42,…) boxes, red/gold PR chips) are NOT overridden — they keep white. */
+    [data-theme="glacier"] header h1, [data-theme="ivory-chalk"] header h1,
+    [data-theme="glacier"] .day-title, [data-theme="ivory-chalk"] .day-title,
+    [data-theme="glacier"] .timer-digits, [data-theme="ivory-chalk"] .timer-digits,
+    [data-theme="glacier"] .timer-start-time, [data-theme="ivory-chalk"] .timer-start-time,
+    [data-theme="glacier"] .timer-ready-text, [data-theme="ivory-chalk"] .timer-ready-text,
+    [data-theme="glacier"] .warmup-accordion-summary, [data-theme="ivory-chalk"] .warmup-accordion-summary,
+    [data-theme="glacier"] .warmup-row-name, [data-theme="ivory-chalk"] .warmup-row-name,
+    [data-theme="glacier"] .warmup-row-sub, [data-theme="ivory-chalk"] .warmup-row-sub,
+    [data-theme="glacier"] .warmup-stepper-btn, [data-theme="ivory-chalk"] .warmup-stepper-btn,
+    [data-theme="glacier"] .exercise-name, [data-theme="ivory-chalk"] .exercise-name,
+    [data-theme="glacier"] .alt-btn.selected-alt, [data-theme="ivory-chalk"] .alt-btn.selected-alt,
+    [data-theme="glacier"] .alt-btn-name, [data-theme="ivory-chalk"] .alt-btn-name,
+    [data-theme="glacier"] .alt-score, [data-theme="ivory-chalk"] .alt-score,
+    [data-theme="glacier"] .stepper-btn, [data-theme="ivory-chalk"] .stepper-btn,
+    [data-theme="glacier"] .btn-timer-restart,
+    [data-theme="glacier"] .btn-timer-restart:hover,
+    [data-theme="ivory-chalk"] .btn-timer-restart,
+    [data-theme="ivory-chalk"] .btn-timer-restart:hover,
+    [data-theme="glacier"] .sync-tab-box h3, [data-theme="ivory-chalk"] .sync-tab-box h3,
+    [data-theme="glacier"] .builder-box h3, [data-theme="ivory-chalk"] .builder-box h3,
+    [data-theme="glacier"] .builder-name-input, [data-theme="ivory-chalk"] .builder-name-input,
+    [data-theme="glacier"] .catalog-search, [data-theme="ivory-chalk"] .catalog-search,
+    [data-theme="glacier"] .builder-row-name, [data-theme="ivory-chalk"] .builder-row-name,
+    [data-theme="glacier"] .builder-selected h3, [data-theme="ivory-chalk"] .builder-selected h3,
+    [data-theme="glacier"] .settings-toggle-title, [data-theme="ivory-chalk"] .settings-toggle-title,
+    [data-theme="glacier"] .exhist-modal-title, [data-theme="ivory-chalk"] .exhist-modal-title,
+    [data-theme="glacier"] .exhist-modal-summary strong, [data-theme="ivory-chalk"] .exhist-modal-summary strong,
+    [data-theme="glacier"] .exhist-chip:not(.pr), [data-theme="ivory-chalk"] .exhist-chip:not(.pr),
+    [data-theme="glacier"] .pr-row-name, [data-theme="ivory-chalk"] .pr-row-name,
+    [data-theme="glacier"] .pr-row-val, [data-theme="ivory-chalk"] .pr-row-val,
+    [data-theme="glacier"] .ss-row-name, [data-theme="ivory-chalk"] .ss-row-name,
+    [data-theme="glacier"] .ss-metric strong, [data-theme="ivory-chalk"] .ss-metric strong,
+    [data-theme="glacier"] .pg-card-name, [data-theme="ivory-chalk"] .pg-card-name {
+      color: var(--text-main);
+    }
+    [data-theme="glacier"] .exhist-chip:not(.pr), [data-theme="ivory-chalk"] .exhist-chip:not(.pr) {
+      color: var(--accent);
     }
 
     * {
@@ -143,7 +268,7 @@
 
     .tab-btn.active {
       background: var(--accent);
-      color: #0b1120;
+      color: var(--on-accent);
       border-color: var(--accent);
       font-weight: 700;
     }
@@ -413,7 +538,7 @@
     }
 
     .warmup-accordion-summary:active {
-      background: rgba(56, 189, 248, 0.1);
+      background: rgba(var(--accent-rgb), 0.1);
     }
 
     .warmup-accordion-content {
@@ -483,7 +608,7 @@
 
     .warmup-stepper-btn:active {
       background: var(--accent);
-      color: #0b1120;
+      color: var(--on-accent);
     }
 
     .warmup-val-display {
@@ -508,8 +633,8 @@
 
     .warmup-val-display.user-edited {
       color: #ffffff !important;
-      border-color: rgba(56, 189, 248, 0.45);
-      background: rgba(56, 189, 248, 0.08);
+      border-color: rgba(var(--accent-rgb), 0.45);
+      background: rgba(var(--accent-rgb), 0.08);
     }
 
     /* Foldable Exercise Card Details */
@@ -540,7 +665,7 @@
     }
 
     .exercise-card-summary:active {
-      background: rgba(56, 189, 248, 0.08);
+      background: rgba(var(--accent-rgb), 0.08);
     }
 
     .exercise-card-body {
@@ -594,9 +719,9 @@
     }
 
     .score-badge {
-      background: rgba(56, 189, 248, 0.15);
+      background: rgba(var(--accent-rgb), 0.15);
       color: var(--accent);
-      border: 1px solid rgba(56, 189, 248, 0.35);
+      border: 1px solid rgba(var(--accent-rgb), 0.35);
       padding: 0.15rem 0.5rem;
       border-radius: 6px;
       font-weight: 700;
@@ -612,7 +737,7 @@
       font-size: 0.775rem;
       color: var(--accent);
       font-weight: 600;
-      background: rgba(56, 189, 248, 0.07);
+      background: rgba(var(--accent-rgb), 0.07);
       padding: 0.2rem 0.5rem;
       border-radius: 5px;
       width: fit-content;
@@ -650,14 +775,14 @@
     }
 
     .alt-btn.selected-alt {
-      background: rgba(56, 189, 248, 0.12) !important;
+      background: rgba(var(--accent-rgb), 0.12) !important;
       border-color: var(--accent) !important;
       color: #ffffff !important;
       font-weight: 700 !important;
     }
 
     .alt-btn.selected-alt .alt-score-bracket {
-      color: #0b1120 !important;
+      color: var(--on-accent) !important;
       background: var(--accent) !important;
     }
 
@@ -762,7 +887,7 @@
 
     .stepper-btn:active {
       background: var(--accent);
-      color: #0b1120;
+      color: var(--on-accent);
     }
 
     .stepper-val-display {
@@ -787,8 +912,8 @@
 
     .stepper-val-display.user-edited {
       color: #ffffff !important;
-      border-color: rgba(56, 189, 248, 0.45);
-      background: rgba(56, 189, 248, 0.08);
+      border-color: rgba(var(--accent-rgb), 0.45);
+      background: rgba(var(--accent-rgb), 0.08);
     }
 
     .stepper-val-display:active {
@@ -796,8 +921,8 @@
     }
 
     .add-set-tile {
-      background: rgba(56, 189, 248, 0.06);
-      border: 1px dashed rgba(56, 189, 248, 0.4);
+      background: rgba(var(--accent-rgb), 0.06);
+      border: 1px dashed rgba(var(--accent-rgb), 0.4);
       border-radius: 10px;
       width: 60px;
       min-width: 54px;
@@ -819,7 +944,7 @@
     }
 
     .add-set-tile:active {
-      background: rgba(56, 189, 248, 0.15);
+      background: rgba(var(--accent-rgb), 0.15);
     }
 
     .add-set-plus {
@@ -890,7 +1015,7 @@
 
     .btn-sync {
       background: var(--accent);
-      color: #0b1120;
+      color: var(--on-accent);
       border: none;
       padding: 0.65rem 1rem;
       border-radius: 8px;
@@ -975,7 +1100,7 @@
     .builder-row-name { color:#fff; font-weight:600; font-size:0.9rem; }
     .builder-row-sub { color:var(--accent); font-size:0.725rem; font-weight:600; }
     .builder-add-btn {
-      background: rgba(56,189,248,0.1);
+      background: rgba(var(--accent-rgb),0.1);
       border: 1px solid var(--accent);
       color: var(--accent);
       min-width: 76px;
@@ -991,7 +1116,7 @@
     .builder-add-btn:active { transform: scale(0.96); }
     .builder-add-btn.added {
       background: var(--accent);
-      color: #0b1120;
+      color: var(--on-accent);
       border-color: var(--accent);
     }
     .builder-selected {
@@ -1012,7 +1137,7 @@
       border-radius: 8px;
     }
     .builder-selected-item-num {
-      background: var(--accent); color:#0b1120; font-weight:800;
+      background: var(--accent); color:var(--on-accent); font-weight:800;
       width:24px; height:24px; border-radius:50%;
       display:flex; align-items:center; justify-content:center;
       flex-shrink:0; font-size:0.8rem;
@@ -1030,13 +1155,13 @@
       flex-wrap:wrap; padding-top: 0.25rem;
     }
     .builder-save-btn {
-      background: var(--accent); color:#0b1120;
+      background: var(--accent); color:var(--on-accent);
       border:none; padding: 0.65rem 1.25rem;
       border-radius: 8px; font-weight:800; font-size:0.9rem;
       cursor:pointer; touch-action: manipulation; min-height: 44px;
     }
-    .tab-btn.builder-tab { background: transparent; color: var(--accent); border: 1px dashed rgba(56,189,248,0.5); font-size:1rem; padding: 0.4rem 0.85rem; }
-    .tab-btn.builder-tab.active { background: var(--accent); color:#0b1120; border-style:solid; }
+    .tab-btn.builder-tab { background: transparent; color: var(--accent); border: 1px dashed rgba(var(--accent-rgb),0.5); font-size:1rem; padding: 0.4rem 0.85rem; }
+    .tab-btn.builder-tab.active { background: var(--accent); color:var(--on-accent); border-style:solid; }
 
     /* ===== PR badges (on set tiles) ===== */
     .set-pr-badge {
@@ -1147,6 +1272,53 @@
       color: var(--text-muted);
       line-height: 1.3;
     }
+    /* ---- Theme picker ---- */
+    .theme-option {
+      position: relative;
+      background: var(--card-header);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 0.6rem 0.75rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      text-align: left;
+      transition: border-color 0.15s, transform 0.1s;
+    }
+    .theme-option:hover { transform: translateY(-1px); }
+    .theme-option.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .theme-option-name {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text-main);
+    }
+    .theme-swatch-strip {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+    }
+    .theme-swatch {
+      width: 1.35rem;
+      height: 1.35rem;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    .theme-swatch.accent {
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 8px;
+    }
+    .theme-check {
+      position: absolute;
+      top: 0.45rem;
+      right: 0.55rem;
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 800;
+      opacity: 0;
+    }
+    .theme-option.selected .theme-check { opacity: 1; }
     .rest-timer-bar::before {
       content: "⏱ Rest";
       font-size: 0.7rem;
@@ -1183,7 +1355,7 @@
     }
     .rest-preset-btn.active {
       background: var(--accent);
-      color: #0b1120;
+      color: var(--on-accent);
       border-color: transparent;
     }
     .rest-preset-btn:active { transform: scale(0.96); }
@@ -1253,7 +1425,7 @@
       padding: 0.65rem 1rem;
       font-size: 0.78rem;
       color: var(--text-muted);
-      background: rgba(56, 189, 248, 0.06);
+      background: rgba(var(--accent-rgb), 0.06);
       border-bottom: 1px solid var(--border);
     }
     .exhist-modal-summary strong { color: #fff; }
@@ -1285,8 +1457,8 @@
       gap: 0.35rem;
     }
     .exhist-chip {
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.35);
+      background: rgba(var(--accent-rgb), 0.12);
+      border: 1px solid rgba(var(--accent-rgb), 0.35);
       color: #fff;
       padding: 0.18rem 0.5rem;
       border-radius: 6px;
@@ -1419,7 +1591,7 @@
     }
     .pg-metric-btn.active {
       background: var(--accent);
-      color: #0b1120;
+      color: var(--on-accent);
       border-color: var(--accent);
     }
     .pg-card {
@@ -1502,7 +1674,7 @@
   <!-- Settings Tab -->
   <div id="settingsTabContent" class="tab-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-      <h3 style="color:#fff; font-size:1.1rem;">⚙️ Settings</h3>
+      <h3   style="color:var(--text-main); font-size:1.1rem;">⚙️ Settings</h3>
     </div>
     <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.75rem;">App preferences. Toggles are saved to this device.</p>
 
@@ -1518,12 +1690,20 @@
         </label>
       </div>
     </div>
+
+    <div class="settings-box">
+      <div class="settings-toggle-label" style="margin-bottom:0.6rem;">
+        <span class="settings-toggle-title">🎨 Theme</span>
+        <span class="settings-toggle-hint">Choose the app color theme. Saved to this device.</span>
+      </div>
+      <div id="themePicker" style="display:flex; gap:0.6rem; flex-wrap:wrap;"></div>
+    </div>
   </div>
 
   <!-- PRs Tab -->
   <div id="prsTabContent" class="tab-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-      <h3 style="color:#fff; font-size:1.1rem;">🏆 Personal Records</h3>
+      <h3   style="color:var(--text-main); font-size:1.1rem;">🏆 Personal Records</h3>
     </div>
     <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.75rem;">Your heaviest set per exercise, across all logged sessions.</p>
     <div id="prsContainer"></div>
@@ -1532,7 +1712,7 @@
   <!-- Progress Charts Tab -->
   <div id="progressTabContent" class="tab-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-      <h3 style="color:#fff; font-size:1.1rem;">📈 Progress Charts</h3>
+      <h3   style="color:var(--text-main); font-size:1.1rem;">📈 Progress Charts</h3>
     </div>
     <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.75rem;">Each exercise's heaviest loaded set and total volume by session, over time. Drawn only from your logs.</p>
     <div class="pg-metric-switch">
@@ -1545,7 +1725,7 @@
   <!-- Session Stats Tab -->
   <div id="statsTabContent" class="tab-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-      <h3 style="color:#fff; font-size:1.1rem;">📊 Session Stats</h3>
+      <h3   style="color:var(--text-main); font-size:1.1rem;">📊 Session Stats</h3>
     </div>
     <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.75rem;">Per-session sets, total volume, and best estimated 1RM (Epley). Computed from your logs.</p>
     <div id="statsContainer"></div>
@@ -1554,7 +1734,7 @@
   <!-- History Tab -->
   <div id="historyTabContent" class="tab-content">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-      <h3 style="color:#fff; font-size:1.1rem;">Workout History</h3>
+      <h3   style="color:var(--text-main); font-size:1.1rem;">Workout History</h3>
       <button class="btn-sync" style="background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:0.35rem 0.75rem;" onclick="clearWorkoutHistory()">Clear All</button>
     </div>
     <div id="logsContainer"></div>
@@ -1578,14 +1758,14 @@
       <!-- Push is automatic: every save/end/delete of a session or custom workout
            syncs to Drive. These buttons are pull-only (restore / inspect). -->
       <div style="margin-top:0.9rem; padding-top:0.9rem; border-top:1px dashed rgba(51,65,85,0.6);">
-        <div style="font-weight:700; color:#fff; font-size:0.85rem; margin-bottom:0.5rem;">📄 workout_data.json (logs + static split)</div>
+        <div   style="font-weight:700; color:var(--text-main); font-size:0.85rem; margin-bottom:0.5rem;">📄 workout_data.json (logs + static split)</div>
         <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
           <button class="btn-sync" style="background:#1e293b; color:var(--accent); border:1px solid var(--border);" onclick="fetchDataFromGDrive(false, 'workout')">📥 Pull from Drive</button>
         </div>
       </div>
 
       <div style="margin-top:0.9rem; padding-top:0.9rem; border-top:1px dashed rgba(51,65,85,0.6);">
-        <div style="font-weight:700; color:#fff; font-size:0.85rem; margin-bottom:0.5rem;">➕ custom_workouts.json (custom routines)</div>
+        <div   style="font-weight:700; color:var(--text-main); font-size:0.85rem; margin-bottom:0.5rem;">➕ custom_workouts.json (custom routines)</div>
         <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
           <button class="btn-sync" style="background:#1e293b; color:var(--accent); border:1px solid var(--border);" onclick="fetchDataFromGDrive(false, 'custom_workouts')">📥 Pull Custom</button>
           <button class="btn-sync" style="background:transparent; color:var(--text-muted); border:1px solid var(--border); font-size:0.75rem; padding:0.35rem 0.65rem;" onclick="debugVerifyCustomsOnDrive()" title="Read the file directly from Drive to diagnose">🔍 Verify On Drive</button>
@@ -3106,6 +3286,52 @@
     }
   }
 
+  // ---- Theme picker (Settings) ----
+  var THEMES = [
+    { id: 'default', name: 'Midnight Slate', accent: '#38bdf8', bg: '#0b1120', card: '#1e293b' },
+    { id: 'steel-cobalt', name: 'Steel Cobalt', accent: '#5b8def', bg: '#0e1420', card: '#182236' },
+    { id: 'graphite-mono', name: 'Graphite Mono', accent: '#e5e5ea', bg: '#111113', card: '#1c1c1f' },
+    { id: 'aurora-teal', name: 'Aurora Teal', accent: '#2dd4bf', bg: '#07131a', card: '#0e2029' },
+    { id: 'glacier', name: 'Glacier', accent: '#2563eb', bg: '#eef2f7', card: '#ffffff' },
+    { id: 'ivory-chalk', name: 'Ivory Chalk', accent: '#1f6f43', bg: '#f3f1ea', card: '#ffffff' }
+  ];
+  function getStoredTheme() {
+    try { return localStorage.getItem('appTheme') || 'default'; } catch (e) { return 'default'; }
+  }
+  function isKnownTheme(id) {
+    for (var i = 0; i < THEMES.length; i++) if (THEMES[i].id === id) return true;
+    return false;
+  }
+  function applyTheme(id) {
+    if (!isKnownTheme(id)) id = 'default';
+    try {
+      if (id === 'default') document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', id);
+      localStorage.setItem('appTheme', id);
+    } catch (e) {}
+    renderThemePicker();
+  }
+  function renderThemePicker() {
+    var host = document.getElementById('themePicker');
+    if (!host) return;
+    var current = getStoredTheme();
+    var html = '';
+    for (var i = 0; i < THEMES.length; i++) {
+      var t = THEMES[i];
+      var sel = t.id === current ? ' selected' : '';
+      var check = t.id === current ? '<span class="theme-check">✓</span>' : '';
+      html += '<button type="button" class="theme-option' + sel + '" onclick="applyTheme(\'' + t.id + '\')" title="' + t.name + '">';
+      html += check;
+      html += '<span class="theme-option-name">' + t.name + '</span>';
+      html += '<span class="theme-swatch-strip">';
+      html += '<span class="theme-swatch" style="background:' + t.bg + '"></span>';
+      html += '<span class="theme-swatch" style="background:' + t.card + '"></span>';
+      html += '<span class="theme-swatch accent" style="background:' + t.accent + '"></span>';
+      html += '</span></button>';
+    }
+    host.innerHTML = html;
+  }
+
   function fmtWeight(w) {
     return (w % 1 === 0) ? String(w) : w.toFixed(1);
   }
@@ -3932,9 +4158,9 @@
       html += '  <div class="log-header">';
       html += '    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:0.4rem;">';
       html += '      <span style="color:var(--accent); font-weight:700;">' + log.session_name + '</span>';
-      html += '      <span style="color:#fff; font-size:0.8rem;">📅 ' + log.date + (log.start_time ? ' (' + log.start_time + ')' : '') + '</span>';
+      html += '      <span style="color:var(--text-main); font-size:0.8rem;">📅 ' + log.date + (log.start_time ? ' (' + log.start_time + ')' : '') + '</span>';
       if (log.duration) {
-        html += '      <span style="background:rgba(56,189,248,0.12); color:var(--accent); border:1px solid rgba(56,189,248,0.3); padding:0.12rem 0.45rem; border-radius:4px; font-size:0.75rem; font-weight:700;">⏱️ ' + log.duration + '</span>';
+        html += '      <span style="background:rgba(var(--accent-rgb),0.12); color:var(--accent); border:1px solid rgba(var(--accent-rgb),0.3); padding:0.12rem 0.45rem; border-radius:4px; font-size:0.75rem; font-weight:700;">⏱️ ' + log.duration + '</span>';
       }
       html += '    </div>';
       html += '    <button class="btn-sync" style="background:rgba(239, 68, 68, 0.15); color:#f87171; border:1px solid rgba(239, 68, 68, 0.3); padding:0.25rem 0.6rem; font-size:0.75rem; border-radius:6px; min-height:30px;" onclick="deleteSingleLog(\'' + log.id + '\')">🗑️ Delete</button>';
@@ -3950,7 +4176,7 @@
       if (log.entries && log.entries.length > 0) {
         log.entries.forEach(function(e) {
           html += '  <div class="log-ex-row">';
-          html += '    <span style="color:#fff; font-weight:500;">' + e.exercise_name + '</span>';
+          html += '    <span style="color:var(--text-main); font-weight:500;">' + e.exercise_name + '</span>';
           html += '    <span class="log-sets-val">' + e.sets.map(function(s) { return s.result; }).join(' | ') + '</span>';
           html += '  </div>';
         });
@@ -4018,6 +4244,8 @@
   hydrateAllDaysFromStoredLogs();
   updateTabBarLockState();
   setRestTimerEnabled(isRestTimerEnabled());
+  applyTheme(getStoredTheme());
+  renderThemePicker();
 </script>
 
 </body>
