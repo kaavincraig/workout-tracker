@@ -1,6 +1,8 @@
 # Workout-Tracker — Project Context (for resuming in a new session)
 
-> **v1.5.2 (uncommitted)** — fixes the "deleting a custom on device A is not reflected on device B after Pull Custom" bug.
+> **v1.6.0 (uncommitted)** — implements PLAN #6 **Session Stats**. New 📊 tab (between + and 🏆) shows: all-time summary (workouts, total sets, total/avg volume in lbs) + per-session rows (newest first) with sets done, total volume, and best estimated 1RM of any loaded set (Epley `weight × (1 + reps/30)`), naming the exercise + set that produced it. Bodyweight / zero-rep rows excluded. Engine: `estOneRM` / `computeSessionStats(log)` / `renderStatsTab` (right after `renderPRsTab`). Read-only, computed from `workout_master_logs`, no new data/deps. Tab wired into `renderWorkoutForms` (button), the `.tab-content` div `#statsTabContent`, `switchTab` allow-list + render dispatch. Headless test: `stats_test.mjs` in the opencode scratch dir (Epley math, per-session volume/sets/1RM, BW-only exclusion, render + empty state, newest-first).
+
+> **v1.5.2 (committed, 0079349)** — fixes the "deleting a custom on device A is not reflected on device B after Pull Custom" bug.
 > Root cause: `handleCustomWorkoutsResponse` was a **union/merge** — it added drive customs but never *removed* one that's gone from Drive, so a stale local custom persisted across a pull.
 > Fix: the pull is now a true **mirror**. Before merging, any `custom` in `workout_split_plan` that is **not** present in the drive array is dropped from `workout_split_plan` AND removed from `customworkout_<id>` / `customworkout_indices` (index.html:2028 `handleCustomWorkoutsResponse`).
 > Guard: a **failed/ambiguous read never wipes local customs**. Unsuccessful reads return an *object* (`{status:…}` or the wrong file `{workout_logs:…}`), while a real customs read is a JSON **array** — the handler bails early with a warning toast on an object (so `unauthorized` / old-script responses can't nuke local data).
@@ -17,7 +19,7 @@
 >   - `markExercisePRsLive` called after every `modifyVal` edit.
 >   - `renderPRsTab` — rendered when user taps 🏆 PRs tab.
 > - **⏱ Rest Timer** — hidden by default; enable in the ⚙️ Settings tab. Once enabled it appears as a global floating bar at bottom of viewport.
->   - Fixed preset 30s / 60s / 90s / 2m / 3m via `startRestTimer(seconds)`.
+>   - Fixed preset 30s / 60s / 90s via `startRestTimer(seconds)`.
 >   - `stopRestTimer` to cancel; auto-fires haptic + 880 Hz chime on completion.
 >   - `toggleRestTimerEnabled(checked)` / `setRestTimerEnabled(bool)` / `isRestTimerEnabled()` own the bar's visibility (class `.rt-visible`), separate from the live running state (`.rt-running`).
 >   - Single global bar (not per-set) so it survives scrolling between exercises.
@@ -103,7 +105,8 @@ A personal gym workout tracker ("Sid's Workout Tracker") — a **client-only sin
 5. **Kettlebell Swing (Light)** added to the warmup list (id `w_kb_swing`, after `w_ankle_rot`) and to the master list (Hip Hinge section).
 
 ## Version history
-- **1.5.2 (uncommitted)** — Pull Custom now mirrors Drive: a custom absent from the drive array is dropped from local `split_plan` + cache (fixes deletions on one device not reaching another after pull). Guard keeps local customs safe when the pull read fails (unauthorized / wrong file).
+- **1.6.0 (uncommitted)** — #6 Session Stats: 📊 tab with all-time summary (workouts / total sets / total + avg volume) + per-session sets, volume, best est 1RM (Epley). Bodyweight excluded. `estOneRM` / `computeSessionStats` / `renderStatsTab`.
+- **1.5.2 (committed, 0079349)** — Pull Custom now mirrors Drive: a custom absent from the drive array is dropped from local `split_plan` + cache (fixes deletions on one device not reaching another after pull). Guard keeps local customs safe when the pull read fails (unauthorized / wrong file).
 - **1.5.1 (committed, 98d4d75)** — Delete custom workout: silent push + 2 s delayed Drive verify with 4-state toast + console log of the raw array. Closes `cloud-sync-delete-not-propagating`.
 - **1.5.0 (committed, c5691a2)** — PR tab (🏆), live PR badge on set tiles, rest timer bar (⏱), per-exercise history modal, 🎛️ Settings tab.
 - **1.4.0** — "Export custom_workouts.json" button in Manual Backup & Restore (`downloadCustomWorkoutsJSON()`); "✨ Auto-Save Ready" badge moved from header to footer (above version number).
@@ -172,6 +175,7 @@ Headless-DOM sanity check (jsdom in `/var/folders/t_/dkx509097s3dbl3xhpfmdq98000
 - **v1.5.0** — `markExercisePRsLive` / `clearLivePRBadges` / `fmtWeight` — right after `markExercisePRsLive`.
 - **v1.5.0** — `startRestTimer` / `stopRestTimer` / `finishRestTimer` / `fmtRestTime` — right after `clearLivePRBadges`.
 - **v1.5.0** — `openExerciseHistory` / `closeExerciseHistory` / `renderPRsTab` — right after `fmtRestTime`.
+- **v1.6.0** — `estOneRM` / `computeSessionStats` / `renderStatsTab` — right after `renderPRsTab`.
 - `downloadUpdatedWorkoutDataJSON` / `downloadCustomWorkoutsJSON` (manual backup exports) — ~2796 / ~2806
 - `lastTouchEnd` / saved-URL hydrator / initial-load — 2815+
 - **Note:** the `✨ Auto-Save Ready` badge (`#globalAutoSaveBadge` / `.save-indicator`) lives in the **footer** (above the version `<p>`), not the header — `triggerAutoSave` still swaps its text to `💾 Saving...`.

@@ -2,13 +2,13 @@
   "project": "workout-tracker",
   "path": "/Users/skhimsara/gymstuff/workout-tracker",
   "captured": "2026-09-04",
-  "app_version": "1.5.2 (committed)",
+  "app_version": "1.6.0 (uncommitted)",
   "repo": {
     "branch": "main",
     "remote": "git@github.com:kaavincraig/workout-tracker.git",
     "deploy": "https://kaavincraig.github.io/workout-tracker/",
     "author": "kaavin craig <kaavincraig@gmail.com>",
-    "head_commit": "0079349 Fix: Pull Custom mirrors deletions across devices (v1.5.2)"
+    "head_commit": "9b2634a Point context-resume.json at v1.5.2 head commit (0079349)"
   },
   "resume_instructions": [
     "Read CONTEXT.md at the repo root — it has the full architecture, invariants, data flow, bug history, dev workflow, and a line-number map of every important function.",
@@ -24,7 +24,9 @@
       "v1.5.1 (98d4d75) delete custom workout verifies on Drive: 4-state toast + console log of raw array",
       "v1.5.2 (0079349) Pull Custom mirrors deletions across devices (drop local customs absent from drive) + failed-read guard"
     ],
-    "uncommitted": [],
+    "uncommitted": [
+      "v1.6.0 (index.html) #6 Session Stats: new 📊 tab (between + and 🏆) with all-time summary (workouts / total sets / total + avg volume lbs) + per-session rows (newest first: sets, volume, best est 1RM via Epley weight×(1+reps/30) naming the exercise+set). Bodyweight/zero-rep rows excluded. Engine: estOneRM / computeSessionStats / renderStatsTab (after renderPRsTab). Wired into renderWorkoutForms, #statsTabContent div, switchTab allow-list + dispatch. App version bumped to 1.6.0. PLAN.md + CONTEXT.md updated. Headless test stats_test.mjs (scratch dir) all pass."
+    ],
     "open_bug": null,
     "resolved_bugs": [
       {
@@ -48,7 +50,8 @@
     "custom_flag": "day.custom === true distinguishes custom plans (rendered with a delete button) from static Day 1-4.",
     "hydration": "today's log -> white (user-edited); non-today log -> gray via setGrayValue().",
     "pins": { "delete_one_log": "1981", "clear_all_history": "1986" },
-    "autosave": "triggerAutoSave -> 600ms debounce -> saveSession; only fires when workout active; local save independent from cloud."
+    "autosave": "triggerAutoSave -> 600ms debounce -> saveSession; only fires when workout active; local save independent from cloud.",
+    "session_stats": "estOneRM Epley: weight×(1+reps/30). computeSessionStats(log) sums loaded sets' weight×reps into volume; best 1RM = max over loaded sets. BW (weight 0) / zero-rep rows excluded. renderStatsTab renders #statsContainer (summary grid + .ss-row rows newest first)."
   },
   "gotchas_learnt": [
     "Apps Script changes require REDeploy (Manage deployments -> New version) to the same /exec URL; save alone is not enough.",

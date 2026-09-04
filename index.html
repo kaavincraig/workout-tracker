@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0b1120">
   <title>Master Workout & Vitals Tracker</title>
-  <script>window.APP_VERSION = "1.5.2";</script>
+  <script>window.APP_VERSION = "1.6.0";</script>
   <style>
     :root {
       --bg-color: #0b1120;
@@ -1343,6 +1343,62 @@
       white-space: nowrap;
     }
     .pr-crown { color: #fbbf24; font-size: 0.9rem; margin-right: 0.2rem; }
+
+    /* Session stats tab (#6) */
+    .ss-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 0.9rem;
+    }
+    .ss-summary-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.6rem 0.7rem;
+      text-align: center;
+    }
+    .ss-summary-num {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+    .ss-summary-label {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+    .ss-table {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .ss-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: start;
+      gap: 0.6rem;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.55rem 0.8rem;
+    }
+    .ss-row-left { min-width: 0; }
+    .ss-row-name { font-weight: 700; color: #fff; font-size: 0.85rem; }
+    .ss-row-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.15rem; }
+    .ss-row-metrics {
+      display: flex;
+      flex-direction: column;
+      gap: 0.28rem;
+      align-items: flex-end;
+      white-space: nowrap;
+    }
+    .ss-metric { font-variant-numeric: tabular-nums; font-size: 0.8rem; color: var(--text-muted); }
+    .ss-metric strong { color: #fff; font-weight: 800; }
+    .ss-metric-1rm strong { color: #fbbf24; }
+    .ss-row-1rmname { font-size: 0.68rem; color: var(--text-muted); }
   </style>
 </head>
 <body>
@@ -1401,7 +1457,7 @@
       <div class="settings-row">
         <div class="settings-toggle-label">
           <span class="settings-toggle-title">⏱ Rest timer</span>
-          <span class="settings-toggle-hint">Show the floating rest timer at the bottom of the screen. Tap a preset (30s / 60s / 90s / 2m / 3m) to start a countdown between sets.</span>
+          <span class="settings-toggle-hint">Show the floating rest timer at the bottom of the screen. Tap a preset (30s / 60s / 90s) to start a countdown between sets.</span>
         </div>
         <label class="settings-toggle">
           <input type="checkbox" id="restTimerToggle" onchange="toggleRestTimerEnabled(this.checked)">
@@ -1418,6 +1474,15 @@
     </div>
     <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.75rem;">Your heaviest set per exercise, across all logged sessions.</p>
     <div id="prsContainer"></div>
+  </div>
+
+  <!-- Session Stats Tab -->
+  <div id="statsTabContent" class="tab-content">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <h3 style="color:#fff; font-size:1.1rem;">📊 Session Stats</h3>
+    </div>
+    <p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.75rem;">Per-session sets, total volume, and best estimated 1RM (Epley). Computed from your logs.</p>
+    <div id="statsContainer"></div>
   </div>
 
   <!-- History Tab -->
@@ -1493,8 +1558,6 @@
   <button type="button" class="rest-preset-btn" data-rest="30" onclick="startRestTimer(30)">30s</button>
   <button type="button" class="rest-preset-btn" data-rest="60" onclick="startRestTimer(60)">60s</button>
   <button type="button" class="rest-preset-btn" data-rest="90" onclick="startRestTimer(90)">90s</button>
-  <button type="button" class="rest-preset-btn" data-rest="120" onclick="startRestTimer(120)">2m</button>
-  <button type="button" class="rest-preset-btn" data-rest="180" onclick="startRestTimer(180)">3m</button>
   <button type="button" class="rest-preset-btn" id="restTimerStopBtn" onclick="stopRestTimer()" style="display:none; background:rgba(239,68,68,0.18); color:#f87171; border-color:rgba(239,68,68,0.35);">⏹ Stop</button>
 </div>
 
@@ -2575,6 +2638,7 @@
     });
 
     var logCount = getPersistentLogs().length;
+    tabHTML += '<button class="tab-btn" id="btn_statsTabContent" onclick="switchTab(\'statsTabContent\')" title="Session Stats">📊</button>';
     tabHTML += '<button class="tab-btn" id="btn_prsTabContent" onclick="switchTab(\'prsTabContent\')" title="Personal Records">🏆</button>';
     tabHTML += '<button class="tab-btn" id="btn_historyTabContent" onclick="switchTab(\'historyTabContent\')" title="Workout Logs (' + logCount + ')">📜</button>';
     tabHTML += '<button class="tab-btn" id="btn_syncTabContent" onclick="switchTab(\'syncTabContent\')" title="Cloud Sync">☁️</button>';
@@ -3075,9 +3139,102 @@
     }).join('') + '</div>';
   }
 
+  // ================================================================
+  // #6  SESSION STATS — per-session sets, volume, estimated 1RM (Epley)
+  // Computed on-the-fly from workout_master_logs. Bodyweight (weight 0)
+  // and BW rows do not count toward volume or 1RM. Weight is in lbs.
+  // ================================================================
+  function estOneRM(weight, reps) {
+    if (!reps || reps <= 0) return 0;
+    return weight * (1 + reps / 30);
+  }
+
+  // Per-session stats: exercises touched, sets logged, volume (lb),
+  // and the best est 1RM of any loaded set in the session.
+  function computeSessionStats(log) {
+    var totalSets = 0;
+    var volume = 0;
+    var bestTop = null; // { weight, reps, name }
+    var exNames = [];
+
+    (log.entries || []).forEach(function(entry) {
+      if (entry.exercise_name && exNames.indexOf(entry.exercise_name) === -1) {
+        exNames.push(entry.exercise_name);
+      }
+      (entry.sets || []).forEach(function(s) {
+        var p = parseSetWeightReps(s);
+        if (!p.weight || !p.reps) return; // BW / unlogged rows excluded
+        totalSets += 1;
+        volume += p.weight * p.reps;
+        var oneRM = estOneRM(p.weight, p.reps);
+        if (!bestTop || oneRM > estOneRM(bestTop.weight, bestTop.reps)) {
+          bestTop = { weight: p.weight, reps: p.reps, name: entry.exercise_name };
+        }
+      });
+    });
+
+    return {
+      date: log.date,
+      session_name: log.session_name,
+      day_id: log.day_id,
+      duration: log.duration || (log.elapsed_seconds ? formatDurationText(log.elapsed_seconds) : ''),
+      durationSeconds: (typeof log.elapsed_seconds === 'number') ? log.elapsed_seconds : 0,
+      exerciseCount: exNames.length,
+      totalSets: totalSets,
+      volume: volume,
+      bestOneRM: bestTop ? estOneRM(bestTop.weight, bestTop.reps) : 0,
+      bestTop: bestTop
+    };
+  }
+
+  function renderStatsTab() {
+    var container = document.getElementById('statsContainer');
+    if (!container) return;
+    var logs = getPersistentLogs().slice();
+    if (logs.length === 0) {
+      container.innerHTML = '<p style="padding:1rem; color:var(--text-muted); text-align:center; font-size:0.85rem;">📊 No sessions logged yet. Finish a workout to build stats.</p>';
+      return;
+    }
+
+    // newest first by date
+    logs.sort(function(a, b) { return (a.date < b.date) ? 1 : (a.date > b.date ? -1 : 0); });
+
+    var rows = logs.map(function(log) { return computeSessionStats(log); });
+    var withSets = rows.filter(function(r) { return r.totalSets > 0; });
+    var totalWorkouts = logs.length;
+    var totalVolume = rows.reduce(function(s, r) { return s + r.volume; }, 0);
+    var totalAllSets = rows.reduce(function(s, r) { return s + r.totalSets; }, 0);
+    var avgVolume = withSets.length ? Math.round(totalVolume / withSets.length) : 0;
+
+    container.innerHTML =
+      '<div class="ss-summary">' +
+      '  <div class="ss-summary-card"><div class="ss-summary-num">' + totalWorkouts + '</div><div class="ss-summary-label">Workouts</div></div>' +
+      '  <div class="ss-summary-card"><div class="ss-summary-num">' + totalAllSets + '</div><div class="ss-summary-label">Total sets</div></div>' +
+      '  <div class="ss-summary-card"><div class="ss-summary-num">' + fmtWeight(totalVolume) + ' lbs</div><div class="ss-summary-label">Total volume</div></div>' +
+      '</div>' +
+      '<div class="ss-table">' +
+        rows.map(function(r) {
+          var meta = r.session_name || (r.day_id || 'session');
+          if (r.duration) meta += ' · ' + r.duration;
+          meta += ' · ' + r.exerciseCount + ' exercise' + (r.exerciseCount === 1 ? '' : 's');
+          var right =
+            '<span class="ss-metric"><strong>' + r.totalSets + '</strong> sets</span>' +
+            '<span class="ss-metric">vol <strong>' + fmtWeight(r.volume) + ' lbs</strong></span>';
+          if (r.bestTop && r.bestOneRM > 0) {
+            right += '<span class="ss-metric ss-metric-1rm"><strong>~' + fmtWeight(r.bestOneRM) + ' lbs</strong> 1RM<div class="ss-row-1rmname">' + r.bestTop.name + ' (' + fmtWeight(r.bestTop.weight) + '×' + r.bestTop.reps + ')</div></span>';
+          }
+          return '<div class="ss-row">' +
+            '<div class="ss-row-left"><div class="ss-row-name">' + (r.date || '—') + '</div><div class="ss-row-meta">' + meta + '</div></div>' +
+            '<div class="ss-row-metrics">' + right + '</div>' +
+            '</div>';
+        }).join('') +
+      '</div>' +
+      '<p style="color:var(--text-muted); font-size:0.72rem; margin-top:0.75rem;">Avg volume per logged session: <strong>' + fmtWeight(avgVolume) + ' lbs</strong>. Est 1RM uses the Epley formula: weight × (1 + reps/30). Bodyweight sets are excluded.</p>';
+  }
+
   function switchTab(tabId) {
     var runningDayId = getActiveRunningDay();
-    if (runningDayId && tabId !== runningDayId && tabId !== 'historyTabContent' && tabId !== 'prsTabContent' && tabId !== 'syncTabContent' && tabId !== 'settingsTabContent' && tabId !== 'builderTabContent') {
+    if (runningDayId && tabId !== runningDayId && tabId !== 'historyTabContent' && tabId !== 'prsTabContent' && tabId !== 'statsTabContent' && tabId !== 'syncTabContent' && tabId !== 'settingsTabContent' && tabId !== 'builderTabContent') {
       var runningPlan = workoutDataMaster.workout_split_plan[runningDayId];
       var name = runningPlan ? runningPlan.name : runningDayId;
       showNotification('🔒 ' + name + ' is currently in progress. Tap ⏹️ End Workout before switching days.');
@@ -3103,6 +3260,7 @@
 
     if (tabId === 'historyTabContent') renderHistoryLogs();
     if (tabId === 'prsTabContent') renderPRsTab();
+    if (tabId === 'statsTabContent') renderStatsTab();
     updateTabBarLockState();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
