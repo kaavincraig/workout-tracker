@@ -2,13 +2,13 @@
   "project": "workout-tracker",
   "path": "/Users/skhimsara/gymstuff/workout-tracker",
   "captured": "2026-09-04",
-  "app_version": "1.6.0 (uncommitted)",
+  "app_version": "1.6.0 (committed)",
   "repo": {
     "branch": "main",
     "remote": "git@github.com:kaavincraig/workout-tracker.git",
     "deploy": "https://kaavincraig.github.io/workout-tracker/",
     "author": "kaavin craig <kaavincraig@gmail.com>",
-    "head_commit": "9b2634a Point context-resume.json at v1.5.2 head commit (0079349)"
+    "head_commit": "ddbd221 Add Session Stats tab (#6) and drop 2m/3m rest presets"
   },
   "resume_instructions": [
     "Read CONTEXT.md at the repo root — it has the full architecture, invariants, data flow, bug history, dev workflow, and a line-number map of every important function.",
@@ -22,11 +22,10 @@
       "v1.4.0 custom_workouts.json export button + Auto-Save Ready badge moved to footer",
       "v1.5.0 PR tab (🏆) + live PR badges + rest timer (⏱) + exercise history modal + Settings tab (🎛️)",
       "v1.5.1 (98d4d75) delete custom workout verifies on Drive: 4-state toast + console log of raw array",
-      "v1.5.2 (0079349) Pull Custom mirrors deletions across devices (drop local customs absent from drive) + failed-read guard"
+      "v1.5.2 (0079349) Pull Custom mirrors deletions across devices (drop local customs absent from drive) + failed-read guard",
+      "v1.6.0 (ddbd221) #6 Session Stats: new 📊 tab (between + and 🏆) with all-time summary (workouts / total sets / total + avg volume lbs) + per-session rows (newest first: sets, volume, best est 1RM via Epley weight×(1+reps/30) naming the exercise+set). Bodyweight/zero-rep rows excluded. Engine: estOneRM / computeSessionStats / renderStatsTab (after renderPRsTab). Rest-timer presets trimmed to 30s/60s/90s. App version bumped to 1.6.0."
     ],
-    "uncommitted": [
-      "v1.6.0 (index.html) #6 Session Stats: new 📊 tab (between + and 🏆) with all-time summary (workouts / total sets / total + avg volume lbs) + per-session rows (newest first: sets, volume, best est 1RM via Epley weight×(1+reps/30) naming the exercise+set). Bodyweight/zero-rep rows excluded. Engine: estOneRM / computeSessionStats / renderStatsTab (after renderPRsTab). Wired into renderWorkoutForms, #statsTabContent div, switchTab allow-list + dispatch. App version bumped to 1.6.0. PLAN.md + CONTEXT.md updated. Headless test stats_test.mjs (scratch dir) all pass."
-    ],
+    "uncommitted": [],
     "open_bug": null,
     "resolved_bugs": [
       {
@@ -60,9 +59,10 @@
     "jsdom is installed at /var/folders/t_/dkx509097s3dbl3xhpfmdq980000gn/T/opencode (node_modules) — use it for headless DOM tests; force process.exit() since the app's setInterval keeps the loop alive."
   ],
   "next_actions_for_next_session": [
-    "1. Decide whether to commit CONTEXT.md (and context-resume.json) — currently untracked.",
-    "2. (DONE in v1.5.1) cloud-sync-delete-not-propagating is fixed: delete now verifies on Drive with a 4-state toast + console log of the raw array. Re-test in the browser against a correctly-deployed Apps Script if the user still reports the deletion not landing.",
-    "3. After any index.html change, run the node --check snippet from CONTEXT.md before committing.",
-    "4. Bump window.APP_VERSION (index.html line 10) per change; it's displayed in the footer."
+    "1. (DONE) CONTEXT.md + context-resume.json are tracked in the repo; keep updating both after each change.",
+    "2. (DONE v1.5.1) cloud-sync-delete-not-propagating is fixed: delete now verifies on Drive with a 4-state toast + console log of the raw array. Re-test in the browser against a correctly-deployed Apps Script if the user still reports the deletion not landing.",
+    "3. Candidate next feature (PLAN Wave 2): #7 Progression suggestion (last-two-logs diff per exercise) or #5 Body weight + chart.",
+    "4. After any index.html change, run the node --check snippet from CONTEXT.md before committing.",
+    "5. Bump window.APP_VERSION (index.html line 10) per change; it's displayed in the footer."
   ]
 }
