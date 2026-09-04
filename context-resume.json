@@ -20,19 +20,20 @@
       "v1.3.0 custom workout builder + custom_workouts.json + auto-push (push buttons removed) + resolveDayId underscore fix",
       "v1.3.1 pull no longer jumps to Day 1"
     ],
-    "uncommitted": ["CONTEXT.md (untracked — commit before relying on it)"],
-    "open_bug": {
-      "id": "cloud-sync-delete-not-propagating",
-      "report": "Deleting a custom workout does not remove it from the drive-synced copy / does not persist the deletion to custom_workouts.json via cloud sync.",
-      "where": "deleteCustomWorkout() (index.html ~2636) → pushCustomsToDrive(true) → syncCurrentDataToGDrive(silent,'custom_workouts'). NOT yet root-caused; user interrupted with memory request before fix landed.",
-      "suspects": [
-        "pushCustomsToDrive(true) is silent fire-and-forget (hidden-iframe POST); a failed write (URL/key/deploy) never surfaces, so the deletion looks applied locally but is not on Drive.",
-        "getCustomWorkoutArray() reads workout_split_plan — confirm deleteCustomWorkout removed it from BOTH workout_split_plan AND the customworkout_indices/localStorage cache before the push.",
-        "handleCustomWorkoutsResponse() re-merges customs; verify it does not re-add a plan that was meant to be deleted (it filters to whatever is still in split_plan, which should be correct — but check edge case where a stale local cache is re-seeded on next load).",
-        "Apps Script redeploy: if the deployed doGet/doPost still runs old code (ignores target), writes may go to the wrong file. Use the 'Verify On Drive' button and DevTools Network (expect straight 200 JSON, NOT a 302→HTML sign-in redirect)."
-      ],
-      "note": "User previously hit a broken sync caused by a WRONG `?key=` value in the saved /exec URL. The client does NOT send key; if the URL contains key=WRONG (or the script's MY_SECRET_KEY changed), every request returns {status:'unauthorized'}. MY_SECRET_KEY currently 'MYJEY'."
-    }
+    "uncommitted": [
+      "CONTEXT.md",
+      "context-resume.json",
+      "index.html — v1.5.1 verified-on-Drive delete"
+    ],
+    "open_bug": null,
+    "resolved_bugs": [
+      {
+        "id": "cloud-sync-delete-not-propagating",
+        "fixed": "v1.5.1",
+        "how": "deleteCustomWorkout now does a silent push + a 2s-delayed verifyDriveFile('custom_workouts') GET that toasts one of 4 states (✅ removed / ❌ unauthorized → ?key=MYJEY / ❌ old-script-ignores-target / ⚠️ still-on-Drive) and logs the raw Drive array to console. This surfaces the previously-silent fire-and-forget failure modes.",
+        "note": "Root cause was a silent push (no feedback) — the code path was already correct as long as the saved /exec URL carried ?key=MYJEY. The verify makes that requirement visible instead of a silent no-op. Test: delete_verify_test.mjs in opencode scratch dir (ok / unauthorized / still-there all pass)."
+      }
+    ]
   },
   "key_mechanics": {
     "single_active_day_lock": "active_timer_<dayId> in localStorage gates editing; getActiveRunningDay() walks split plan.",
@@ -49,8 +50,8 @@
     "jsdom is installed at /var/folders/t_/dkx509097s3dbl3xhpfmdq980000gn/T/opencode (node_modules) — use it for headless DOM tests; force process.exit() since the app's setInterval keeps the loop alive."
   ],
   "next_actions_for_next_session": [
-    "1. Decide whether to commit CONTEXT.md (and add context-resume.json) — currently untracked.",
-    "2. Fix open_bug 'cloud-sync-delete-not-propagating': add non-silent feedback on delete (re-purpose the 'Verify On Drive' GET), ensure delete updates split_plan + both localStorage caches before push, and re-test against a correctly-deployed Apps Script.",
+    "1. Decide whether to commit CONTEXT.md (and context-resume.json) — currently untracked.",
+    "2. (DONE in v1.5.1) cloud-sync-delete-not-propagating is fixed: delete now verifies on Drive with a 4-state toast + console log of the raw array. Re-test in the browser against a correctly-deployed Apps Script if the user still reports the deletion not landing.",
     "3. After any index.html change, run the node --check snippet from CONTEXT.md before committing.",
     "4. Bump window.APP_VERSION (index.html line 10) per change; it's displayed in the footer."
   ]

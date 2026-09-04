@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0b1120">
   <title>Master Workout & Vitals Tracker</title>
-  <script>window.APP_VERSION = "1.5.0";</script>
+  <script>window.APP_VERSION = "1.5.1";</script>
   <style>
     :root {
       --bg-color: #0b1120;
@@ -3412,10 +3412,33 @@
     renderWorkoutForms();
     updateTabBarLockState();
     pushCustomsToDrive(true);
+    setTimeout(function() {
+      var deletedName = plan.name || id;
+      verifyDriveFile('custom_workouts', function(data) {
+        try { console.log('custom_workouts.json after delete:', JSON.stringify(data)); } catch (e) {}
+        if (data && data.status) {
+          showNotification('❌ Delete not verified: Drive responded with status “' + data.status + '”. The saved /exec URL likely needs ?key=MYJEY (or the Apps Script was redeployed). Local delete is saved — fix the URL and re-delete, or sync again.');
+          return;
+        }
+        if (data && Object.prototype.hasOwnProperty.call(data, 'workout_logs')) {
+          showNotification('❌ Delete not verified: Drive returned workout_data.json. Your deployed Apps Script is running OLD code that ignores `target`. Redeploy: Manage deployments → New version.');
+          return;
+        }
+        var arr = Array.isArray(data) ? data : [];
+        var stillThere = arr.some(function(p) { return p && p.id === id; });
+        if (stillThere) {
+          showNotification('⚠️ Delete pushed but “' + deletedName + '” is still on Drive. The write was rejected — check the saved /exec URL (must be https + correct ?key) and DevTools → Network.');
+          return;
+        }
+        showNotification('✅ Verified on Drive: “' + deletedName + '” removed. ' + arr.length + ' custom workout(s) remain in custom_workouts.json.');
+      }, function(err) {
+        showNotification('⚠️ Delete applied locally, but Drive is unreachable for verification (' + (err && err.message ? err.message : 'see DevTools') + '). The push may not have landed — re-pull and re-check later.');
+      });
+    }, 2000);
     // If we're viewing the deleted tab, move to Day 1 (since that tab no longer
     // exists). Otherwise stay where the user was (e.g. Cloud Sync / builder).
     if (prevTabId === id) switchTab('day1');
-    showNotification('🗑️ Custom workout deleted.');
+    showNotification('🗑️ Custom workout deleted — verifying on Drive in a moment…');
   }
 
   function loadCustomWorkoutPlans() {
