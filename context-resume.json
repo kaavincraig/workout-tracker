@@ -2,13 +2,13 @@
   "project": "workout-tracker",
   "path": "/Users/skhimsara/gymstuff/workout-tracker",
   "captured": "2026-09-04",
-  "app_version": "1.5.2 (uncommitted)",
+  "app_version": "1.5.2 (committed)",
   "repo": {
     "branch": "main",
     "remote": "git@github.com:kaavincraig/workout-tracker.git",
     "deploy": "https://kaavincraig.github.io/workout-tracker/",
     "author": "kaavin craig <kaavincraig@gmail.com>",
-    "head_commit": "98d4d75 Add verified-on-Drive check to custom workout delete (v1.5.1)"
+    "head_commit": "0079349 Fix: Pull Custom mirrors deletions across devices (v1.5.2)"
   },
   "resume_instructions": [
     "Read CONTEXT.md at the repo root — it has the full architecture, invariants, data flow, bug history, dev workflow, and a line-number map of every important function.",
@@ -21,12 +21,10 @@
       "v1.3.1 pull no longer jumps to Day 1",
       "v1.4.0 custom_workouts.json export button + Auto-Save Ready badge moved to footer",
       "v1.5.0 PR tab (🏆) + live PR badges + rest timer (⏱) + exercise history modal + Settings tab (🎛️)",
-      "v1.5.1 (98d4d75) delete custom workout verifies on Drive: 4-state toast + console log of raw array"
+      "v1.5.1 (98d4d75) delete custom workout verifies on Drive: 4-state toast + console log of raw array",
+      "v1.5.2 (0079349) Pull Custom mirrors deletions across devices (drop local customs absent from drive) + failed-read guard"
     ],
-    "uncommitted": [
-      "index.html — v1.5.2 Pull Custom mirrors deletions",
-      "context files (CONTEXT.md, context-resume.json)"
-    ],
+    "uncommitted": [],
     "open_bug": null,
     "resolved_bugs": [
       {
